@@ -38,7 +38,12 @@ Detectors and Associated Equipment}
 
 
 \begin{abstract}
-%% Text of abstract
+In this work we introduce the application of convolutional autoencoder neural networks to the analysis of two-dimensional projections of particle tracks from a resonant proton scattering experiment on ${}^{46}$Ar. 
+The data we analyze were recorded by an active target time-projection chamber (AT-TPC). Machine learning presents an interesting avenue for researchers operating an AT-TPC, as traditional analysis methods of AT-TPC data are both computationally expensive and fit all particle tracks against the event type of interest. The latter presents a considerable challenge when the space of reactions is not known prior to the analysis. 
+
+We explore the performance of the autoencoder neural networks and a pre-trained VGG16 \cite{Simonyan2014} convolutional neural network on two tasks: a semi-supervised classification task and the unsupervised clustering of particle tracks. On the semi-supervised task, we find that a logistic regression classifier trained on small labelled subsets of the latent space of these models perform very well. On simulated data these classifiers achieve an $f1$ score \cite{Chinchor1992} of $f1>0.95$. The VGG16 latent classifier achieves this result with as few as $N=100$ samples, as does the convolutional autoencoder when trained on the VGG16 representations of the particle tracks. On real data, pre-processed with noise filtering, the same models achieve an $f1>0.7$. For unfiltered real data the models achieve an $f1$ value larger than $0.6$. Both of the previous results were found with the classifiers trained on $N=100$ samples. Furthermore, we found that the autoencoder model reduces the variability in the identification of proton events by $64\%$ from the benchmark logistic regression classifier trained on the VGG16 latent space on real experimental data. 
+
+On the clustering task, we found that a $K$-means algorithm applied to the simulated data in the VGG16 latent space forms almost perfect clusters, with an adjusted rand index \cite{Hubert1985} ($ARI$) $ > 0.8$.  Additionally, the VGG16+K-means approach finds high purity clusters of proton events for real experimental data. We also explore the application of neural networks to clustering by implementing a mixture of autoencoders algorithm. With this model we improved clustering performance on the real experimental data from an $ARI = 0.17$ to an $ARI = 0.40$. However, the neural network clustering suffers from stability issues necessitating further investigations into this approach. 
 
 \end{abstract}
 
