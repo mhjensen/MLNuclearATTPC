@@ -75,8 +75,39 @@ On the clustering task, we found that a $K$-means algorithm applied to the simul
 \section{Introduction}\label{sec:intro}
 
 \section{Methods}\label{sec:methods}
+\subsection{Why machine learning}
 
+\begin{itemize}
+    \item Traditional MC methods fall short in two principal ways:
+    \begin{itemize}
+        \item The computational cost per event is too large given the size of the data-sets
+        \item The broken tracks, noisy environment creates bad fit statistics for otherwise useful events. End result is $f1 \sim 0.7 $
+    \end{itemize}
+\end{itemize}
+
+\subsection{Machine Learning}
+
+\begin{itemize}
+    \item Reiterate the aim of unsupervised  clustering of events.
+    \item Challenges from a machine learning perspective. 
+    \begin{itemize}
+        \item Supervised vs. Unsupervised learning
+        \item Traditional unupervised - distances in high dimensional spaces etc. 
+    \end{itemize}
+    \item Digression here to explain some ML concepts? Link back to Conv part of Michelles paper? 
+    \item Opportunities presented by: 
+    \begin{itemize}
+        \item Transfer learning (train on VGG use on AT-TPC)
+        \item Compression is understanding (leverage autoencoders) 
+    \end{itemize}
+    \item Building on Kuchera et. al we investigate the VGG16 networks application. 
+    \item Novel contribution by applying clustering autoencoder networks. 
+\end{itemize}
 \section{Results and Discussions}\label{sec:results}
+
+\subsection{Transfer learning}
+
+\subsection{Autoencoder clustering}
 
 \section{Conclusions and Perspectives}\label{sec{conclusion}
 

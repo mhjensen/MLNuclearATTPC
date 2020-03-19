@@ -1,0 +1,13 @@
+\chapter{Clustering of AT-TPC events}\label{chap:clustering}
+
+The principal challenge in the AT-TPC experiments that we are trying to solve is the reliance on labelled samples in the analysis as future experiments may not have as visually dissimilar reaction products  as we observe in the ${}^{46}$Ar experiment.  The  ${}^{46}$Ar experiment does, however, provide a useful example where we can then explore unsupervised techniques. In this chapter, we explore the application of clustering techniques to events represented in latent spaces. 
+
+We begin by exploring a naive K-means approach on the latent space of a pre-trained network. Subsequently, we investigate other clustering methods and two autoencoder based clustering algorithms, as outlined in section \ref{sec:deep_clustering}.
+
+This chapter builds on the previous results from semi-supervised classification. We observe that we can construct high-quality latent spaces. These high-quality spaces facilitate an investigation of clustering techniques. 
+
+The approach for clustering of events is different from the semi-supervised approach in two meaningful ways. First, it is a harder task, as we will demonstrate. The clustering task thus necessitates a more exploratory approach to the problem. Second, as a consequence of the challenge, the focus will be a bit different than for the semi-supervised approach. We will still utilize the same architectures and models starting with a search over the parameter space over which we measure the performance using the adjusted rand score (ARS) and accuracy defined in section \ref{sec:unsupervised_perf} and \ref{sec:supervised_perf}, respectively.
+
+As with chapter  \ref{chap:classification} where we explored the semi-supervised results, we begin this chapter by considering the VGG16 pre-trained model as a benchmark.
+
+Lastly, we note that the focus of this work is mainly on discovering possible avenues for further research. This focus requires a broad scan of possible avenues rather than a rigorous analysis of one specific model.
