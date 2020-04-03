@@ -143,7 +143,88 @@ Because TPCs produce 3-dimensional images of charged particle tracks, the event 
     \end{itemize}
 \end{itemize}
 
-\subsection{Machine Learning}
+\subsection{Data}
+ In this section we give a brief overview of the data, for a more in-depth consideration we refer to \cite{Mittig2015}, \cite{Suzuki2012} and  \cite{Bradt2017a}. 
+
+In this thesis we will explore the machine learning algorithms described in chapters \ref{ch:ml} and \ref{ch:autoencoder} on three datasets from the AT-TPC, listed in table \ref{tab:datasets}. The simulated data will serve as a baseline for performance, while the filtered and full data are real records from the ${}^{46}$Ar experiment. Each of these datasets have different distributions of the constituent classes. We list these differences in table \ref{tab:class_distr}. The filtered data differs from the full dataset as it has some post-processing applied to remove noise. This is not the case for the full data. The details of the post-processing are given in later sections. First, we consider the pipeline from raw data to images that the algorithms described in chapter \ref{ch:autoencoder} can process. 
+
+\begin{table}
+\centering
+\caption{Descriptions of number of events in the data used for analysis in this thesis. In principle we can simulate infinite data, but it is both quite simple and not very interesting outside a case for a proof-of-concept}\label{tab:datasets}
+\begin{tabular}{lccc}
+\toprule
+{} & Simulated & Full & Filtered \\
+\midrule
+Total &  $8000$ & $51891$ & $49169$ \\
+labelled & $2400$ & $1774$ &  $1582$ \\ 
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}
+\centering
+\caption{Event class percentages for each of the datasets used in the analysis conducted in this thesis. The decrease in the "other" class of events from full to filtered data owes to the thresholding of events. If an event contains fewer than $20$ data-points it is discarded}\label{tab:class_distr}
+\begin{tabular}{lccc}
+\toprule
+{} & Simulated & Full & Filtered \\
+\midrule
+$\%$ Proton & $50$ & $25.3$ & $27.6$ \\ 
+$\%$ Carbon & $50$ & $12.0$ & $11.9$ \\
+$\%$ Other & $0$ & $62.8$ & $60.1$ \\
+\end{tabular}
+\end{table}
+
+\subsection{Data processing}
+
+Our data processing pipeline begins with localized point-cloud data in the two-dimensional detector coordinate system, with one time dimension and a corresponding charge measurement. The charge and time measurement are extracted as the peak of this signal over the event, resulting in a maximum of one measurement per pad in the sensor plane. The events range from fairly sparse $< 10^2$ records to being very populated, depending on where in the volume the reaction occurs as well as other noise-generating factors. We centre the charge data to values $>1$ by adding the lowest occurring record in the run and apply a log-transform to get values in $\R^+$. Subsequently, we scale by the maximum value in the run to get charge data in the interval $[0, 1]$. Lastly, the transformed charge data is saved in a two-dimensional $128px\, \times \,128px$ array using the \lstinline{matplotlib} package provided in the \lstinline{Python} programing language \cite{matplotlib}. The choice of scaling was made to accommodate a binary cross-entropy loss on a 2D projection, as it presumes the true values to be bounded as probabilities.
+
+We will begin by considering the simulated events, followed by subsequent considerations of the full and filtered experimental data.
+
+\subsection{Simulated \texorpdfstring{${}^{46}$Ar}{46Ar}  events}\label{sec:data_sim}
+
+The simulated AT-TPC tracks were simulated with the \lstinline{pytpc} package developed by \citet{Bradt2017a}. Using the same parameters as for the ${}^{46}$Ar$(p, p)$ experiment, a small set of $N=4000$ events were generated per class, as well as a larger set of $N=40000$ events per class. The events are generated as point-clouds, consisting of position data on the x-y plane, a time-stamp and an associated charge value. These point-clouds are transformed into pure x-y projections with charge intensity for the analysis in this thesis using the pipeline described in the previous section. 
+
+More formally the events are originally composed of peak-only 4-tuples of $e_i = (x_i, y_i, t_i, c_i)$. The peak-only designation indicates that we use the recorded peak amplitude on each pad, the tuples then correspond to pads that recorded a signal for that event. Each event is then a set of these four-tuples: $\epsilon_j = \{e_i\}$ creating a track in three-dimensional space. 
+
+To emulate the real-data case, we set a subset of the simulated data to be labelled and treat the rest as unlabelled data. We chose this partition to be $15\%$ of each class. We denote this subset and its associated labels as $\gamma_L=(\boldsymbol{X}_L, \boldsymbol{y}_L)$, the entire dataset which we will denote as $\boldsymbol{X}_F$. To clarify, please note that $\boldsymbol{X}_L \subset \boldsymbol{X}_F$.
+
+We display two simulated events in figure \ref{fig:sim_samples}. The top row illustrates a proton-event, and the bottom a carbon-event. 
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{plots/display_eventssimulated.pdf}
+\caption[Displaying simulated events in 2D and 3D]{Two- and three-dimensional representations of two events from a simulated ${}^{46}$Ar experiment. Each row is one event in two projections, where the color intensity of each point indicates higher charge values recorded by the detector.}\label{fig:sim_samples}
+\end{figure}
+
+
+\subsection{Full \texorpdfstring{${}^{46}$Ar}{46Ar}  events}\label{sec:data_real}
+
+The events analyzed in this section were retrieved from the ${}^{46}$Ar resonant proton scattering experiment recorded with the AT-TPC. 
+
+The sensor plane in the AT-TPC is very sensitive, as such there is substantial noise in the ${}^{46}$Ar data. The noise can be attributed to structural noise from electronics cross-talk, and possible interactions with cosmic background radiation, as well as other sources of charged particles. Part of the challenge for this data then comes from understanding of the physics of the major contributing factors to this noise. 
+
+We display two different events from the ${}^{46}$Ar experiment in figure \ref{fig:samples}. The top row illustrates an event with a large fraction of noise, while the bottom row shows an event nearly devoid of noise. The very clear spiral structure of the bottom row indicates that this is a proton-event.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{plots/display_eventsfull_.pdf}
+\caption[Displaying un-filtered events in 2D and 3D]{Two- and three-dimensional representations of two events from the ${}^{46}$Ar experiment. Each row is one event in two projections, where the color intensity of each point indicates higher charge values recorded by the detector.}\label{fig:samples}
+\end{figure}
+
+\subsection{Filtered \texorpdfstring{${}^{46}$Ar}{46Ar} events}\label{sec:filtered}
+
+As we saw in the previous section, the detector picks up a significant amount of noise. We split the noise broadly in two categories,  one being random-uncorrelated noise and the second is structured noise. The former can be quite trivially removed with a nearest-neighbour algorithm that checks if a point in the event is close to any other. To remove the correlated noise, researchers at the NSCL developed an algorithm based on the Hough transform \cite{Newman1972}. This transformation is a common technique in computer vision, used to identify common geometric shapes like lines and circles. Essentially, the algorithm draws many lines (of whatever desired geometry) through each data-point and checks whether these lines intersect with points in the dataset. Locations in parameter space that generate many intersections then become bright spots, allowing us to filter away points that are not close to these points. These algorithms remove a large amount of the unstructured noise and are computationally rather cheap.
+
+We illustrate two filtered events in figure \ref{fig:samples_filtered}. These are the same events as shown in figure \ref{fig:samples}, but with the Houghes' and nearest neighbours filtering applied. 
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.9\textwidth, height=9cm]{plots/display_eventsclean_.pdf}
+\caption[Displaying filtered events in 2D and 3D]{Two- and three-dimensional representations of two events from the ${}^{46}$Ar experiment. Each row is one event in two projections, where the lightness of each point indicates higher charge values. These events have been filtered with a nearest neighbors algorithm and an algorithm based on the Hough transform, described in section \ref{sec:filtered}}\label{fig:samples_filtered}
+\end{figure}
+
+
+\section{Machine Learning Methods}
 
 \begin{itemize}
     \item Reiterate the aim of unsupervised  clustering of events.
@@ -173,7 +254,7 @@ The VGG16 network is one of six analogous networks proposed by \citet{Simonyan20
 
 \subsubsection{Deep clustering: Mixture of autoencoders}\label{sec:mixae}
 
-Another way of representing the clusters is by having multiple latent spaces representing the underlying manifolds that describe each class. This is the central idea in the Mixture of autoencoders (MIXAE) algorithm, introduced by  \cite{Zhang}. To ensure that each autoencoder represents a cluster, we attach a soft-max classifier to the set of latent samples. Recall from equation \ref{eq:softmax} that the soft-max function transforms a network output to a prediction of relative confidences. This classifier assigns a cluster to each autoencoder, coupling the latent space and the reconstructions. The soft-max classifier is trained to output cluster probabilities and penalized for collapsing to assigning one cluster only. The remaining task is then to connect the cluster assignments to the autoencoder reconstructions. This is achieved by multiplying by the cluster confidence with the reconstruction error of each autoencoder.
+\todo{re-word the intro-sentences} Another way of representing the clusters is by having multiple latent spaces representing the underlying manifolds that describe each class. This is the central idea in the Mixture of autoencoders (MIXAE) algorithm, introduced by  \cite{Zhang}. To ensure that each autoencoder represents a cluster, we attach a soft-max classifier to the set of latent samples. Recall from equation \ref{eq:softmax} that the soft-max function transforms a network output to a prediction of relative confidences. This classifier assigns a cluster to each autoencoder, coupling the latent space and the reconstructions. The soft-max classifier is trained to output cluster probabilities and penalized for collapsing to assigning one cluster only. The remaining task is then to connect the cluster assignments to the autoencoder reconstructions. This is achieved by multiplying by the cluster confidence with the reconstruction error of each autoencoder.
 
 \begin{figure}[tb]
 	\centering
