@@ -133,10 +133,18 @@ Because TPCs produce 3-dimensional images of charged particle tracks, the event 
 \section{Experimental Details} 
 The goal of the experiment was to measure the evolution of the elastic and inelastic cross sections between $^{46}$Ar and protons as a function of energy (also called excitation function), and observe resonances in the composite system $^{47}$K that correspond to analog states in the nucleus $^{47}$Ar. Spectroscopic information can then be obtained from the shape and amplitude of the observed resonances \cite{Bradt2018}. 
 The experiment was performed at the National Superconducting Cyclotron Facility (NSCL) where a $^{46}$Ar beam was produced via fragmentation of a $^{48}$Ca beam on a $^9$Be target at about 140 MeV/u. The $^{46}$Ar isotopes were then filtered, thermalized, and finally re-accelerated to 4.6 MeV/u by a linear accelerator. This scheme was used to produce a low emittance beam necessary to guarantee a good energy resolution in the excitation function. Because of the energy loss of the $^{46}$Ar beam particles as they traverse the target gas volume, the position of the reaction vertex along the beam axis is directly related to the energy at which the reaction occurs. This allows the AT-TPC to measure the excitation function over a wide range of energies from a single beam energy.
+
+The detector was placed inside the bore of a MRI solenoid energized to about 2 Tesla. This axial magnetic field served the purpose of bending the trajectories of the recoil particles in order to i) increase their length and ii) provide a measurement of their bending radius, directly related to their magnetic rigidity. Because the recoil particles travel in gas, they slow down and eventually stop, therefore their trajectories are described by 3-dimensional spirals (see \cite{Bradt2017}). One of the difficulties encountered in the analysis is that the shape of these spirals does not have any analytical form because it follows the energy-loss profile of the particles. It therefore needs to be simulated via an integration, which is numerically costly. Other difficulties are related to several experimental effects that deteriorate the quality of the data, namely saturation and cross-talk effects, as well as random noise. 
+
+The method used in \cite{Bradt2018} to analyze the data followed a 3-phase sequence: cleaning, filtering and fitting. Traditional methods were used to perform each of these tasks, and ultimately extract the scientific information, but there were severe limitations and high computational costs that would have become prohibitive had the data set been larger by an order of magnitude.
+\todo{Should I give some details about how the 3 tasks were performed?}
+
 \section{Methods}\label{sec:methods}
 
 \subsection{Classifying  events} 
-Brute force serving as motivation for why we do unsupervised learning.
+\todo{Brute force serving as motivation for why we do unsupervised learning.}
+The filtering task relied on a set of $\chi^2$ distributions based on different criteria, however there was no easy way to quantify the effectiveness of the event selection from the thresholds applied to these distributions. In addition, the filtering task produced a binary result only, ``good" or ``bad", while the data clearly contained more classes of events, if only because of the presence of carbon in the target (from the isobutane gas).
+
 \subsection{Why machine learning}
 
 \begin{itemize}
