@@ -143,7 +143,7 @@ The method used in \cite{Bradt2018} to analyze the data followed a 3-phase seque
 
 \subsection{Classifying  events} 
 \todo{Brute force serving as motivation for why we do unsupervised learning.}
-The filtering task relied on a set of $\chi^2$ distributions based on different criteria, however there was no easy way to quantify the effectiveness of the event selection from the thresholds applied to these distributions. In addition, the filtering task produced a binary result only, ``good" or ``bad", while the data clearly contained more classes of events, if only because of the presence of carbon in the target (from the isobutane gas).
+The filtering task relied on a set of $\chi^2$ distributions based on different criteria, however there was no easy way to quantify the effectiveness of the event selection from the thresholds applied to these distributions. In addition, the filtering task produced a binary result only, "good" or "bad", while the data clearly contained more classes of events, if only because of the presence of carbon in the target (from the isobutane gas). In a broader perspective, an unsupervised classification algorithm would offer the possibility to "discover" rare events not anticipated (or overlooked) by the physicist. From a practical point of view, compared to supervised learning, it also avoids the necessary labeling task of the learning set events, which is error prone and time consuming.
 
 \subsection{Why machine learning}
 
@@ -154,6 +154,8 @@ The filtering task relied on a set of $\chi^2$ distributions based on different 
         \item The broken tracks, noisy environment creates bad fit statistics for otherwise useful events. End result is $f1 \sim 0.7 $
     \end{itemize}
 \end{itemize}
+
+The $\chi^2$ approach used in the traditional analysis performed on the $^{46}$Ar data is very expensive computationally, because it involves the simulation of thousands of tracks for each recorded event, that need to be performed during the Monte-Carlo fitting sequence. Even though the reaction of interest in the $^{46}$Ar experiment had the largest cross section (elastic scattering), the sheer number of events to analyse (in the hundreds of thousands) necessitated the use of parallel processing on a high performance computer cluster. In the case of an experiment where the reaction of interest would represent less than a few percents of the total cross section, this procedure would become highly inefficient and prohibitive. Most of the CPU time would be spent on simulating events that are not of interest. A ML algorithm able to classify the data without a priori knowledge of the different types of events would increase the efficiency of the analysis tremendously, by concentrating the fitting efforts on events of interest only.
 
 \subsection{Data}
  In this section we give a brief overview of the data, for a more in-depth consideration we refer to \cite{Mittig2015}, \cite{Suzuki2012} and  \cite{Bradt2017a}. 
