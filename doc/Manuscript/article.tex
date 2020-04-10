@@ -261,59 +261,33 @@ We illustrate two filtered events in figure \ref{fig:samples_filtered}. These ar
 
 \subsubsection{Pre-trained neural networks}
 
-Following the previous work of \citet{Kuchera2019}, we will consider representations of our events through the lens of a pre-trained network. In the Machine Learning community, it is not uncommon to publish packaged models with fitted parameters from image recognition contests. These models are trained on datasets with millions of images and classify between hundreds of distinct classes; one such is the imagenet dataset. In their work, \citet{Kuchera2019} use the VGG16 architecture trained on imagenet to classify AT-TPC events very successfully.  We will build on the understanding of using these pre-trained networks in event classification by using VGG16 as an element in the end-to-end training of autoencoders. 
+To affect the clustering of AT-TPC events, we first considered the results from \citet{Kuchera2019}. In their work, the authors build a very successful classification approach using a pre-trained neural network to preprocess the events. From their results, it is clear that the pre-trained network captures salient information about the difference in event types. Our approach builds on previous work by considering the output from the pre-trained model as a representation on which we perform clustering with a simple K-means algorithm. 
 
-The VGG16 network is one of six analogous networks proposed by \citet{Simonyan2014}, and they were runners up in the ISLVRC(ImageNet large scale visual recognition competition) of 2014 \cite{Russakovsky2015}. The network architectures are fairly simple; for VGG16, there are sixteen layers in the network. The first thirteen of which are convolutional layers with exclusively $3 \times 3$ kernels. The choice of the kernel size is based on the fact that a stacked $3 \times 3$ kernel is equivalent to larger kernels in terms of the receptive field of the output. Three $3 \times 3$ kernels with stride $1$ have a $7 \times 7$ receptive field, but the larger kernel has $81\%$ more parameters and only one non-linearity \cite{Simonyan2014}. Stacking the smaller kernels then contributes to a lower computational cost. Additionally, there is a regularizing effect from the lowered number of parameters and increased explanatory power from the additional non-linearities. The full architecture is detailed in appendix \ref{tab:vgg}.
+In the Machine Learning community, it is not uncommon to publish packaged models with fitted parameters from image recognition contests. These models are trained on datasets with millions of images and classify between hundreds of distinct classes; one such is the imagenet dataset. In their work, \citet{Kuchera2019} used the VGG16 architecture trained on imagenet to classify AT-TPC. Following on their work we will be applying the same VGG16 model to the clustering task. 
 
+The VGG16 network is one of six analogous networks proposed by \citet{Simonyan2014}. They were runners up in the ISLVRC(ImageNet large scale visual recognition competition) of 2014 \cite{Russakovsky2015}, narrowly being beat by GooLeNet. The network architectures are fairly straightforward; for VGG16, there are sixteen layers in the network. The first thirteen of which are convolutional layers with exclusively $3 \times 3$ kernels. The choice of the kernel size is based on the fact that a stacked $3 \times 3$ kernel is equivalent to larger kernels in terms of the receptive field of the output. Three $3 \times 3$ kernels with stride $1$ have a $7 \times 7$ receptive field, but the larger kernel has $81\%$ more parameters and only one non-linearity \cite{Simonyan2014}. Stacking the smaller kernels then contributes to a lower computational cost. Additionally, there is a regularizing effect from the lowered number of parameters and increased explanatory power from the additional non-linearities. The full architecture is detailed in appendix \ref{tab:vgg}.
 
 \subsubsection{Deep clustering: Mixture of autoencoders}\label{sec:mixae}
 
-\todo{re-word the intro-sentences} Another way of representing the clusters is by having multiple latent spaces representing the underlying manifolds that describe each class. This is the central idea in the Mixture of autoencoders (MIXAE) algorithm, introduced by  \cite{Zhang}. To ensure that each autoencoder represents a cluster, we attach a soft-max classifier to the set of latent samples. Recall from equation \ref{eq:softmax} that the soft-max function transforms a network output to a prediction of relative confidences. This classifier assigns a cluster to each autoencoder, coupling the latent space and the reconstructions. The soft-max classifier is trained to output cluster probabilities and penalized for collapsing to assigning one cluster only. The remaining task is then to connect the cluster assignments to the autoencoder reconstructions. This is achieved by multiplying by the cluster confidence with the reconstruction error of each autoencoder.
+As an alternative to using a pre-trained model in conjunction with a clustering algorithm, we have also considered bespoke end-to-end clustering models. These models are optimized specifically to the AT-TPC data with the objective of clustering. For this paper, we considered the deep convolutional embedded clustering (DCEC) by \citet{Guo2017} as well as the mixture of autoencoders (MIXAE) method introduced by \citet{Zhang}. While we were able to reproduce the authors' results on their data, the DCEC algorithm proved unable to cluster AT-TPC in our implementation. However, this provides valuable insight as the seeds of the clusters are constructed by a K-means algorithm. This insight contrasts with our positive results from applying a pre-trained model with k-means and highlights potentially significant differences in models trained on a supervised or unsupervised objective for clustering tasks in nuclear physics. 
+
+The MIXAE algorithm clusters data by pairing a set of encoder-decoder neural networks (autoencoder) with an auxiliary assignment network: each autoencoder constructs a representation of a given event while the assignment network assigns a set of cluster probabilities to the event. As noted by \citet{Zhang}, the MIXAe model assumes that the clusters are roughly similar in volume in the data and that one has some reasonable estimate on the number of clusters present. The architecture is portrayed in figure \ref{fig:mixae}, tapered boxes denote a direction of compression in the network components. 
+
+As the MIXAE model does not have access to ground truth labels the training consists of applying simple heuristics that constitute a necessary, but not sufficient, fulfilment for a high-quality MIXAE model given the assumptions made of the model. The heuristics can be stated as: 
+\begin{enumerate}
+	\item  Given a clustering assignment to a particular autoencoders' representation that autoencoders' reconstruction should be similar to the input event. 
+	\item Within a batch of events presented to the model, there should be a spread in the clustering assignment between all clusters. 
+	\item Each clustering prediction should be as close to a strong prediction as possible, i.e. assigning high probabilities is preferable to weak assignments.
+\end{enumerate}
+
+\noindent For a more formal consideration of these heuristics see \citet{Zhang}.
 
 \begin{figure}[tb]
 	\centering
 	\includegraphics[width=\textwidth]{plots/mixae.pdf}
-	\caption[Deep convolutional embedded clustering schematic]{Schematic of a DCEC model. A sample $\hat{\boldsymbol{x}}$ is compressed to set of lower-dimensional representations $\{\boldsymbol{z}^{(i)}\}$ by $N$ autoencoders. These samples are concatenated and passed through an auxiliary assignment network that predicts a confidence of cluster belonging for each autoencoder. For further details see the text. Figure adapted from \citet{Zhang}}
+	\caption[Mixture of autoencoders schematic]{Schematic of a MIXAE model. A sample $\hat{\boldsymbol{x}}$ is compressed to set of lower-dimensional representations $\{\boldsymbol{z}^{(i)}\}$ by $N$ autoencoders. These samples are concatenated and passed through an auxiliary assignment network that predicts a confidence of cluster belonging for each autoencoder. For further details see the text. Figure adapted from \citet{Zhang}}
 	\label{fig:mixae}
 \end{figure}
-
-
-More formally let $\{\boldsymbol{z}_j^{(i)}\}^N$ be the set of $N$ latent samples from each of the $N$ auto-encoders from a single sample image $\hat{\boldsymbol{x}}^{(i)} \in \R ^{t\times v}$ with height $t$ and width $v$. Furthermore, let the soft cluster assignments be given as $\{p_j^{(i)}\}^N$ and the reconstructed samples be given as $\{\boldsymbol{x}_j^{(i)}\}$. The reconstruction loss is then the sum over each autoencoder multiplied with each cluster assignment, i.e.
-
-\begin{equation}\label{eq:mixae_reconst}
-\mathcal{L}_x = \sum_j p_j^{(i)} \mathcal{C}(\boldsymbol{x}_j^{(i)}, \hat{\boldsymbol{x}}^{(i)}),
-\end{equation}
-
-\noindent where $\mathcal{C}(\cdot)$ is a cost function like the mean squared error or a cross-entropy.
-
-We ensure that the soft cluster assignments encourage clustering by adding two terms to the total loss. The first is a simple entropy term which, when minimized, encourages the assignments to be one-hot vectors. Mathematically this loss can then be written as the entropy $S(\cdot)$ of a cluster assignment $\boldsymbol{p}$
-
-\begin{equation}\label{eq:mixae_sample}
-S(\boldsymbol{p}^{(i)})_{\text{sample}} = -\sum_j p_j^{(i)} \log p_j^{(i)}. 
-\end{equation}
-
-\noindent The last ingredient in the loss is then the term which discourages the trivial solution where only one cluster is being assigned. This loss is a batch-wise entropy term, given a mini-batch of $\beta$ samples the loss is computed as 
-
-\begin{equation}\label{eq:mixae_batch}
-\begin{split}
-S(\{\boldsymbol{p}^{(i)}\}_i)_{\text{batch}}&= \left(-\sum_j \bar{p}_j \log \bar{p}_j \right)^{-1},\\
-\bar{\boldsymbol{p}} &= \frac{1}{\beta} \sum_i ^\beta \boldsymbol{p}^{(i)} .
-\end{split}
-\end{equation}
-
-\noindent The negative exponent in equation \ref{eq:mixae_batch} owes to the fact that we want to maximize the batch-wise entropy.
-
-From equations \ref{eq:mixae_reconst}, \ref{eq:mixae_sample}, and \ref{eq:mixae_batch} we can then compose the full loss for the MIXAE model. \cite{Zhang} note that the optimization depends heavily on the weighting of the different terms and so we introduce the weighting hyperparameters $\alpha$, $\gamma$ and $\theta$, and write the total loss over a mini-batch as 
-
-\begin{equation}\label{eq:mixae_loss}
-\begin{split}
-\mathcal{L}_{\text{total}}(\{\hat{\boldsymbol{x}}^{(i)}\}^\beta_i) = \frac{1}{\beta}\sum_i \Big( &\frac{t\cdot v}{\theta} \mathcal{L}_x(\boldsymbol{p}^{(i)},\,\boldsymbol{x}^{(i)},\, \hat{\boldsymbol{x}}^{(i)} ) \\
-&+ \alpha S(\boldsymbol{p}^{(i)})_{\text{sample}} \Big) \\
-&+\gamma S(\{\boldsymbol{p}^{(i)}\}_i)_{\text{batch}}.
-\end{split}
-\end{equation}
-
-\noindent \citet{Zhang} note that this algorithm has a couple of shortcomings. The batch-entropy term encourages the cluster assignments to be uniformly distributed within the classes. However, it does have a second minimum when the assignments are all equally likely. For biased datasets with significant variations in the number of samples in each class, this can create problems for the algorithm. Additionally, the number of clusters are not dynamically computed by the algorithm but hard-coded by the researchers. This can be problematic if the number of cluster are not known prior to analysis.
 
 \section{Results and Discussions}\label{sec:results}
 The principal challenge in the AT-TPC experiments that we are trying to solve is the reliance on labelled samples in the analysis as future experiments may not have as visually dissimilar reaction products  as we observe in the ${}^{46}$Ar experiment.  The  ${}^{46}$Ar experiment does, however, provide a useful example where we can then explore unsupervised techniques. In this chapter, we explore the application of clustering techniques to events represented in latent spaces. 
