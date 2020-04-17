@@ -158,7 +158,8 @@ The filtering task relied on a set of $\chi^2$ distributions based on different 
 The $\chi^2$ approach used in the traditional analysis performed on the $^{46}$Ar data is very expensive computationally, because it involves the simulation of thousands of tracks for each recorded event, that need to be performed during the Monte-Carlo fitting sequence. Even though the reaction of interest in the $^{46}$Ar experiment had the largest cross section (elastic scattering), the sheer number of events to analyse (in the hundreds of thousands) necessitated the use of parallel processing on a high performance computer cluster. In the case of an experiment where the reaction of interest would represent less than a few percents of the total cross section, this procedure would become highly inefficient and prohibitive. Most of the CPU time would be spent on simulating events that are not of interest. A ML algorithm able to classify the data without a priori knowledge of the different types of events would increase the efficiency of the analysis tremendously, by concentrating the fitting efforts on events of interest only.
 
 \subsection{Data}
- In this section we give a brief overview of the data, for a more in-depth consideration we refer to \cite{Mittig2015}, \cite{Suzuki2012} and  \cite{Bradt2017a}. 
+\todo{equalize to square plots - shorten down (maybe look at 3d)}
+In this section we give a brief overview of the data, for a more in-depth consideration we refer to \cite{Mittig2015}, \cite{Suzuki2012} and  \cite{Bradt2017a}. 
 
 In this thesis we will explore the machine learning algorithms described in chapters \ref{ch:ml} and \ref{ch:autoencoder} on three datasets from the AT-TPC, listed in table \ref{tab:datasets}. The simulated data will serve as a baseline for performance, while the filtered and full data are real records from the ${}^{46}$Ar experiment. Each of these datasets have different distributions of the constituent classes. We list these differences in table \ref{tab:class_distr}. The filtered data differs from the full dataset as it has some post-processing applied to remove noise. This is not the case for the full data. The details of the post-processing are given in later sections. First, we consider the pipeline from raw data to images that the algorithms described in chapter \ref{ch:autoencoder} can process. 
 
@@ -188,7 +189,7 @@ $\%$ Other & $0$ & $62.8$ & $60.1$ \\
 \end{tabular}
 \end{table}
 
-\subsection{Data processing}
+\section{Data processing}
 
 Our data processing pipeline begins with localized point-cloud data in the two-dimensional detector coordinate system, with one time dimension and a corresponding charge measurement. The charge and time measurement are extracted as the peak of this signal over the event, resulting in a maximum of one measurement per pad in the sensor plane. The events range from fairly sparse $< 10^2$ records to being very populated, depending on where in the volume the reaction occurs as well as other noise-generating factors. We centre the charge data to values $>1$ by adding the lowest occurring record in the run and apply a log-transform to get values in $\R^+$. Subsequently, we scale by the maximum value in the run to get charge data in the interval $[0, 1]$. Lastly, the transformed charge data is saved in a two-dimensional $128px\, \times \,128px$ array using the \lstinline{matplotlib} package provided in the \lstinline{Python} programing language \cite{matplotlib}. The choice of scaling was made to accommodate a binary cross-entropy loss on a 2D projection, as it presumes the true values to be bounded as probabilities.
 
@@ -259,15 +260,25 @@ We illustrate two filtered events in figure \ref{fig:samples_filtered}. These ar
     \item Novel contribution by applying clustering autoencoder networks. 
 \end{itemize}
 
-\subsubsection{Pre-trained neural networks}
+\subsection{Pre-trained neural networks}
 
-To affect the clustering of AT-TPC events, we first considered the results from \citet{Kuchera2019}. In their work, the authors build a very successful classification approach using a pre-trained neural network to preprocess the events. From their results, it is clear that the pre-trained network captures salient information about the difference in event types. Our approach builds on previous work by considering the output from the pre-trained model as a representation on which we perform clustering with a simple K-means algorithm. 
+To affect the clustering of AT-TPC events, we first considered the results from \citet{Kuchera2019}. In their work, the authors consider the segmentation of reactions in the $^{46}$Ar experiment as a classification problem. Given ground-truth labels, they apply convolutional neural networks (CNN) to the problem. Using a CNN was in large part inspired by results from high-energy physics and, in particular, the work by \citet{Aurisano2016}. 
 
-In the Machine Learning community, it is not uncommon to publish packaged models with fitted parameters from image recognition contests. These models are trained on datasets with millions of images and classify between hundreds of distinct classes; one such is the imagenet dataset. In their work, \citet{Kuchera2019} used the VGG16 architecture trained on imagenet to classify AT-TPC. Following on their work we will be applying the same VGG16 model to the clustering task. 
+Using a CNN algorithm comes with the caveat that the data should be image-like. This caveat is especially stringent when applying pre-trained models to new data. For the $^{46}$Ar data we project the 3D point clouds in each event to a 2D matrix representation of the X-Y plane, summing over the Z-axis. Applying a pre-trained model is a common technique in computer science, and \citet{Kuchera2019} showed that a pre-trained CNN model outperforms bespoke models for the classification of $^{46}$Ar data. We build on the classification result in this work by using a pre-trained CNN model as a spring-board for our clustering models.
 
-The VGG16 network is one of six analogous networks proposed by \citet{Simonyan2014}. They were runners up in the ISLVRC(ImageNet large scale visual recognition competition) of 2014 \cite{Russakovsky2015}, narrowly being beat by GooLeNet. The network architectures are fairly straightforward; for VGG16, there are sixteen layers in the network. The first thirteen of which are convolutional layers with exclusively $3 \times 3$ kernels. The choice of the kernel size is based on the fact that a stacked $3 \times 3$ kernel is equivalent to larger kernels in terms of the receptive field of the output. Three $3 \times 3$ kernels with stride $1$ have a $7 \times 7$ receptive field, but the larger kernel has $81\%$ more parameters and only one non-linearity \cite{Simonyan2014}. Stacking the smaller kernels then contributes to a lower computational cost. Additionally, there is a regularizing effect from the lowered number of parameters and increased explanatory power from the additional non-linearities. The full architecture is detailed in appendix \ref{tab:vgg}.
+In the Machine Learning community, it is not uncommon to publish packaged models with fitted parameters from image recognition contests. These models are trained on datasets with millions of images and classify between hundreds of distinct classes; one such is the imagenet dataset. In their work, \citet{Kuchera2019} used the VGG16 architecture trained on imagenet to classify ${}^{46}$Ar data. In our work we also found the VGG16 architecture to capture the strongest event-separating representation for clustering purposes. 
 
-\subsubsection{Deep clustering: Mixture of autoencoders}\label{sec:mixae}
+The VGG16 network is one of six analogous networks proposed by \citet{Simonyan2014}. The network architectures are fairly straightforward; for VGG16, there are sixteen layers in the network. The first thirteen of which are convolutional layers with exclusively $3 \times 3$ kernels.  The full architecture is detailed in appendix \ref{app:vgg}.
+
+\subsubsection{Clustering on latent spaces}
+
+In contrast with the classification work by \citet{Kuchera2019}, we do not append a classifying layer to the VGG16 network given that we do not have access to the ground truth labels at training time in the clustering regime. We instead consider the output from the convolutional blocks of the VGG16 network as a representation of the events on which we will apply a clustering algorithm. 
+
+The clustering algorithm we found to give the strongest result is the K-means algorithm. This algorithm is contingent on having a distance measurement between two datapoints. We found that the standard choice of a euclidian norm on the vector differences provided the best outcomes.
+
+
+
+\subsection{Deep clustering: Mixture of autoencoders}\label{sec:mixae}
 
 As an alternative to using a pre-trained model in conjunction with a clustering algorithm, we have also considered bespoke end-to-end clustering models. These models are optimized specifically to the AT-TPC data with the objective of clustering. For this paper, we considered the deep convolutional embedded clustering (DCEC) by \citet{Guo2017} as well as the mixture of autoencoders (MIXAE) method introduced by \citet{Zhang}. While we were able to reproduce the authors' results on their data, the DCEC algorithm proved unable to cluster AT-TPC in our implementation. However, this provides valuable insight as the seeds of the clusters are constructed by a K-means algorithm. This insight contrasts with our positive results from applying a pre-trained model with k-means and highlights potentially significant differences in models trained on a supervised or unsupervised objective for clustering tasks in nuclear physics. 
 
@@ -352,6 +363,7 @@ Furthermore, we wish to characterize further the clusters presented in figure \r
 
 In addition to the results presented in this section, we performed clustering with a number of different algorithms included in the \lstinline{scikit-learn} package. None of them provided any notable differences from the K-means results or were significantly worse. Notably, the DBSCAN algorithm failed to provide any useful clustering results. We find this important as one of the significant drawbacks of K-means, and the deep clustering algorithms presented in section \ref{sec:deep_clustering}, is that they are all dependent on pre-determining the number of clusters. This is not the case for DBSCAN. 
 \subsection{Autoencoder clustering}
+\todo{look at grayscale images or colorbar with propto charge}
 
 In the previous section we demonstrated a potential for clustering of events from an AT-TPC experiment. To build on this result we will in this section explore the application of the mixture of autoencoders (MIXAE) algorithm introduced in section \ref{sec:deep_clustering}. The other algorithm introduced in section \ref{sec:deep_clustering}, deep clustering with convolutional autoencoders (DCEC), consistently collapsed to just one cluster for all datasets.
 
@@ -504,8 +516,8 @@ Lastly we wish to further investigate if there are systematic differences betwee
 \section{Conclusions and Perspectives}\label{sec{conclusion}}
 
 \appendix  
-\section{Neural network architectures}
-
+\section{VGG16}\label{app:vgg}
+The choice of the kernel size is based on the fact that a stacked $3 \times 3$ kernel is equivalent to larger kernels in terms of the receptive field of the output. Three $3 \times 3$ kernels with stride $1$ have a $7 \times 7$ receptive field, but the larger kernel has $81\%$ more parameters and only one non-linearity \cite{Simonyan2014}. Stacking the smaller kernels then contributes to a lower computational cost. Additionally, there is a regularizing effect from the lowered number of parameters and increased explanatory power from the additional non-linearities.
 \begin{table}
 \caption[vgg architectures]{Showing the details of the VGG network architectures. Network D trained on the ImageNet \cite{Russakovsky2015} dataset the network known as  VGG16 and is what we use in this thesis.}\label{tab:vgg}
 \includegraphics[width=\textwidth]{plots/vgg_architectures.png}
