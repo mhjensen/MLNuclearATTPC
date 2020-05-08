@@ -158,10 +158,6 @@ The filtering task relied on a set of $\chi^2$ distributions based on different 
 The $\chi^2$ approach used in the traditional analysis performed on the $^{46}$Ar data is very expensive computationally, because it involves the simulation of thousands of tracks for each recorded event, that need to be performed during the Monte-Carlo fitting sequence. Even though the reaction of interest in the $^{46}$Ar experiment had the largest cross section (elastic scattering), the sheer number of events to analyse (in the hundreds of thousands) necessitated the use of parallel processing on a high performance computer cluster. In the case of an experiment where the reaction of interest would represent less than a few percents of the total cross section, this procedure would become highly inefficient and prohibitive. Most of the CPU time would be spent on simulating events that are not of interest. A ML algorithm able to classify the data without a priori knowledge of the different types of events would increase the efficiency of the analysis tremendously, by concentrating the fitting efforts on events of interest only.
 
 \subsection{Data}
-\todo{equalize to square plots - shorten down (maybe look at 3d)}
-In this section we give a brief overview of the data, for a more in-depth consideration we refer to \cite{Mittig2015}, \cite{Suzuki2012} and  \cite{Bradt2017a}. 
-
-In this thesis we will explore the machine learning algorithms described in chapters \ref{ch:ml} and \ref{ch:autoencoder} on three datasets from the AT-TPC, listed in table \ref{tab:datasets}. The simulated data will serve as a baseline for performance, while the filtered and full data are real records from the ${}^{46}$Ar experiment. Each of these datasets have different distributions of the constituent classes. We list these differences in table \ref{tab:class_distr}. The filtered data differs from the full dataset as it has some post-processing applied to remove noise. This is not the case for the full data. The details of the post-processing are given in later sections. First, we consider the pipeline from raw data to images that the algorithms described in chapter \ref{ch:autoencoder} can process. 
 
 \begin{table}
 \centering
@@ -191,15 +187,22 @@ $\%$ Other & $0$ & $62.8$ & $60.1$ \\
 
 \section{Data processing}
 
-Our data processing pipeline begins with localized point-cloud data in the two-dimensional detector coordinate system, with one time dimension and a corresponding charge measurement. The charge and time measurement are extracted as the peak of this signal over the event, resulting in a maximum of one measurement per pad in the sensor plane. The events range from fairly sparse $< 10^2$ records to being very populated, depending on where in the volume the reaction occurs as well as other noise-generating factors. We centre the charge data to values $>1$ by adding the lowest occurring record in the run and apply a log-transform to get values in $\R^+$. Subsequently, we scale by the maximum value in the run to get charge data in the interval $[0, 1]$. Lastly, the transformed charge data is saved in a two-dimensional $128px\, \times \,128px$ array using the \lstinline{matplotlib} package provided in the \lstinline{Python} programing language \cite{matplotlib}. The choice of scaling was made to accommodate a binary cross-entropy loss on a 2D projection, as it presumes the true values to be bounded as probabilities.
+In this section we give a brief overview of the data, for a more in-depth consideration we refer to \cite{Mittig2015}, \cite{Suzuki2012} and  \cite{Bradt2017a}. 
 
-We will begin by considering the simulated events, followed by subsequent considerations of the full and filtered experimental data.
+The AT-TPC data we studied for this work was originally recorded as charge time-series for each pad on the micromegas.
+In this representation an event is a record of 512 time-buckets for each of the $\sim10^4$ detector pads; however, in our analysis, we represent each event as a 2D slice.
+We chose to represent the data in 2D to facilitate the use of sophisticated image-recognition machine learning models.
+The 2D representation of events was computed by viewing the event as a point cloud of peaks in the charge time-series and summing over the time-axis.
+Additionally, we log-transform and normalize the data to  the interval $[0, 1]$ for each point. The final representation for each event is a $128 \times 128$ matrix with each element ranging from $0$ to $1$.
+
+One of the significant considerations for the analysis of AT-TPC data is to inject machine learning methods for track identification at the correct point in the analysis pipeline.
+Using raw data is advantageous as it provides an unbiased view of the event, but the data volume and noise levels might be prohibitive for analysis.
+On the opposite end of the pipeline, we will incrementally add bias to the analysis the more steps we take before applying the algorithm. With the benefit being that more pre-processing improves the signal-to-noise ratio, possibly improving model performance.
+To explore this trade-off between model performance and pre-processing bias, we performed analysis on simulated, cleaned and raw events.
 
 \subsection{Simulated \texorpdfstring{${}^{46}$Ar}{46Ar}  events}\label{sec:data_sim}
 
-The simulated AT-TPC tracks were simulated with the \lstinline{pytpc} package developed by \citet{Bradt2017a}. Using the same parameters as for the ${}^{46}$Ar$(p, p)$ experiment, a small set of $N=4000$ events were generated per class, as well as a larger set of $N=40000$ events per class. The events are generated as point-clouds, consisting of position data on the x-y plane, a time-stamp and an associated charge value. These point-clouds are transformed into pure x-y projections with charge intensity for the analysis in this thesis using the pipeline described in the previous section. 
-
-More formally the events are originally composed of peak-only 4-tuples of $e_i = (x_i, y_i, t_i, c_i)$. The peak-only designation indicates that we use the recorded peak amplitude on each pad, the tuples then correspond to pads that recorded a signal for that event. Each event is then a set of these four-tuples: $\epsilon_j = \{e_i\}$ creating a track in three-dimensional space. 
+The simulated AT-TPC tracks were simulated with the \lstinline{pytpc} package developed by \citet{Bradt2017a}. Using the same parameters as for the ${}^{46}$Ar$(p, p)$ experiment, a small set of $N=4000$ events were generated per class, as well as a larger set of $N=40000$ events per class. 
 
 To emulate the real-data case, we set a subset of the simulated data to be labelled and treat the rest as unlabelled data. We chose this partition to be $15\%$ of each class. We denote this subset and its associated labels as $\gamma_L=(\boldsymbol{X}_L, \boldsymbol{y}_L)$, the entire dataset which we will denote as $\boldsymbol{X}_F$. To clarify, please note that $\boldsymbol{X}_L \subset \boldsymbol{X}_F$.
 
@@ -275,7 +278,7 @@ The VGG16 network is one of six analogous networks proposed by \citet{Simonyan20
 In contrast with the classification work by \citet{Kuchera2019}, we do not append a classifying layer to the VGG16 network given that we do not have access to the ground truth labels at training time in the clustering regime. We instead consider the output from the convolutional blocks of the VGG16 network as a representation of the events on which we will apply a clustering algorithm. 
 
 The clustering algorithm we found to give the strongest result is the K-means algorithm. This algorithm is contingent on having a distance measurement between two datapoints. We found that the standard choice of a euclidian norm on the vector differences provided the best outcomes.
-
+https://www.overleaf.com/project/5e73f990fcbd310001959b01
 
 
 \subsection{Deep clustering: Mixture of autoencoders}\label{sec:mixae}
