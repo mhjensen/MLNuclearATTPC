@@ -1,3 +1,4 @@
+%robert was here sup robert -MIchelle was also here  
 \documentclass[preprint,12pt]{elsarticle}
 \usepackage{amssymb}
 \usepackage{amsmath}
@@ -83,10 +84,6 @@ Detectors and Associated Equipment}
 \ead{hjensen@frib.msu.edu}
 \ead[url]{http://mhjgit.github.io/info/doc/web/}
 
-% MICHELLE IS HEREEEEEEE
-
-% Hi!! :) :) :) I am typing here
-% Hi this is morten
 
 \begin{abstract}
 In this work we introduce the application of convolutional autoencoder neural networks to the analysis of two-dimensional projections of particle tracks from a resonant proton scattering experiment on ${}^{46}$Ar. 
@@ -219,13 +216,14 @@ We display two simulated events in figure \ref{fig:sim_samples}. The top row ill
 \end{figure}
 
 
-\subsection{Full \texorpdfstring{${}^{46}$Ar}{46Ar}  events}\label{sec:data_real}
+\subsection{Raw \texorpdfstring{${}^{46}$Ar}{46Ar}  events}\label{sec:data_real}
 
 The events analyzed in this section were retrieved from the ${}^{46}$Ar resonant proton scattering experiment recorded with the AT-TPC. 
+While we denote these events as raw, it is important to not that what we mean is a raw 2D representation of peak-only events.
 
-The sensor plane in the AT-TPC is very sensitive, as such there is substantial noise in the ${}^{46}$Ar data. The noise can be attributed to structural noise from electronics cross-talk, and possible interactions with cosmic background radiation, as well as other sources of charged particles. Part of the challenge for this data then comes from understanding of the physics of the major contributing factors to this noise. 
+The sensor plane in the AT-TPC is very sensitive, as such there is substantial noise in the ${}^{46}$Ar data. The noise can be attributed to structural noise from electronics cross-talk, and possible interactions with cosmic background radiation, as well as other sources of charged particles. Part of the challenge for this data then comes from understanding of the physics of the major contributing factors to this noise. \todo{I guess this paragraph can go. It reads very thesis-y, but I'm not sure what to do here to sensibly frame the raw data}
 
-We display two different events from the ${}^{46}$Ar experiment in figure \ref{fig:samples}. The top row illustrates an event with a large fraction of noise, while the bottom row shows an event nearly devoid of noise. The very clear spiral structure of the bottom row indicates that this is a proton-event.
+We display two different events from the ${}^{46}$Ar experiment in figure \ref{fig:samples}. The top row illustrates a carbon event with a large fraction of noise, while the bottom row shows a proton event nearly devoid of noise.
 
 \begin{figure}[ht]
 \centering
@@ -235,7 +233,8 @@ We display two different events from the ${}^{46}$Ar experiment in figure \ref{f
 
 \subsection{Filtered \texorpdfstring{${}^{46}$Ar}{46Ar} events}\label{sec:filtered}
 
-As we saw in the previous section, the detector picks up a significant amount of noise. We split the noise broadly in two categories,  one being random-uncorrelated noise and the second is structured noise. The former can be quite trivially removed with a nearest-neighbour algorithm that checks if a point in the event is close to any other. To remove the correlated noise, researchers at the NSCL developed an algorithm based on the Hough transform \cite{Newman1972}. This transformation is a common technique in computer vision, used to identify common geometric shapes like lines and circles. Essentially, the algorithm draws many lines (of whatever desired geometry) through each data-point and checks whether these lines intersect with points in the dataset. Locations in parameter space that generate many intersections then become bright spots, allowing us to filter away points that are not close to these points. These algorithms remove a large amount of the unstructured noise and are computationally rather cheap.
+
+As we saw in the previous section, the detector picks up a significant amount of noise. We split the noise broadly in two categories,  one being random-uncorrelated noise and the second is structured noise. The former can be quite trivially removed with a nearest-neighbour algorithm that checks if a point in the event is close to any other. To remove the correlated noise, researchers at the NSCL developed an algorithm based on the Hough transform \cite{Newman1972}. This transformation is a common technique in computer vision, used to identify common geometric shapes like lines and circles. Essentially, the algorithm draws many lines (of whatever desired geometry) through each data-point and checks whether these lines intersect with points in the dataset. Locations in parameter space that generate many intersections then become bright spots, allowing us to filter away points that are not close to these points. These algorithms remove a large amount of the unstructured noise and are computationally rather cheap. \todo{Also pretty thesis-y language. Do not like}
 
 We illustrate two filtered events in figure \ref{fig:samples_filtered}. These are the same events as shown in figure \ref{fig:samples}, but with the Houghes' and nearest neighbours filtering applied. 
 
