@@ -1,5 +1,10 @@
 %robert was here sup robert -MIchelle was also here  
-\documentclass[preprint,12pt]{elsarticle}
+
+% uncomment for submission to NIM A
+\documentclass[review,number,sort&compress]{elsarticle}
+
+
+%\documentclass[preprint,12pt]{elsarticle}
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage{float}
@@ -78,7 +83,10 @@ Detectors and Associated Equipment}
 \author{D.~Bazin}
 \address{Department of Physics and Astronomy and Facility for Rare Ion Beams and National Superconducting Cyclotron Facility, Michigan State University, East Lansing, MI 48824, USA}
 \author{M.P.~Kuchera}
-\address{Physics Department, Davidson College, Davidson, North Carolina, USA}
+\address{Department of Physics, Davidson College, Davidson, North Carolina, USA}
+\author{R.R.~Strauss}
+\address{Department of Mathematics and Computer Science, Davidson College, Davidson, North Carolina, USA}
+
 \author{M.~Hjorth-Jensen}
 \address{Department of Physics and Astronomy and Facility for Rare Ion Beams and National Superconducting Cyclotron Facility, Michigan State University, East Lansing, MI 48824, USA}
 \address{Department of Physics and Center for Computing in Science Education, University of Oslo, POB 1048 Oslo, N-0316 Oslo, Norway}
@@ -164,15 +172,15 @@ The filtering task relied on a set of $\chi^2$ distributions based on different 
 
 The $\chi^2$ approach used in the traditional analysis performed on the $^{46}$Ar data is extremely computationally expensive because it involves the simulation of thousands of tracks for each recorded event, which are performed each iteration of the Monte-Carlo fitting sequence. Even though the reaction of interest in the $^{46}$Ar experiment had the largest cross section (elastic scattering), the sheer number of events to analyse (in the hundreds of thousands) necessitated the use of parallel processing on a high performance computing cluster. In the case of an experiment where the reaction of interest would represent less than a few percent of the total cross section, this procedure would become highly inefficient and prohibitive. Most of the CPU time would be spent on simulating events that are not of interest. An unsupervised ML algorithm able to separate the data without a priori knowledge of the different types of events increases the efficiency of the analysis tremendously, by concentrating the fitting efforts only on events of interest. In addition, the clustering allows for more exploration of the data, potentially enabling new discovery of unexpected reaction types.
 
-\subsection{Data}
-{\color{green}What is the intent of this section? Display some data examples to illustrate the points above?}
+%\subsection{Data}
+%{\color{green}What is the intent of this section? Display some data examples to illustrate the points above?}
 
 
-{\color{orange} Yes, but also this section is a necessary bridge for reproducibility. Maybe it's better as an appendix?}
+%{\color{orange} Yes, but also this section is a necessary bridge for reproducibility. Maybe it's better as an appendix?}
 
-\begin{table}
+\begin{table}[hbtp]
 \centering
-\caption{Descriptions of number of events in the data. In principle we can simulate an arbitrary amount of data, but the following quantities were shown to be sufficient for these studies.}\label{tab:datasets}
+\caption{Descriptions of number of events in the data. In principle we can simulate an arbitrary amount of data, but the following quantities were shown to be sufficient for these studies.{\color{blue} CITE THIS SOMEWHERE!}}\label{tab:datasets}
 \begin{tabular}{lccc}
 \toprule
 {} & Simulated & Full & Filtered \\
@@ -183,9 +191,25 @@ labelled & $2400$ & $1774$ &  $1582$ \\
 \end{tabular}
 \end{table}
 
+
+\section{Data Preparation}
+{\color{blue} MPK edit this section!}
+In this section we give a brief overview of the data, for a more in-depth consideration we refer the reader to \cite{Mittig2015}, \cite{Suzuki2012} and  \cite{Bradt2017a}. 
+
+The AT-TPC data we studied for this work was recorded as charge time-series for each of the  the $\sim10^4$ detector pads.
+In this representation an event is a record of 512 time-buckets for each of the detector pads. In our analysis, we represent each event as a downsampled 2D slice.
+We chose to represent the data in 2D to facilitate the use of sophisticated image-recognition machine learning models.
+The 2D representation of events was computed by viewing the event as a point cloud in the charge time-series and summing over the time-axis.
+Additionally, we log-transform and normalize the data to  the interval $[0, 1]$ for each point. The final representation for each event is a $128 \times 128$ matrix with each element ranging from $0$ to $1$.
+
+One of the significant considerations for the analysis of AT-TPC data is to inject machine learning methods for track identification at the best point in the analysis pipeline.
+Using raw data is advantageous as it provides an unbiased view of the event, but the data volume and noise levels might be prohibitive for analysis.
+On the opposite end of the pipeline, we will incrementally add bias to the analysis the more steps we take before applying the algorithm. With the benefit being that more pre-processing improves the signal-to-noise ratio, possibly improving model performance.
+To explore this trade-off between model performance and pre-processing bias, we performed analysis on simulated, cleaned and raw events.
+
 \begin{table}
 \centering
-\caption{Event class percentages for each of the datasets used in the analysis conducted in this thesis. The decrease in the "other" class of events from full to filtered data owes to the thresholding of events. If an event contains fewer than $20$ data-points it is discarded}\label{tab:class_distr}
+\caption{Event class percentages for each of the datasets used in the analysis conducted in this thesis. The decrease in the "other" class of events from full to filtered data owes to the thresholding of events. If an event contains fewer than $20$ data-points it is discarded }\label{tab:class_distr}
 \begin{tabular}{lccc}
 \toprule
 {} & Simulated & Full & Filtered \\
@@ -195,21 +219,6 @@ $\%$ Carbon & $50$ & $12.0$ & $11.9$ \\
 $\%$ Other & $0$ & $62.8$ & $60.1$ \\
 \end{tabular}
 \end{table}
-
-\section{Data processing}
-
-In this section we give a brief overview of the data, for a more in-depth consideration we refer the reader to \cite{Mittig2015}, \cite{Suzuki2012} and  \cite{Bradt2017a}. 
-
-The AT-TPC data we studied for this work was originally recorded as charge time-series for each pad on the micromegas {\color{green} We haven't defined what micromegas is}.
-In this representation an event is a record of 512 time-buckets for each of the $\sim10^4$ detector pads; however, in our analysis, we represent each event as a 2D slice.
-We chose to represent the data in 2D to facilitate the use of sophisticated image-recognition machine learning models.
-The 2D representation of events was computed by viewing the event as a point cloud in the charge time-series and summing over the time-axis.
-Additionally, we log-transform and normalize the data to  the interval $[0, 1]$ for each point. The final representation for each event is a $128 \times 128$ matrix with each element ranging from $0$ to $1$.
-
-One of the significant considerations for the analysis of AT-TPC data is to inject machine learning methods for track identification at the best point in the analysis pipeline.
-Using raw data is advantageous as it provides an unbiased view of the event, but the data volume and noise levels might be prohibitive for analysis.
-On the opposite end of the pipeline, we will incrementally add bias to the analysis the more steps we take before applying the algorithm. With the benefit being that more pre-processing improves the signal-to-noise ratio, possibly improving model performance.
-To explore this trade-off between model performance and pre-processing bias, we performed analysis on simulated, cleaned and raw events.
 
 \subsection{Simulated \texorpdfstring{${}^{46}$Ar}{46Ar}  events}\label{sec:data_sim}
 
@@ -231,7 +240,7 @@ Two simulated events are displayed in figure \ref{fig:sim_samples}. The top row 
 The events analyzed in this section were retrieved from the ${}^{46}$Ar resonant proton scattering experiment recorded with the AT-TPC. 
 While we denote these events as raw, it is important to note that what we mean is a raw 2D representation of peak-only events.
 
-The sensor plane in the AT-TPC is very sensitive, as such there is substantial noise in the ${}^{46}$Ar data. The noise can be attributed to structural noise from electronics cross-talk, and possible interactions with cosmic background radiation, as well as other sources of charged particles. Part of the challenge for this data then comes from understanding of the physics of the major contributing factors to this noise. \todo{I guess this paragraph can go. It reads very thesis-y, but I'm not sure what to do here to sensibly frame the raw data}
+%The sensor plane in the AT-TPC is very sensitive, as such there is substantial noise in the ${}^{46}$Ar data. The noise can be attributed to structural noise from electronics cross-talk, and possible interactions with cosmic background radiation, as well as other sources of charged particles. Part of the challenge for this data then comes from understanding of the physics of the major contributing factors to this noise. \todo{I guess this paragraph can go. It reads very thesis-y, but I'm not sure what to do here to sensibly frame the raw data}
 
 We display two different events from the ${}^{46}$Ar experiment in figure \ref{fig:samples}. The top row illustrates a carbon event with a large fraction of noise, while the bottom row shows a proton event nearly devoid of noise.
 
