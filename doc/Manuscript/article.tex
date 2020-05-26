@@ -30,7 +30,7 @@
 \usepackage{multirow}
 \usepackage{mathpazo}
 %\usepackage{multicol}
-%\usepackage{siunits}https://www.overleaf.com/project/5e6d6bd6ac2f55000194b2f9
+%\usepackage{siunits}
 \usepackage{siunitx}
 \usepackage{graphicx}
 \usepackage{longtable}
@@ -303,7 +303,7 @@ The VGG16 network is one of six analogous networks proposed by \citet{Simonyan20
 In contrast with the classification work by \citet{Kuchera2019}, we do not append a classifying layer to the VGG16 network given that we do not have access to the ground truth labels at training time in the clustering regime. We instead consider the output from the convolutional blocks of the VGG16 network as a representation of the events on which we will apply a clustering algorithm. 
 
 The clustering algorithm we found to give the strongest result is the K-means algorithm. This algorithm is contingent on having a distance measurement between two datapoints. We found that the standard choice of a euclidian norm on the vector differences provided the best outcomes.
-https://www.overleaf.com/project/5e73f990fcbd310001959b01
+
 
 
 \subsection{Deep clustering: Mixture of autoencoders}\label{sec:mixae}
@@ -352,20 +352,19 @@ In addition to the performance measures reported in table \ref{tab:clstr_vgg}, i
 
 \begin{figure}
 \centering
+	\includegraphics[width=\textwidth]{custom_work/Simulatedvgg_conf_mat.pdf} 
+	\caption[Pre-trained network - confusion matrices]{Confusion matrix for the K-means clustering of simulated AT-TPC events. The true labels indicate samples belonging to the p (proton), or the carbon (C) class}\label{fig:clster_confmat}
+\end{figure}
 
-	\subfloat{
-	\includegraphics[width=0.35\textwidth]{./plots/Simulatedvgg_pca_conf_mat.pdf}
+\begin{figure}
+\centering
+	\includegraphics[width=\textwidth]{custom_work/Filteredvgg_conf_mat.pdf}
+	\caption[Pre-trained network - confusion matrices]{Confusion matrix for the K-means clustering of filtered AT-TPC events. The true labels indicate samples belonging to the p (proton), carbon (C), or other classes. }\label{fig:clster_confmat}
+\end{figure}
 
-}
-	\hspace{-1cm}
-	\subfloat{
-	\includegraphics[width=0.35\textwidth]{plots/Filteredvgg_pca_conf_mat.pdf}
-}
-	\hspace{-1cm}
-	\subfloat{
-	\includegraphics[width=0.35\textwidth]{plots/Fullvgg_pca_conf_mat.pdf}
-}
-\caption[Pre-trained network - confusion matrices]{Confusion matrices for the K-means clustering of simulated, filtered and full AT-TPC events. The true labels indicate samples belonging to the p (proton), carbon (C), or other classes. }\label{fig:clster_confmat}
+\begin{figure}
+	\includegraphics[width=\textwidth]{custom_work/Filteredvgg_conf_mat.pdf}
+\caption[Pre-trained network - confusion matrices]{Confusion matrix for the K-means clustering of raw AT-TPC events. The true labels indicate samples belonging to the p (proton), carbon (C), or other classes. }\label{fig:clster_confmat}
 \end{figure}
 
 We repeat this analysis using a Principle Component Analysis (PCA) dimensionality reduction \footnote{
