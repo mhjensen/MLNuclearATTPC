@@ -290,13 +290,26 @@ We illustrate two filtered events in figure \ref{fig:samples_filtered}. These ar
 
 \subsection{Pre-trained neural networks}
 
-To affect the clustering of AT-TPC events, we first considered the results from \citet{Kuchera2019}. In their work, the authors consider the segmentation of reactions in the $^{46}$Ar experiment as a classification problem. Given ground-truth labels, they apply convolutional neural networks (CNN) to the problem. Using a CNN was in large part inspired by results from high-energy physics and, in particular, the work by \citet{Aurisano2016}. 
+% To affect the clustering of AT-TPC events, we first considered the results from \citet{Kuchera2019}. In their work, the authors consider the segmentation of reactions in the $^{46}$Ar experiment as a classification problem. Given ground-truth labels, they apply convolutional neural networks (CNN) to the problem. Using a CNN was in large part inspired by results from high-energy physics and, in particular, the work by \citet{Aurisano2016}. 
 
-Using a CNN algorithm comes with the caveat that the data should be image-like. This caveat is especially stringent when applying pre-trained models to new data. For the $^{46}$Ar data we project the 3D point clouds in each event to a 2D matrix representation of the X-Y plane, summing over the Z-axis. Applying a pre-trained model is a common technique in computer science, and \citet{Kuchera2019} showed that a pre-trained CNN model outperforms bespoke models for the classification of $^{46}$Ar data. We build on the classification result in this work by using a pre-trained CNN model as a spring-board for our clustering models.
+% Using a CNN algorithm comes with the caveat that the data should be image-like. This caveat is especially stringent when applying pre-trained models to new data. For the $^{46}$Ar data we project the 3D point clouds in each event to a 2D matrix representation of the X-Y plane, summing over the Z-axis. Applying a pre-trained model is a common technique in computer science, and \citet{Kuchera2019} showed that a pre-trained CNN model outperforms bespoke models for the classification of $^{46}$Ar data. We build on the classification result in this work by using a pre-trained CNN model as a spring-board for our clustering models.
 
-In the Machine Learning community, it is not uncommon to publish packaged models with fitted parameters from image recognition contests. These models are trained on datasets with millions of images and classify between hundreds of distinct classes; one such is the imagenet dataset. In their work, \citet{Kuchera2019} used the VGG16 architecture trained on imagenet to classify ${}^{46}$Ar data. In our work we also found the VGG16 architecture to capture the strongest event-separating representation for clustering purposes. 
+% In the Machine Learning community, it is not uncommon to publish packaged models with fitted parameters from image recognition contests. These models are trained on datasets with millions of images and classify between hundreds of distinct classes; one such is the imagenet dataset. In their work, \citet{Kuchera2019} used the VGG16 architecture trained on imagenet to classify ${}^{46}$Ar data. In our work we also found the VGG16 architecture to capture the strongest event-separating representation for clustering purposes. 
 
-The VGG16 network is one of six analogous networks proposed by \citet{Simonyan2014}. The network architectures are fairly straightforward; for VGG16, there are sixteen layers in the network. The first thirteen of which are convolutional layers with exclusively $3 \times 3$ kernels.  The full architecture is detailed in appendix \ref{app:vgg}.
+% The VGG16 network is one of six analogous networks proposed by \citet{Simonyan2014}. The network architectures are fairly straightforward; for VGG16, there are sixteen layers in the network. The first thirteen of which are convolutional layers with exclusively $3 \times 3$ kernels.  The full architecture is detailed in appendix \ref{app:vgg}.
+
+{\color{cyan} [Ryan:] The commented-out paragraphs above I think could be better organized and condensed to eliminate some off-topic stuff. The outline below is an idea for how this section might tell its story.
+
+\begin{itemize}
+    \item Training high-performing neural networks from scratch often requires enormous datasets and computation time, particularly for vision tasks.
+    \item However, it has been found that models which are trained at large scale will learn general features that are applicable to a variety of tasks.
+    \item For example, large neural networks which are trained on the ImageNet dataset --- a diverse image classification task --- learn how to identify lines, edges, and other common shapes which are useful for numerous problems.
+    \item Thus, it is common practice to initialize the convolutional layers of a network with the pre-trained weights learned from ImageNet (or some other large dataset).
+    \item The training process then only has to fine-tune the network for the specific task. Since we are building on prior knowledge, learning becomes far more efficient.
+    \item \citet{Kuchera2019} demonstrate the promise of this approach for classifying AT-TPC reaction products.
+\end{itemize}
+
+}
 
 \subsubsection{Clustering on latent spaces}
 
