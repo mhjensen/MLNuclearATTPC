@@ -156,45 +156,6 @@ The detector was placed inside the bore of a MRI solenoid energized to $\sim 2$ 
 The method used in \cite{Bradt2018} to analyze the data followed a 3-phase sequence: cleaning, filtering and fitting. Traditional methods were used to perform each of these tasks, and ultimately extract the scientific information, but there were severe limitations and high computational costs that become prohibitive in data sets larger by an order of magnitude. In addition, \cite{Kuchera2019} demonstrated that the purity and statistics of the data are improved with the use of ML.
 
 
-\section{Methods}\label{sec:methods}
-
-\subsection{Classifying  events} 
-\todo{Brute force serving as motivation for why we do unsupervised learning.}
-The filtering task relied on a set of $\chi^2$ distributions based on different criteria, however there was no well-defined method to quantify the effectiveness of the event selection from the thresholds applied to these distributions. In addition, the filtering task produced a binary result only, ``good" or``bad", while the data clearly contained more classes of events, if only because of the presence of carbon in the target (from the isobutane gas). In a broader perspective, an unsupervised classification algorithm would offer the possibility to ``discover" rare events not anticipated (or overlooked) by the physicist. These events would likely be filtered out using the traditional methods. From a practical point of view, compared to supervised learning, it also avoids the necessary labeling task of the learning set events, which is error prone and time consuming.
-
-\subsection{Why machine learning}
-
-\begin{itemize}
-    \item Traditional MC methods fall short in two principal ways:
-    \begin{itemize}
-        \item The computational cost per event is too large given the size of the data-sets
-        \item The broken tracks, noisy environment creates bad fit statistics for otherwise useful events. End result is $f1 \sim 0.7 $
-        \item define a ``bad" fit as a non-proton event
-    \end{itemize}
-\end{itemize}
-
-The $\chi^2$ approach used in the traditional analysis performed on the $^{46}$Ar data is extremely computationally expensive because it involves the simulation of thousands of tracks for each recorded event, which are performed each iteration of the Monte-Carlo fitting sequence. Even though the reaction of interest in the $^{46}$Ar experiment had the largest cross section (elastic scattering), the sheer number of events to analyse (in the hundreds of thousands) necessitated the use of parallel processing on a high performance computing cluster. In the case of an experiment where the reaction of interest would represent less than a few percent of the total cross section, this procedure would become highly inefficient and prohibitive. Most of the CPU time would be spent on simulating events that are not of interest. An unsupervised ML algorithm able to separate the data without a priori knowledge of the different types of events increases the efficiency of the analysis tremendously, by concentrating the fitting efforts only on events of interest. In addition, the clustering allows for more exploration of the data, potentially enabling new discovery of unexpected reaction types.
-
-%\subsection{Data}
-%{\color{green}What is the intent of this section? Display some data examples to illustrate the points above?}
-
-
-%{\color{orange} Yes, but also this section is a necessary bridge for reproducibility. Maybe it's better as an appendix?}
-
-\begin{table}[hbtp]
-\centering
-\caption{Descriptions of number of events in the data. In principle we can simulate an arbitrary amount of data, but the following quantities were shown to be sufficient for these studies.{\color{blue} CITE THIS SOMEWHERE!}}\label{tab:datasets}
-\begin{tabular}{lccc}
-\toprule
-{} & Simulated & Full & Filtered \\
-\midrule
-Total &  $8000$ & $51891$ & $49169$ \\
-labelled & $2400$ & $1774$ &  $1582$ \\ 
-\bottomrule
-\end{tabular}
-\end{table}
-
-
 \section{Data Preparation}
 {\color{blue} MPK edit this section!}
 In this section we give a brief overview of the data, for a more in-depth consideration we refer the reader to \cite{Mittig2015}, \cite{Suzuki2012} and  \cite{Bradt2017a}. 
@@ -267,7 +228,43 @@ We illustrate two filtered events in figure \ref{fig:samples_filtered}. These ar
 \end{figure}
 
 
-\section{Machine Learning Methods}
+\section{Methods}\label{sec:methods}
+
+\subsection{Classifying  events} 
+\todo{Brute force serving as motivation for why we do unsupervised learning.}
+The filtering task relied on a set of $\chi^2$ distributions based on different criteria, however there was no well-defined method to quantify the effectiveness of the event selection from the thresholds applied to these distributions. In addition, the filtering task produced a binary result only, ``good" or``bad", while the data clearly contained more classes of events, if only because of the presence of carbon in the target (from the isobutane gas). In a broader perspective, an unsupervised classification algorithm would offer the possibility to ``discover" rare events not anticipated (or overlooked) by the physicist. These events would likely be filtered out using the traditional methods. From a practical point of view, compared to supervised learning, it also avoids the necessary labeling task of the learning set events, which is error prone and time consuming.
+
+\subsection{Why machine learning}
+
+\begin{itemize}
+    \item Traditional MC methods fall short in two principal ways:
+    \begin{itemize}
+        \item The computational cost per event is too large given the size of the data-sets
+        \item The broken tracks, noisy environment creates bad fit statistics for otherwise useful events. End result is $f1 \sim 0.7 $
+        \item define a ``bad" fit as a non-proton event
+    \end{itemize}
+\end{itemize}
+
+The $\chi^2$ approach used in the traditional analysis performed on the $^{46}$Ar data is extremely computationally expensive because it involves the simulation of thousands of tracks for each recorded event, which are performed each iteration of the Monte-Carlo fitting sequence. Even though the reaction of interest in the $^{46}$Ar experiment had the largest cross section (elastic scattering), the sheer number of events to analyse (in the hundreds of thousands) necessitated the use of parallel processing on a high performance computing cluster. In the case of an experiment where the reaction of interest would represent less than a few percent of the total cross section, this procedure would become highly inefficient and prohibitive. Most of the CPU time would be spent on simulating events that are not of interest. An unsupervised ML algorithm able to separate the data without a priori knowledge of the different types of events increases the efficiency of the analysis tremendously, by concentrating the fitting efforts only on events of interest. In addition, the clustering allows for more exploration of the data, potentially enabling new discovery of unexpected reaction types.
+
+%\subsection{Data}
+%{\color{green}What is the intent of this section? Display some data examples to illustrate the points above?}
+
+
+%{\color{orange} Yes, but also this section is a necessary bridge for reproducibility. Maybe it's better as an appendix?}
+
+\begin{table}[hbtp]
+\centering
+\caption{Descriptions of number of events in the data. In principle we can simulate an arbitrary amount of data, but the following quantities were shown to be sufficient for these studies.{\color{blue} CITE THIS SOMEWHERE!}}\label{tab:datasets}
+\begin{tabular}{lccc}
+\toprule
+{} & Simulated & Full & Filtered \\
+\midrule
+Total &  $8000$ & $51891$ & $49169$ \\
+labelled & $2400$ & $1774$ &  $1582$ \\ 
+\bottomrule
+\end{tabular}
+\end{table}
 
 \begin{itemize}
     \item Reiterate the aim of unsupervised  clustering of events.
@@ -290,13 +287,26 @@ We illustrate two filtered events in figure \ref{fig:samples_filtered}. These ar
 
 \subsection{Pre-trained neural networks}
 
-To affect the clustering of AT-TPC events, we first considered the results from \citet{Kuchera2019}. In their work, the authors consider the segmentation of reactions in the $^{46}$Ar experiment as a classification problem. Given ground-truth labels, they apply convolutional neural networks (CNN) to the problem. Using a CNN was in large part inspired by results from high-energy physics and, in particular, the work by \citet{Aurisano2016}. 
+% To affect the clustering of AT-TPC events, we first considered the results from \citet{Kuchera2019}. In their work, the authors consider the segmentation of reactions in the $^{46}$Ar experiment as a classification problem. Given ground-truth labels, they apply convolutional neural networks (CNN) to the problem. Using a CNN was in large part inspired by results from high-energy physics and, in particular, the work by \citet{Aurisano2016}. 
 
-Using a CNN algorithm comes with the caveat that the data should be image-like. This caveat is especially stringent when applying pre-trained models to new data. For the $^{46}$Ar data we project the 3D point clouds in each event to a 2D matrix representation of the X-Y plane, summing over the Z-axis. Applying a pre-trained model is a common technique in computer science, and \citet{Kuchera2019} showed that a pre-trained CNN model outperforms bespoke models for the classification of $^{46}$Ar data. We build on the classification result in this work by using a pre-trained CNN model as a spring-board for our clustering models.
+% Using a CNN algorithm comes with the caveat that the data should be image-like. This caveat is especially stringent when applying pre-trained models to new data. For the $^{46}$Ar data we project the 3D point clouds in each event to a 2D matrix representation of the X-Y plane, summing over the Z-axis. Applying a pre-trained model is a common technique in computer science, and \citet{Kuchera2019} showed that a pre-trained CNN model outperforms bespoke models for the classification of $^{46}$Ar data. We build on the classification result in this work by using a pre-trained CNN model as a spring-board for our clustering models.
 
-In the Machine Learning community, it is not uncommon to publish packaged models with fitted parameters from image recognition contests. These models are trained on datasets with millions of images and classify between hundreds of distinct classes; one such is the imagenet dataset. In their work, \citet{Kuchera2019} used the VGG16 architecture trained on imagenet to classify ${}^{46}$Ar data. In our work we also found the VGG16 architecture to capture the strongest event-separating representation for clustering purposes. 
+% In the Machine Learning community, it is not uncommon to publish packaged models with fitted parameters from image recognition contests. These models are trained on datasets with millions of images and classify between hundreds of distinct classes; one such is the imagenet dataset. In their work, \citet{Kuchera2019} used the VGG16 architecture trained on imagenet to classify ${}^{46}$Ar data. In our work we also found the VGG16 architecture to capture the strongest event-separating representation for clustering purposes. 
 
-The VGG16 network is one of six analogous networks proposed by \citet{Simonyan2014}. The network architectures are fairly straightforward; for VGG16, there are sixteen layers in the network. The first thirteen of which are convolutional layers with exclusively $3 \times 3$ kernels.  The full architecture is detailed in appendix \ref{app:vgg}.
+% The VGG16 network is one of six analogous networks proposed by \citet{Simonyan2014}. The network architectures are fairly straightforward; for VGG16, there are sixteen layers in the network. The first thirteen of which are convolutional layers with exclusively $3 \times 3$ kernels.  The full architecture is detailed in appendix \ref{app:vgg}.
+
+{\color{cyan} [Ryan:] The commented-out paragraphs above I think could be better organized and condensed to eliminate some off-topic stuff. The outline below is an idea for how this section might tell its story.
+
+\begin{itemize}
+    \item Training high-performing neural networks from scratch often requires enormous datasets and computation time, particularly for vision tasks.
+    \item However, it has been found that models which are trained at large scale will learn general features that are applicable to a variety of tasks.
+    \item For example, large neural networks which are trained on the ImageNet dataset --- a diverse image classification task --- learn how to identify lines, edges, and other common shapes which are useful for numerous problems.
+    \item Thus, it is common practice to initialize the convolutional layers of a network with the pre-trained weights learned from ImageNet (or some other large dataset).
+    \item The training process then only has to fine-tune the network for the specific task. Since we are building on prior knowledge, learning becomes far more efficient.
+    \item \citet{Kuchera2019} demonstrate the promise of this approach for classifying AT-TPC reaction products.
+\end{itemize}
+
+}
 
 \subsubsection{Clustering on latent spaces}
 
@@ -353,18 +363,18 @@ In addition to the performance measures reported in table \ref{tab:clstr_vgg}, i
 \begin{figure}
 \centering
 	\includegraphics[width=\textwidth]{custom_work/Simulatedvgg_conf_mat.pdf} 
-	\caption[Pre-trained network - confusion matrices]{Confusion matrix for the K-means clustering of simulated AT-TPC events. The true labels indicate samples belonging to the p (proton), or the carbon (C) class}\label{fig:clster_confmat}
+	\caption[Pre-trained network - confusion matrices]{Confusion matrix for the K-means clustering of simulated AT-TPC events. The true labels indicate samples belonging to the p (proton), or the carbon (C) class}\label{fig:clster_confmat_sim}
 \end{figure}
 
 \begin{figure}
 \centering
 	\includegraphics[width=\textwidth]{custom_work/Filteredvgg_conf_mat.pdf}
-	\caption[Pre-trained network - confusion matrices]{Confusion matrix for the K-means clustering of filtered AT-TPC events. The true labels indicate samples belonging to the p (proton), carbon (C), or other classes. }\label{fig:clster_confmat}
+	\caption[Pre-trained network - confusion matrices]{Confusion matrix for the K-means clustering of filtered AT-TPC events. The true labels indicate samples belonging to the p (proton), carbon (C), or other classes. }\label{fig:clster_confmati_filt}
 \end{figure}
 
 \begin{figure}
-	\includegraphics[width=\textwidth]{custom_work/Filteredvgg_conf_mat.pdf}
-\caption[Pre-trained network - confusion matrices]{Confusion matrix for the K-means clustering of raw AT-TPC events. The true labels indicate samples belonging to the p (proton), carbon (C), or other classes. }\label{fig:clster_confmat}
+	\includegraphics[width=\textwidth]{custom_work/Rawvgg_conf_mat.pdf}
+\caption[Pre-trained network - confusion matrices]{Confusion matrix for the K-means clustering of raw AT-TPC events. The true labels indicate samples belonging to the p (proton), carbon (C), or other classes. }\label{fig:clster_confmati_raw}
 \end{figure}
 
 We repeat this analysis using a Principle Component Analysis (PCA) dimensionality reduction \footnote{
