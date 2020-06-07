@@ -385,13 +385,13 @@ PCA is a common techinque to find the significant variations in data by projecti
 Furthermore, we wish to characterize further the clusters presented in figure \ref{fig:clster_confmat}. To achieve this, we sample from the proton samples belonging to different clusters for the filtered and full data.
 
 \begin{figure}
-\includegraphics[width=\textwidth]{plots/filtered_vgg_cluster_repr.pdf}
+\includegraphics[width=\textwidth]{custom_work/Filteredexamples.pdf}
 \caption[Filtered proton samples by cluster belonging]{Illustrating a sample of proton events from different K-means clusters from the filtered dataset. Each row belongs to a single cluster corresponding to the filtered confusion matrix in figure \ref{fig:clster_confmat}}\label{fig:filtered_vgg_clster_repr}
 \end{figure} 
 
 \begin{figure}
-\includegraphics[width=\textwidth]{plots/full_vgg_cluster_repr.pdf}
-\caption[Full proton samples by cluster belonging]{Illustrating a sample of proton events from different K-means clusters from the full dataset. Each row belongs to a single cluster corresponding to the full confusion matrix in figure \ref{fig:clster_confmat}}\label{fig:full_vgg_clster_repr}
+\includegraphics[width=\textwidth]{custom_work/Rawexamples.pdf}
+\caption[Full proton samples by cluster belonging]{Illustrating a sample of proton events from different K-means clusters from the raw dataset. Each row belongs to a single cluster corresponding to the full confusion matrix in figure \ref{fig:clster_confmat}}\label{fig:full_vgg_clster_repr}
 \end{figure} 
 
 In addition to the results presented in this section, we performed clustering with a number of different algorithms included in the \lstinline{scikit-learn} package. None of them provided any notable differences from the K-means results or were significantly worse. Notably, the DBSCAN algorithm \cite{Ester96adensity-based}\cite{Bergstra2012} failed to provide any useful clustering results. We find this important as one of the significant drawbacks of K-means, and the deep clustering algorithm presented in section \ref{sec:mixae}, is that they are all dependent on pre-determining the number of clusters. This is not the case for DBSCAN. 
