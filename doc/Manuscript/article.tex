@@ -157,23 +157,24 @@ The method used in \cite{Bradt2018} to analyze the data followed a 3-phase seque
 
 
 \section{Data Preparation}
-{\color{blue} MPK edit this section!}
+
 In this section we give a brief overview of the data, for a more in-depth consideration we refer the reader to \cite{Mittig2015}, \cite{Suzuki2012} and  \cite{Bradt2017a}. 
 
 The AT-TPC data we studied for this work was recorded as charge time-series for each of the  the $\sim10^4$ detector pads.
-In this representation an event is a record of 512 time-buckets for each of the detector pads. In our analysis, we represent each event as a downsampled 2D slice.
+In this representation, an event is a record of 512 time-buckets for each of the detector pads. In our analysis, we represent each event as a downsampled 2D projection.
 We chose to represent the data in 2D to facilitate the use of sophisticated image-recognition machine learning models.
 The 2D representation of events was computed by viewing the event as a point cloud in the charge time-series and summing over the time-axis.
-Additionally, we log-transform and normalize the data to  the interval $[0, 1]$ for each point. The final representation for each event is a $128 \times 128$ matrix with each element ranging from $0$ to $1$.
+Additionally, we log-transform and normalize the data to the interval $[0, 1]$ for each point. The final representation for each event is a $128 \times 128$ matrix with each element ranging from $0$ to $1$.
 
 One of the significant considerations for the analysis of AT-TPC data is to inject machine learning methods for track identification at the best point in the analysis pipeline.
 Using raw data is advantageous as it provides an unbiased view of the event, but the data volume and noise levels might be prohibitive for analysis.
-On the opposite end of the pipeline, we will incrementally add bias to the analysis the more steps we take before applying the algorithm. With the benefit being that more pre-processing improves the signal-to-noise ratio, possibly improving model performance.
+%On the opposite end of the pipeline, 
+Therefore, we will incrementally add bias to the analysis by applying the algorithm further down the analysis pipeline.. With the benefit being that more pre-processing improves the signal-to-noise ratio, possibly improving model performance.
 To explore this trade-off between model performance and pre-processing bias, we performed analysis on simulated, cleaned and raw events.
 
 \begin{table}
 \centering
-\caption{Event class percentages for each of the datasets used in the analysis conducted in this thesis. The decrease in the "other" class of events from full to filtered data owes to the thresholding of events. If an event contains fewer than $20$ data-points it is discarded }\label{tab:class_distr}
+\caption{Event class percentages for each of the datasets used in this analysis. The decrease in the "other" class of events from full to filtered data owes to the thresholding of events. If an event contains fewer than $20$ data-points it is discarded }\label{tab:class_distr}
 \begin{tabular}{lccc}
 \toprule
 {} & Simulated & Full & Filtered \\
@@ -186,7 +187,7 @@ $\%$ Other & $0$ & $62.8$ & $60.1$ \\
 
 \subsection{Simulated \texorpdfstring{${}^{46}$Ar}{46Ar}  events}\label{sec:data_sim}
 
-AT-TPC tracks were simulated with the \lstinline{pytpc} package developed by \citet{Bradt2017a}. Using the same parameters as for the ${}^{46}$Ar$(p, p)$ experiment, a small set of $N=4000$ events per class was generated, as well as a larger set of $N=40000$ events per class. 
+AT-TPC tracks were simulated with the \lstinline{pytpc} package developed by \citet{Bradt2017a}. Using the same parameters {\color{green} what parameters are you refering to? -MPK} as for the ${}^{46}$Ar$(p, p)$ experiment, a small set of $N=4000$ events per class was generated, as well as a larger set of $N=40000$ events per class. 
 
 To emulate the real-data case, we set a subset of the simulated data to be labelled and treat the rest as unlabelled data. We choose this partition to be $15\%$ of each class. We denote this subset and its associated labels as $\gamma_L=(\boldsymbol{X}_L, \boldsymbol{y}_L)$, while the entire dataset which is identified as $\boldsymbol{X}_F$. Note that $\boldsymbol{X}_L \subset \boldsymbol{X}_F$.
 
@@ -206,15 +207,15 @@ We display two different events from the ${}^{46}$Ar experiment in figure \ref{f
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\textwidth]{custom_work/examples_raw.pdf}
-\caption[Displaying un-filtered events in 2D and 3D]{Two- and three-dimensional representations of two events from the ${}^{46}$Ar experiment. Each row is one event in two projections, where the color intensity of each point indicates higher charge values recorded by the detector.}\label{fig:samples}
+\caption[Displaying unfiltered events in 2D and 3D]{Two- and three-dimensional representations of two events from the ${}^{46}$Ar experiment. Each row is one event in two projections, where the color intensity of each point indicates higher charge values recorded by the detector.}\label{fig:samples}
 \end{figure}
 
 \subsection{Filtered \texorpdfstring{${}^{46}$Ar}{46Ar} events}\label{sec:filtered}
 
 
-As we saw in the previous section, the detector picks up a significant amount of noise. We split the noise broadly in two categories,  one being random-uncorrelated noise and the second is structured noise. The former can be quite trivially removed with a nearest-neighbour algorithm that checks if a point in the event is close to any other. To remove the correlated noise, researchers at the NSCL developed an algorithm based on the Hough transform \cite{Newman1972}. This transformation is a common technique in computer vision, used to identify common geometric shapes like lines and circles. Essentially, the algorithm draws many lines (of whatever desired geometry) through each data-point and checks whether these lines intersect with points in the dataset. Locations in parameter space that generate many intersections then become bright spots, allowing us to filter away points that are not close to these points. These algorithms remove a large amount of the unstructured noise and are computationally rather cheap. \todo{Also pretty thesis-y language. Do not like}
+As we saw in the previous section, the detector picks up a significant amount of noise. We split the noise broadly in two categories,  one being random-uncorrelated noise and the second is structured noise. The former can be quite trivially removed with a nearest-neighbour algorithm that checks if a point in the event is close to any other. To remove the correlated noise, researchers at the NSCL developed an algorithm based on the Hough transform \cite{Newman1972}. This transformation is a common technique in computer vision, used to identify common geometric shapes like lines and circles, and has been used extensively in high-energy particle physics since the bubble-chamber era \cite{Hough:1959}.  %Essentially, the algorithm draws many lines (of whatever desired geometry) through each data-point and checks whether these lines intersect with points in the dataset. Locations in parameter space that generate many intersections then become bright spots, allowing us to filter away points that are not close to these points. These algorithms remove a large amount of the unstructured noise and are computationally rather cheap. \todo{Also pretty thesis-y language. Do not like}
 
-We illustrate two filtered events in figure \ref{fig:samples_filtered}. These are the same events as shown in figure \ref{fig:samples}, but with the Houghes' and nearest neighbours filtering applied. 
+We illustrate two filtered events in figure \ref{fig:samples_filtered}. These are the same events as shown in figure \ref{fig:samples}, but with the Hough and nearest neighbours filtering applied. 
 
 \begin{figure}[ht]
 \centering
