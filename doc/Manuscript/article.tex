@@ -385,13 +385,13 @@ PCA is a common techinque to find the significant variations in data by projecti
 Furthermore, we wish to characterize further the clusters presented in figure \ref{fig:clster_confmat}. To achieve this, we sample from the proton samples belonging to different clusters for the filtered and full data.
 
 \begin{figure}
-\includegraphics[width=\textwidth]{plots/filtered_vgg_cluster_repr.pdf}
+\includegraphics[width=\textwidth]{custom_work/Filteredexamples.pdf}
 \caption[Filtered proton samples by cluster belonging]{Illustrating a sample of proton events from different K-means clusters from the filtered dataset. Each row belongs to a single cluster corresponding to the filtered confusion matrix in figure \ref{fig:clster_confmat}}\label{fig:filtered_vgg_clster_repr}
 \end{figure} 
 
 \begin{figure}
-\includegraphics[width=\textwidth]{plots/full_vgg_cluster_repr.pdf}
-\caption[Full proton samples by cluster belonging]{Illustrating a sample of proton events from different K-means clusters from the full dataset. Each row belongs to a single cluster corresponding to the full confusion matrix in figure \ref{fig:clster_confmat}}\label{fig:full_vgg_clster_repr}
+\includegraphics[width=\textwidth]{custom_work/Rawexamples.pdf}
+\caption[Full proton samples by cluster belonging]{Illustrating a sample of proton events from different K-means clusters from the raw dataset. Each row belongs to a single cluster corresponding to the full confusion matrix in figure \ref{fig:clster_confmat}}\label{fig:full_vgg_clster_repr}
 \end{figure} 
 
 In addition to the results presented in this section, we performed clustering with a number of different algorithms included in the \lstinline{scikit-learn} package. None of them provided any notable differences from the K-means results or were significantly worse. Notably, the DBSCAN algorithm \cite{Ester96adensity-based}\cite{Bergstra2012} failed to provide any useful clustering results. We find this important as one of the significant drawbacks of K-means, and the deep clustering algorithm presented in section \ref{sec:mixae}, is that they are all dependent on pre-determining the number of clusters. This is not the case for DBSCAN. 
@@ -415,65 +415,9 @@ We focused on the tuning of the clustering hyper-parameters, and heuristically s
 
 The parameters chosen for the autoencoders are listed in full in table \ref{tab:mixe_ae_hyperparams}.
 
-\begin{table}[H]
-\todo{prettify or remove}
-\renewcommand*{\arraystretch}{0.5}
-\centering
-\caption{Hyperparameters selected for the autoencoder components of the MIXAE algorithm, see table \ref{tab:convae_hyperparams} for a full description of the parameters.}\label{tab:mixe_ae_hyperparams}
-\setlength{\extrarowheight}{15pt}
-\hspace*{-0.5in}
-\begin{tabular}{ll}
-\toprule
-Hyperparameter & Value \\
-\midrule
-\multicolumn{2}{l}{Convolutional parameters: } \\
-\midrule
-Number of layers & $4$ \\
-Kernels & $[3,\,3,\,3,\,3]$\\
-Strides & $[2,\,2,\,2,\,2]$ \\
-Filters & $[64,\, 32, \,16, \,8,]$ \\ 
-\midrule
-\multicolumn{2}{l}{Network parameters: } \\
-\midrule
-Activation & LReLu \\
-Latent dimension & 20  \\
-Batchnorm & False \\
-\midrule
-\multicolumn{2}{l}{Optimizer parameters: } \\
-\midrule
-$\eta$ & $10^{-3}$ \\
-$\beta_1$ & $0.9$ \\
-$\beta_2$ & $0.99$ \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\noindent Since there are then only three remaining hyperparameters we choose to perform a coarse grid-search as described in section \ref{sec:hyperparam_search_arch}.
-
-\begin{table}
-\centering
-\caption{Hyperparameter grid for the MIXAE loss weighting terms. The grid is given as exponents for logarithmic scales.}\label{tab:mixae_loss_weights}
-\begin{tabular}{lll}
-\toprule
-Parameter & Grid & Scale \\
-\midrule 
-$\theta$ & $[-1,\, 5]$ & Logarithmic \\
-$\alpha$ & $[-5,\, -1]$ & Logarithmic \\
-$\gamma$ & $[3,\, 5]$ & Logarithmic
-\end{tabular}
-\end{table}
 
 \subsection{Simulated AT-TPC data}
 
-To train the MIXAE clustering algorithm, we use the large simulated dataset with $M=80000$ points, evenly distributed between proton- and carbon-events. The algorithm is trained on a subset of $60000$ of these samples, and we track performance on the remaining $20000$ events. 
-
-The grids selected for the search are listed in table \ref{tab:mixae_loss_weights}. The search yielded an optimal configuration with 
-
-\begin{align}
-\theta = 10^{-1}, \\
-\alpha = 10^{-2}, \\
-\gamma = 10^5.
-\end{align}
 
 Finally, for these parameters we re-ran the algorithm $N=10$ times to investigate the stability of the algorithm. The results are reported in figure \ref{fig:mixae_sim}. We observe that while the algorithm can achieve very strong performance, with an adjusted rand index (ARI) $ > 0.8$, it fluctuates strongly with repeated experiments. The $ARI$ is a clustering performance measure similar to accuracy, but adjusted for chance. We elaborate on the $ARI$ score in section \ref{sec:unsupervised_perf}. As mentioned in section \ref{sec:mixae} the batch-entropy has a second minimum when the cluster confidences are near equal. It is this behavior we observe in figure \ref{fig:mixae_sim}.
 
@@ -481,13 +425,7 @@ Finally, for these parameters we re-ran the algorithm $N=10$ times to investigat
 
 \subsection{Filtered AT-TPC data}
 
-We repeat the optimization steps in the previous section for the filtered AT-TPC data. The exception being that we allow the algorithm to train on the labelled samples. Beginning with a wide grid equal to the grid used for the simulated data we searched over all parameter configurations to find promising values. We then performed a local search around these values to pin-point the hyperparameter configuration. This search yielded the optimal hyper-parameters 
-
-\begin{align}
-\theta &= 10^{1}, \\
-\alpha &= 10^{-1}, \\
-\gamma &= 3.162\times 10^3.
-\end{align}
+We repeat the optimization steps in the previous section for the filtered AT-TPC data. The exception being that we allow the algorithm to train on the labelled samples. Beginning with a wide grid equal to the grid used for the simulated data we searched over all parameter configurations to find promising values. We then performed a local search around these values to pin-point the hyperparameter configuration.
 
 \noindent The results of the runs are included in figure \ref{fig:mixae_clean}. We observe ghat the highest performing models reach an $ARI > 0.5$, which is higher than the performance achieved by the K-means algorithm applied to the VGG16 latent space. 
 
@@ -496,14 +434,7 @@ We repeat the optimization steps in the previous section for the filtered AT-TPC
 
 \subsection{Full AT-TPC data}
 
-As in the two previous sections, we repeat the same procedure of iterative grid searches on the MIXAE loss-weights. Each configuration is re-run a total of $N=10$ times to capture fluctuations in the performance before a final selection is made on the hyperparameters. For the full dataset the MIXAE hyperparameters converge to the same values as for the clean data, i.e. 
-
-
-\begin{align}
-\theta &= 10^{1}, \\
-\alpha &= 10^{-1}, \\
-\gamma &= 3.162\times 10^3.
-\end{align}
+As in the two previous sections, we repeat the same procedure of iterative grid searches on the MIXAE loss-weights. Each configuration is re-run a total of $N=10$ times to capture fluctuations in the performance before a final selection is made on the hyperparameters. 
 
 \noindent As with the previous datasets we include a plot of the loss curves and performance measures for $N=10$ runs with the same loss-weight parameters, shown in figure \ref{fig:mixae_full}.
 
@@ -540,6 +471,75 @@ The choice of the kernel size is based on the fact that a stacked $3 \times 3$ k
 \caption[vgg architectures]{Showing the details of the VGG network architectures. Network D trained on the ImageNet \cite{Russakovsky2015} dataset the network known as  VGG16 and is what we use in this thesis.}\label{tab:vgg}
 \includegraphics[width=\textwidth]{plots/vgg_architectures.png}
 \end{table}
+
+\section{MIXAE hyper-parameter tuning}
+
+To train the MIXAE clustering algorithm, we use the large simulated dataset with $M=80000$ points, evenly distributed between proton- and carbon-events. The algorithm is trained on a subset of $60000$ of these samples, and we track performance on the remaining $20000$ events. Since there are then only three remaining hyperparameters we choose to perform a coarse grid-search as described in section \ref{sec:hyperparam_search_arch}.
+
+\begin{table}
+\centering
+\caption{Hyperparameter grid for the MIXAE loss weighting terms. The grid is given as exponents for logarithmic scales.}\label{tab:mixae_loss_weights}
+\begin{tabular}{lll}
+\toprule
+Parameter & Grid & Scale \\
+\midrule 
+$\theta$ & $[-1,\, 5]$ & Logarithmic \\
+$\alpha$ & $[-5,\, -1]$ & Logarithmic \\
+$\gamma$ & $[3,\, 5]$ & Logarithmic
+\end{tabular}
+\end{table}
+
+The grids selected for the search are listed in table \ref{tab:mixae_loss_weights}. The search yielded an optimal configuration with 
+
+\begin{align}
+\theta = 10^{-1}, \\
+\alpha = 10^{-2}, \\
+\gamma = 10^5.
+\end{align}
+
+For the full dataset the MIXAE hyperparameters converge to the same values as for the clean data:
+
+\begin{align}
+\theta &= 10^{1}, \\
+\alpha &= 10^{-1}, \\
+\gamma &= 3.162\times 10^3.
+\end{align}
+
+Lastly we supply the configuration used for the individual convolutional autoencoder networks in table \ref{tab:mixe_ae_hyperparams}
+
+\begin{table}[H]
+\todo{prettify or remove}
+\renewcommand*{\arraystretch}{0.5}
+\centering
+\caption{Hyperparameters selected for the autoencoder components of the MIXAE algorithm, see table \ref{tab:convae_hyperparams} for a full description of the parameters.}\label{tab:mixe_ae_hyperparams}
+\setlength{\extrarowheight}{15pt}
+\hspace*{-0.5in}
+\begin{tabular}{ll}
+\toprule
+Hyperparameter & Value \\
+\midrule
+\multicolumn{2}{l}{Convolutional parameters: } \\
+\midrule
+Number of layers & $4$ \\
+Kernels & $[3,\,3,\,3,\,3]$\\
+Strides & $[2,\,2,\,2,\,2]$ \\
+Filters & $[64,\, 32, \,16, \,8,]$ \\ 
+\midrule
+\multicolumn{2}{l}{Network parameters: } \\
+\midrule
+Activation & LReLu \\
+Latent dimension & 20  \\
+Batchnorm & False \\
+\midrule
+\multicolumn{2}{l}{Optimizer parameters: } \\
+\midrule
+$\eta$ & $10^{-3}$ \\
+$\beta_1$ & $0.9$ \\
+$\beta_2$ & $0.99$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 
 \bibliography{bibliography}
 \end{document}
