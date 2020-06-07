@@ -295,23 +295,15 @@ labelled & $2400$ & $1774$ &  $1582$ \\
 
 % The VGG16 network is one of six analogous networks proposed by \citet{Simonyan2014}. The network architectures are fairly straightforward; for VGG16, there are sixteen layers in the network. The first thirteen of which are convolutional layers with exclusively $3 \times 3$ kernels.  The full architecture is detailed in appendix \ref{app:vgg}.
 
-{\color{cyan} [Ryan:] The commented-out paragraphs above I think could be better organized and condensed to eliminate some off-topic stuff. The outline below is an idea for how this section might tell its story.
-
-\begin{itemize}
-    \item Training high-performing neural networks from scratch often requires enormous datasets and computation time, particularly for vision tasks.
-    \item However, it has been found that models which are trained at large scale will learn general features that are applicable to a variety of tasks.
-    \item For example, large neural networks which are trained on the ImageNet dataset --- a diverse image classification task --- learn how to identify lines, edges, and other common shapes which are useful for numerous problems.
-    \item Thus, it is common practice to initialize the convolutional layers of a network with the pre-trained weights learned from ImageNet (or some other large dataset).
-    \item The training process then only has to fine-tune the network for the specific task. Since we are building on prior knowledge, learning becomes far more efficient.
-    \item \citet{Kuchera2019} demonstrate the promise of this approach for classifying AT-TPC reaction products.
-\end{itemize}
-
-}
+Training high-performing neural networks from scratch often requires enormous datasets and computation time. However, it has been found that models which are trained at large scale will learn general features that are applicable to a variety of tasks. For example, large neural networks which are trained on the ImageNet dataset \cite{Russakovsky2015} --- a diverse image classification task --- learn how to identify lines, edges, and other common shapes which are useful for numerous problems. Thus, it is common practice to initialize the convolutional layers of a network with the pre-trained weights learned from ImageNet (or some other large dataset). The training process then only has to fine-tune the network for the specific task. Since we are building on prior knowledge in this case, learning becomes far more efficient and better performance can often be achieved. \citet{Kuchera2019} used machine learning methods to classify the products of $^{46}$Ar reactions in the AT-TPC, and they found that a CNN initialized with ImageNet weights resulted in the most successful classification.
 
 \subsubsection{Clustering on latent spaces}
 
+% In contrast with the classification work of \citet{Kuchera2019}, we do not append a classifying layer to the VGG16 network given that we do not have access to the ground truth labels at training time in the clustering regime. We instead consider the output from the convolutional blocks of the VGG16 network as a representation of the events on which we will apply a clustering algorithm. 
 
-In contrast with the classification work by \citet{Kuchera2019}, we do not append a classifying layer to the VGG16 network given that we do not have access to the ground truth labels at training time in the clustering regime. We instead consider the output from the convolutional blocks of the VGG16 network as a representation of the events on which we will apply a clustering algorithm. 
+% The clustering algorithm we found to give the strongest result is the K-means algorithm. This algorithm is contingent on having a distance measurement between two datapoints. We found that the standard choice of a euclidian norm on the vector differences provided the best outcomes.
+
+In contrast with the classification work of \citet{Kuchera2019}, we do not have access to ground truth labels and are trying to solve a fundamentally different learning problem. Thus, rather than fine-tuning a pre-trained network under the supervised learning regime, we extract the output of the pre-trained network's last convolutional layer as a latent representation of the events on which we will apply a clustering algorithm. 
 
 The clustering algorithm we found to give the strongest result is the K-means algorithm. This algorithm is contingent on having a distance measurement between two datapoints. We found that the standard choice of a euclidian norm on the vector differences provided the best outcomes.
 
@@ -403,8 +395,17 @@ Furthermore, we wish to characterize further the clusters presented in figure \r
 \end{figure} 
 
 In addition to the results presented in this section, we performed clustering with a number of different algorithms included in the \lstinline{scikit-learn} package. None of them provided any notable differences from the K-means results or were significantly worse. Notably, the DBSCAN algorithm \cite{Ester96adensity-based}\cite{Bergstra2012} failed to provide any useful clustering results. We find this important as one of the significant drawbacks of K-means, and the deep clustering algorithm presented in section \ref{sec:mixae}, is that they are all dependent on pre-determining the number of clusters. This is not the case for DBSCAN. 
+
+
 \subsection{Autoencoder clustering}
-\todo{look at grayscale images or colorbar with propto charge}
+
+
+\begin{table}[H]
+\centering 
+\caption[MIXAE clustering performance]{MIXAE clustering performance on the ${}^{46} Ar$ experimental data. In contrast with the VGG-16 + K-means approach we observe  significant variations in performance.}\label{tab:clstr_vgg}
+\input{./plots/mixae_clustering.tex}
+\end{table}
+
 
 In the previous section we demonstrated a potential for clustering of events from an AT-TPC experiment. To build on this result we will in this section explore the application of the mixture of autoencoders (MIXAE) algorithm introduced in section \ref{sec:mixae}.
 Other algorithms for deep clustering based on autoencoder architectures were also implemented. These did not succeed in the clustering task and were omitted for brevity\footnote{The algoritms we implemented were the Deep Embedded Convolutional Clustering \cite{Guo2017} and its predecessor Deep Embedded Clustering \cite{Xie2016}}.
@@ -476,11 +477,7 @@ The grids selected for the search are listed in table \ref{tab:mixae_loss_weight
 
 Finally, for these parameters we re-ran the algorithm $N=10$ times to investigate the stability of the algorithm. The results are reported in figure \ref{fig:mixae_sim}. We observe that while the algorithm can achieve very strong performance, with an adjusted rand index (ARI) $ > 0.8$, it fluctuates strongly with repeated experiments. The $ARI$ is a clustering performance measure similar to accuracy, but adjusted for chance. We elaborate on the $ARI$ score in section \ref{sec:unsupervised_perf}. As mentioned in section \ref{sec:mixae} the batch-entropy has a second minimum when the cluster confidences are near equal. It is this behavior we observe in figure \ref{fig:mixae_sim}.
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=\textwidth]{./plots/sim_mixae.pdf}
-\caption[Clustering performance of MIXAE on simulated AT-TPC data]{Performance for the MIXAE model on simulated AT-TPC data. In the top row the loss components are plotted for each run, and in the bottom row the adjusted rand index (ARI) and clustering accuracy are shown. Each run is color-coded with the ARI achieved at the end of the run. }\label{fig:mixae_sim}
-\end{figure}
+
 
 \subsection{Filtered AT-TPC data}
 
@@ -494,11 +491,7 @@ We repeat the optimization steps in the previous section for the filtered AT-TPC
 
 \noindent The results of the runs are included in figure \ref{fig:mixae_clean}. We observe ghat the highest performing models reach an $ARI > 0.5$, which is higher than the performance achieved by the K-means algorithm applied to the VGG16 latent space. 
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=\textwidth]{./plots/clean_mixae.pdf}
-\caption[Clustering performance of MIXAE on filtered event AT-TPC data]{Performance for the MIXAE model on filtered AT-TPC data. In the top row the loss components are plotted for each run, and in the bottom row the adjusted rand index (ARI) and clustering accuracy are shown. Each run is color-coded with the ARI achieved at the end of the run.}\label{fig:mixae_clean}
-\end{figure}
+
 
 
 \subsection{Full AT-TPC data}
@@ -514,11 +507,7 @@ As in the two previous sections, we repeat the same procedure of iterative grid 
 
 \noindent As with the previous datasets we include a plot of the loss curves and performance measures for $N=10$ runs with the same loss-weight parameters, shown in figure \ref{fig:mixae_full}.
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=\textwidth]{./plots/real_mixae.pdf}
-\caption[Clustering performance of MIXAE on full event AT-TPC data]{Performance for the MIXAE model on un-filtered AT-TPC data. In the top row the loss components are plotted for each run, and in the bottom row the adjusted rand index (ARI) and clustering accuracy are shown. Each run is color-coded with the ARI achieved at the end of the run.}\label{fig:mixae_full}
-\end{figure}
+
 
 \subsection{Comparing performance}
 
@@ -541,18 +530,6 @@ Applied to the real data the MIXAE correctly separates the proton class, however
 
 Lastly we wish to further investigate if there are systematic differences between proton events that were placed in different clusters for the clean and full data. From figure \ref{fig:mixae_confmat} we see that the MIXAE algorithm creates two proton clusters for the filtered data, and places about fifty per-cent of the proton events in a cluster with the amorphous "other" events. We extract some proton events from these clusters to inspect whether systematic differences occur. 
 
-
-\begin{figure}
-\centering
-\includegraphics[width=\textwidth]{plots/clean_cluster_repr.pdf}
-\caption[Selection of carbon events in differing clusters]{Selection of carbon events belonging to different clusters. Each row represents one of the clusters for the filtered data as shown in figure \ref{fig:mixae_confmat}. There seems to be no clear distinction between these rows.}\label{fig:filtered_mixae_clster_repr}	
-\end{figure} 
-
-\begin{figure}
-\centering
-\includegraphics[width=\textwidth]{plots/real_cluster_repr.pdf}	
-\caption[Selection of proton events in differing clusters]{Selection of proton events belonging to different clusters. Each row represents one of the clusters for the full data as shown in figure \ref{fig:mixae_confmat}. We observe a tendency for the more noisy events to be placed in the "other" cluster}\label{fig:full_mixae_clster_repr}	
-\end{figure} 
 
 \section{Conclusions and Perspectives}\label{sec{conclusion}}
 
