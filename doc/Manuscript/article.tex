@@ -98,7 +98,8 @@ Detectors and Associated Equipment}
 
 
 \begin{abstract}
-This article presents novel applications of machine learning methods to the problem of event classification in an active target detector, the Active Target Time Projection Chamber (AT-TPC) \cite{Bradt2017}. Machine learning presents an interesting avenue for researchers operating the AT-TPC, as traditional analysis methods of AT-TPC data are computationally expensive and have to fit all tracks against the event type of interest. The latter presents a considerable challenge when either the space of reactions is not known prior to the analysis, or the event type of interest is not the most abundant. 
+% Modified by DB (6/8/2020)
+This article presents novel applications of machine learning methods to the problem of event separation in an active target detector, the Active-Target Time Projection Chamber (AT-TPC) \cite{Bradt2017}. Machine learning presents an interesting avenue for researchers operating the AT-TPC, as traditional analysis methods of AT-TPC data are computationally expensive and have to fit all tracks against the event type of interest. The latter presents a considerable challenge when either the space of reactions is not known prior to the analysis, or the event type of interest is not the most abundant. 
 
 The application of various machine learning algorithms to the analysis of two-dimensional projections of particle tracks from a resonant proton scattering experiment on $^{46}$Ar is introduced. We explore the performance of autoencoder neural networks and a pre-trained VGG16 \cite{Simonyan2014} convolutional neural network on two tasks: a semi-supervised classification task and the unsupervised clustering of particle tracks. On the semi-supervised task, we find that a logistic regression classifier trained on small labelled subsets of the latent space of these models perform very well, both on simulated and real data. On the clustering task, we find that a $K$-means algorithm applied to the simulated data in the VGG16 latent space forms almost perfect clusters. Additionally, the VGG16+K-means approach finds high purity clusters of proton events for real experimental data. We also explore the application of neural networks to clustering by implementing a mixture of autoencoders algorithm, with improved results on real data. However, the neural network clustering suffers from stability issues necessitating further investigations into this approach. 
 
@@ -262,7 +263,7 @@ An unsupervised ML algorithm able to separate the data without a priori knowledg
 
 \begin{table}[hbtp]
 \centering
-\caption{Descriptions of number of events in the data. In principle we can simulate an arbitrary amount of data, but the following quantities were shown to be sufficient for these studies.{\color{blue} reference results?}}\label{tab:datasets}
+\caption{Descriptions of number of events in the data.}\label{tab:datasets}
 \begin{tabular}{lccc}
 \toprule
 {} & Simulated & Full & Filtered \\
@@ -310,15 +311,12 @@ Training high-performing neural networks from scratch often requires enormous da
 
 % The clustering algorithm we found to give the strongest result is the K-means algorithm. This algorithm is contingent on having a distance measurement between two datapoints. We found that the standard choice of a euclidian norm on the vector differences provided the best outcomes.
 
-In contrast with the classification work of \citet{Kuchera2019}, we do not assume access to ground truth labels and are trying to solve a fundamentally different learning problem. Thus, rather than fine-tuning a pre-trained network under the supervised learning regime, we extract the output of the pre-trained network's last convolutional layer as a latent representation of the events on which we will apply a clustering algorithm. 
-
-The clustering algorithm we found to give the strongest result is the K-means algorithm. This algorithm is contingent on having a distance measurement between two datapoints. We found that the standard choice of a euclidian norm on the vector differences provided the best outcomes.
-
+In contrast with the classification work of \citet{Kuchera2019}, we do not assume access to ground truth labels and are trying to solve a fundamentally different learning problem. Thus, rather than fine-tuning a pre-trained network under the supervised learning regime, we extract the output of the pre-trained network's last convolutional layer as a latent representation of the events. We then cluster events based on this representation using the K-means++ algorithm with the standard choice of Euclidean distance.
 
 
 \subsection{Deep clustering: Mixture of autoencoders}\label{sec:mixae}
 
-As an alternative to using a pre-trained model in conjunction with a clustering algorithm, we have also considered bespoke end-to-end clustering models. These models are optimized specifically to the AT-TPC data with the objective of clustering. For this paper, we considered the deep convolutional embedded clustering (DCEC) by \citet{Guo2017} as well as the mixture of autoencoders (MIXAE) method introduced by \citet{Zhang}. While we were able to reproduce the authors' results on their data, the DCEC algorithm proved unable to cluster AT-TPC in our implementation. However, this provides valuable insight as the seeds of the clusters are constructed by a K-means algorithm. This insight contrasts with our positive results from applying a pre-trained model with k-means and highlights potentially significant differences in models trained on a supervised or unsupervised objective for clustering tasks in nuclear physics. 
+As an alternative to using a pre-trained model in conjunction with a clustering algorithm, we have also considered bespoke end-to-end clustering models. These models are optimized specifically to the AT-TPC data with the objective of clustering. We considered the deep convolutional embedded clustering (DCEC) by \citet{Guo2017} as well as the mixture of autoencoders (MIXAE) method introduced by \citet{Zhang}. While we were able to reproduce the authors' results on their data, the DCEC algorithm proved unable to cluster AT-TPC in our implementation. However, this provides valuable insight as the seeds of the clusters are constructed by a K-means algorithm. This insight contrasts with our positive results from applying a pre-trained model with k-means and highlights potentially significant differences in models trained on a supervised or unsupervised objective for clustering tasks in nuclear physics. 
 
 The MIXAE algorithm clusters data by pairing a set of encoder-decoder neural networks (autoencoder) with an auxiliary assignment network: each autoencoder constructs a representation of a given event while the assignment network assigns a set of cluster probabilities to the event. As noted by \citet{Zhang}, the MIXAe model assumes that the clusters are roughly similar in volume in the data and that one has some reasonable estimate on the number of clusters present. The architecture is portrayed in figure \ref{fig:mixae}, tapered boxes denote a direction of compression in the network components. 
 
@@ -338,6 +336,8 @@ As the MIXAE model does not have access to ground truth labels the training cons
 	\label{fig:mixae}
 \end{figure}
 {\color{blue} This section ends quite abruptly -MPK}
+
+
 \section{Results and Discussions}\label{sec:results}
 \begin{itemize}
 \item Clear out the "methods" like parts.
@@ -473,6 +473,9 @@ Lastly we wish to further investigate if there are systematic differences betwee
 
 
 \section{Conclusions and Perspectives}\label{sec{conclusion}}
+
+From our analysis it is clear that we are a ways off from a fully automated unsupervised method for track classification. It is also clear that there is significant potential in both avenues explored in this work. 
+In particular, the surprising ability of the K-means algorithm in picking out clear proton clusters from the VGG16 latent space lends itself well to an exploratory phase of analysis. The consistency of the predictive quality of the K-means model also means that 
 
 \appendix  
 \section{VGG16}\label{app:vgg}
