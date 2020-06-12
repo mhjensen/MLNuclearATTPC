@@ -331,8 +331,6 @@ The VGG16 model is pre-trained on the imagenet dataset, and subsequently applied
 
 \subsection{Deep clustering: Mixture of autoencoders}\label{sec:mixae}
 
-
-
 As an alternative to relying on a pre-trained model, we also consider bespoke end-to-end clustering models, which are specifically trained on the AT-TPC data. {\color{cyan} [Ryan: I think everything after this point in this paragraph should either be removed or go in a discussion at the end. Because it is entirely about DCEC, which isn't one of the two main methods we are presenting and more immediately isn't MIXAE, which is what this section is about. Or, this section just needs to be presented as something slightly more general, but right now, ``mixture of autoencoders'' is in the title.]} We considered the deep convolutional embedded clustering (DCEC) by \citet{Guo2017} as well as the mixture of autoencoders (MIXAE) method introduced by \citet{Zhang}. While we were able to reproduce the authors' results on their data, the DCEC algorithm proved unable to cluster AT-TPC in our implementation. However, this provides valuable insight as the seeds of the clusters are constructed by a K-means algorithm. This insight contrasts with our positive results from applying a pre-trained model with k-means and highlights potentially significant differences in models trained on a supervised or unsupervised objective for clustering tasks in nuclear physics. 
 
 The MIXAE algorithm clusters data by pairing a set of encoder-decoder neural networks (autoencoder) with an auxiliary assignment network: each autoencoder constructs a representation of a given event while the assignment network assigns a set of cluster probabilities to the event. As noted by \citet{Zhang}, the MIXAe model assumes that the clusters are roughly similar in volume in the data and that one has some reasonable estimate on the number of clusters present {\color{cyan} [Ryan: Is this true of our data? I think if these assumptions are going to be mentioned, then we need to say that our data meets the criteria.}. The architecture is portrayed in figure \ref{fig:mixae}, tapered boxes denote a direction of compression in the network components. 
@@ -445,8 +443,7 @@ We repeat the optimization steps in the previous paragraph for the filtered AT-T
 
 \noindent The results of the runs are included in figure \ref{fig:mixae_clean}. We observe that the highest performing models reach an $ARI > 0.5$, which is higher than the performance achieved by the K-means algorithm applied to the VGG16 latent space. 
 
-We repeated the same procedure described in the two previous paragraphs to the raw dataset. Each configuration was re-run a total of $N=10$ times to capture fluctuations in the performance before a final selection is made on the hyperparameters. 
-
+We repeated the same procedure described in the two previous paragraphs to the raw dataset. Each configuration was re-run a total of $N=10$ times to capture fluctuations in the performance before a final selection is made on the hyperparameters. In contrast to the previous two results the MIXAE algorith very rarely converges to a high performig configuration. In fact, most runs are indistinguishable from random chance clusterings.
 
 \subsection{Comparing performance}
 
