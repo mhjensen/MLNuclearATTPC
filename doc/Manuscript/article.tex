@@ -99,9 +99,12 @@ Detectors and Associated Equipment}
 
 \begin{abstract}
 % Modified by DB (6/8/2020)
-This article presents novel applications of machine learning methods to the problem of event separation in an active target detector, the Active-Target Time Projection Chamber (AT-TPC) \cite{Bradt2017}. Machine learning presents an interesting avenue for researchers operating the AT-TPC, as traditional analysis methods of AT-TPC data are computationally expensive and have to fit all tracks against the event type of interest. The latter presents a considerable challenge when either the space of reactions is not known prior to the analysis, or the event type of interest is not the most abundant. 
-
-The application of various machine learning algorithms to the analysis of two-dimensional projections of particle tracks from a resonant proton scattering experiment on $^{46}$Ar is introduced. We explore the performance of autoencoder neural networks and a pre-trained VGG16 \cite{Simonyan2014} convolutional neural network on two tasks: a semi-supervised classification task and the unsupervised clustering of particle tracks. On the semi-supervised task, we find that a logistic regression classifier trained on small labelled subsets of the latent space of these models perform very well, both on simulated and real data. On the clustering task, we find that a $K$-means algorithm applied to the simulated data in the VGG16 latent space forms almost perfect clusters. Additionally, the VGG16+K-means approach finds high purity clusters of proton events for real experimental data. We also explore the application of neural networks to clustering by implementing a mixture of autoencoders algorithm, with improved results on real data. However, the neural network clustering suffers from stability issues necessitating further investigations into this approach. 
+This article presents novel applications of machine learning methods to the problem of event separation in an active target detector, the Active-Target Time Projection Chamber (AT-TPC) \cite{Bradt2017}. %Machine learning presents an interesting avenue for researchers operating the AT-TPC, as traditional analysis methods of AT-TPC data are computationally expensive and have to fit all tracks against the event type of interest. The latter presents a considerable challenge when either the space of reactions is not known prior to the analysis, or the event type of interest is not the most abundant. 
+The application of unsupervised clustering  algorithms to the analysis of two-dimensional projections of particle tracks from a resonant proton scattering experiment on $^{46}$Ar is introduced. We explore the performance of autoencoder neural networks and a pre-trained VGG16 \cite{Simonyan2014} convolutional neural network.
+%on two tasks: a semi-supervised classification task and the unsupervised clustering of particle tracks. 
+%On the semi-supervised task, we find that a logistic regression classifier trained on small labelled subsets of the latent space of these models perform very well, both on simulated and real data. On the clustering task, 
+We find that a $K$-means algorithm applied to the simulated data in the VGG16 latent space forms almost perfect clusters. Additionally, the VGG16+K-means approach finds high purity clusters of proton events for real experimental data. We also explore the application of neural networks to clustering by implementing a mixture of autoencoders algorithm, with improved results on real data. %
+%However, the neural network clustering suffers from stability issues. %necessitating further investigations into this approach. 
 
 %In this work we introduce the application of convolutional autoencoder neural networks to the analysis of two-dimensional projections of particle tracks from a resonant proton scattering experiment on ${}^{46}$Ar. 
 %The data we analyze were recorded by an active target time-projection chamber (AT-TPC). Machine learning presents an interesting avenue for researchers operating an AT-TPC, as traditional analysis methods of AT-TPC data are both computationally expensive and fit all particle tracks against the event type of interest. The latter presents a considerable challenge when the space of reactions is not known prior to the analysis. 
@@ -158,7 +161,11 @@ The experiment was performed at the National Superconducting Cyclotron Facility 
 
 The detector was placed inside the bore of a MRI solenoid energized to $\sim 2$ Tesla. This axial magnetic field served the purpose of bending the trajectories of the recoil particles in order to i) increase their length and ii) provide a measurement of their bending radius, directly related to their magnetic rigidity. Because the recoil particles travel in gas, they slow down and eventually stop, therefore their trajectories are described by 3-dimensional spirals (see \cite{Bradt2017}). One of the difficulties encountered in the analysis is that the shape of these spirals does not have an analytical form because it follows the energy-loss profile of the particles. It therefore needs to be simulated via an integration, which is numerically costly. Other difficulties are related to several experimental effects that deteriorate the quality of the data, namely saturation and cross-talk effects, as well as random noise. 
 
-The method used in \cite{Bradt2018} to analyze the data followed a 3-phase sequence: cleaning, filtering and fitting. Traditional methods were used to perform each of these tasks, and ultimately extract the scientific information, but there were severe limitations and high computational costs that become prohibitive in data sets larger by an order of magnitude. In addition, \cite{Kuchera2019} demonstrated that the purity and statistics of the data are improved with the use of ML.
+The method used in \cite{Bradt2018} to analyze the data followed a 3-phase sequence: cleaning, filtering and fitting. Traditional methods were used to perform each of these tasks, and ultimately extract the scientific information, but there were severe limitations and high computational costs that become prohibitive in data sets larger by an order of magnitude. 
+% Begin added by DB (06/10/2020)
+The cleaning was performed using a combination of linear and circular Hough transforms on a 2-dimensional projection of the tracks \cite{Bradt2017}. The following filtering and fitting phases were performed simultaneously, by defining the cost function to the fitting algorithm as a sum of 3 $\chi^2$ components based on i) the position of the track in space, ii) the energy deposited on each pixel of the sensor plane, and iii) the location of the vertex of the reaction. While various fitting algorithms were tested, the most accurate was a Monte-Carlo algorithm that explored the 6-dimensional phase space of the particle's kinematics parameters, reducing it progressively at each iteration step until the desired accuracy was reached \cite{Bradt2017}. Although this algorithm ended up being the most accurate, it is extremely costly computationally because of the very large number of simulated tracks needed for each event. The filtering was performed by setting limits to the $\chi^2$ distributions, below which the events were assigned as proton scattering. This is a very inefficient method because it requires performing the fitting for all events, including those that are not of interest. Pioneering work on event identification using ML methods, namely the use of a pre-trained CNN, later showed that the filtering phase would better be performed using this type of technique \cite{Kuchera2019}. 
+% End added by DB (06/10/2020)
+In addition, \cite{Kuchera2019} demonstrated that the purity and statistics of the data are improved with the use of ML.
 
 
 \section{Data Preparation}
@@ -313,12 +320,22 @@ Training high-performing neural networks from scratch often requires enormous da
 
 In contrast with the classification work of \citet{Kuchera2019}, we do not assume access to ground truth labels and are trying to solve a fundamentally different learning problem. Thus, rather than fine-tuning a pre-trained network under the supervised learning regime, we extract the output of the pre-trained network's last convolutional layer as a latent representation of the events. We then cluster events based on this representation using the K-means++ algorithm with the standard choice of Euclidean distance.
 
+Building on the work by \citet{Kuchera2019}, we also use the VGG16 pre-trained network as a baseline for the clustering performance. We begin by considering a classical K-means approach to clustering. However, the output from the VGG16 network is very high dimensional which traditionally conflicts with good K-means results. With output vectors in $\R^{8192}$ the ratio between $L_p$ distances goes to one with increasing dimensionality, as shown by \citet{Aggarwal}. However, one of the central assumptions in the authors' finding is that the elements are uniformly distributed in the latent space. They note that it is then possible that if the class information lies in some sub-space of the latent data, $L_p$-norms may provide useful clusterings even in high dimensional spaces. To investigate this, we perform a $L_2$-norm based K-means clustering using the full VGG16 representation and the $10^2$ first principal components only. 
+
+%{\color{blue} Are there supposed to be results here? -MPK}
+%\subsection{K-means}
+
+%We begin by investigating the K-means clustering algorithm on the VGG16 latent space. 
+The VGG16 model is pre-trained on the imagenet dataset, and subsequently applied to the AT-TPC events without the classification layers. This creates a set of vectors $\boldsymbol{x} \in \R^{8192}$ as our new representation of the events. To cluster we use \lstinline{scikit-learn} implementation of the K-means algorithm, with default parameters \cite{Pedregosa2011}.
+
 
 \subsection{Deep clustering: Mixture of autoencoders}\label{sec:mixae}
 
-As an alternative to using a pre-trained model in conjunction with a clustering algorithm, we have also considered bespoke end-to-end clustering models. These models are optimized specifically to the AT-TPC data with the objective of clustering. We considered the deep convolutional embedded clustering (DCEC) by \citet{Guo2017} as well as the mixture of autoencoders (MIXAE) method introduced by \citet{Zhang}. While we were able to reproduce the authors' results on their data, the DCEC algorithm proved unable to cluster AT-TPC in our implementation. However, this provides valuable insight as the seeds of the clusters are constructed by a K-means algorithm. This insight contrasts with our positive results from applying a pre-trained model with k-means and highlights potentially significant differences in models trained on a supervised or unsupervised objective for clustering tasks in nuclear physics. 
 
-The MIXAE algorithm clusters data by pairing a set of encoder-decoder neural networks (autoencoder) with an auxiliary assignment network: each autoencoder constructs a representation of a given event while the assignment network assigns a set of cluster probabilities to the event. As noted by \citet{Zhang}, the MIXAe model assumes that the clusters are roughly similar in volume in the data and that one has some reasonable estimate on the number of clusters present. The architecture is portrayed in figure \ref{fig:mixae}, tapered boxes denote a direction of compression in the network components. 
+
+As an alternative to relying on a pre-trained model, we also consider bespoke end-to-end clustering models, which are specifically trained on the AT-TPC data. {\color{cyan} [Ryan: I think everything after this point in this paragraph should either be removed or go in a discussion at the end. Because it is entirely about DCEC, which isn't one of the two main methods we are presenting and more immediately isn't MIXAE, which is what this section is about. Or, this section just needs to be presented as something slightly more general, but right now, ``mixture of autoencoders'' is in the title.]} We considered the deep convolutional embedded clustering (DCEC) by \citet{Guo2017} as well as the mixture of autoencoders (MIXAE) method introduced by \citet{Zhang}. While we were able to reproduce the authors' results on their data, the DCEC algorithm proved unable to cluster AT-TPC in our implementation. However, this provides valuable insight as the seeds of the clusters are constructed by a K-means algorithm. This insight contrasts with our positive results from applying a pre-trained model with k-means and highlights potentially significant differences in models trained on a supervised or unsupervised objective for clustering tasks in nuclear physics. 
+
+The MIXAE algorithm clusters data by pairing a set of encoder-decoder neural networks (autoencoder) with an auxiliary assignment network: each autoencoder constructs a representation of a given event while the assignment network assigns a set of cluster probabilities to the event. As noted by \citet{Zhang}, the MIXAe model assumes that the clusters are roughly similar in volume in the data and that one has some reasonable estimate on the number of clusters present {\color{cyan} [Ryan: Is this true of our data? I think if these assumptions are going to be mentioned, then we need to say that our data meets the criteria.}. The architecture is portrayed in figure \ref{fig:mixae}, tapered boxes denote a direction of compression in the network components. 
 
 As the MIXAE model does not have access to ground truth labels the training consists of applying simple heuristics that constitute a necessary, but not sufficient, fulfilment for a high-quality MIXAE model given the assumptions made of the model. The heuristics can be stated as: 
 \begin{enumerate}
@@ -328,6 +345,8 @@ As the MIXAE model does not have access to ground truth labels the training cons
 \end{enumerate}
 
 \noindent For a more formal consideration of these heuristics see \citet{Zhang}.
+
+{\color{cyan} [Ryan: When I reach the end of this section, I'm still not quite sure its obvious what MIXAE is doing. I don't necessarily know how to reword things yet, but I think a more intuitive initial explanation of what it does could be helpful.}
 
 \begin{figure}[tb]
 	\centering
@@ -347,18 +366,13 @@ As the MIXAE model does not have access to ground truth labels the training cons
 \item remove fig. 14 and fig 15.
 \end{itemize}
 
-The principal challenge in the AT-TPC experiments that we are trying to solve is the reliance on labelled samples in the analysis as future experiments may not have as visually dissimilar reaction products  as we observe in the ${}^{46}$Ar experiment.  The  ${}^{46}$Ar experiment does, however, provide a useful example where we can then explore unsupervised techniques. In this chapter, we explore the application of clustering techniques to events represented in latent spaces. 
+The principal challenge in the AT-TPC experiments that we are trying to solve is the reliance on labelled samples in the analysis as future experiments may not have as visually dissimilar reaction products  as we observe in the ${}^{46}$Ar experiment.  The  ${}^{46}$Ar experiment does, however, provide a useful example where we can then explore unsupervised techniques. 
 
-We begin by exploring a naive K-means approach on the latent space of a pre-trained network. Subsequently, we investigate other clustering methods and the autoencoder based clustering algorithm outlined in section \ref{sec:mixae}.
-{\color{blue} Move methods to pervious section -MPK}
-\subsection{Pre-trained model with K-means}
-Building on the work by \citet{Kuchera2019}, we also use the VGG16 pre-trained network as a baseline for the clustering performance. We begin by considering a classical K-means approach to clustering. However, the output from the VGG16 network is very high dimensional which traditionally conflicts with good K-means results. With output vectors in $\R^{8192}$ the ratio between $L_p$ distances goes to one with increasing dimensionality, as shown by \citet{Aggarwal}. However, one of the central assumptions in the authors' finding is that the elements are uniformly distributed in the latent space. They note that it is then possible that if the class information lies in some sub-space of the latent data, $L_p$-norms may provide useful clusterings even in high dimensional spaces. To investigate this, we perform a $L_2$-norm based K-means clustering using the full VGG16 representation and the $10^2$ first principal components only. 
+We begin by exploring the results of applying a K-means approach on the latent space of a pre-trained network. Subsequently, we investigate the performance of the MIXAE algorithm outlined in section \ref{sec:mixae}.
 
-%{\color{blue} Are there supposed to be results here? -MPK}
-%\subsection{K-means}
+\subsection{K-means clustering on the VGG16 latent space}
 
-%We begin by investigating the K-means clustering algorithm on the VGG16 latent space. 
-The VGG16 model is pre-trained on the imagenet dataset, and subsequently applied to the AT-TPC events without the classification layers. This creates a set of vectors $\boldsymbol{x} \in \R^{8192}$ as our new representation of the events. To cluster we use \lstinline{scikit-learn} implementation of the K-means algorithm, with default parameters \cite{Pedregosa2011}. The results of the clustering runs are included in table \ref{tab:clstr_vgg}. We observe that we are able to attain near-perfect clustering on simulated data and that there is a sharp decline in performance as we add noise by moving to the filtered and raw datasets. 
+The results of the clustering runs are included in table \ref{tab:clstr_vgg}. We observe that we are able to attain near-perfect clustering on simulated data and that there is a sharp decline in performance as we add noise by moving to the filtered and raw datasets. 
 
 
 \begin{table}[H]
@@ -367,7 +381,9 @@ The VGG16 model is pre-trained on the imagenet dataset, and subsequently applied
 \input{./plots/kmeans_vgg.tex}
 \end{table}
 
-In addition to the performance measures reported in table \ref{tab:clstr_vgg}, it is interesting to observe which samples are being wrongly assigned. We achieve this by tabulating the assignments of samples relative to their ground truth labels. From these tables, we can infer which classes are more or less entangled with others. We tabulate the results for each dataset is in figure \ref{fig:clster_confmat}. We observe that the proton class is consistently assigned in a pure cluster. Purity is inferred by how much spread there is in the column between the ground truth labels. A high-quality cluster will, in addition to being pure, also capture most entries the class represented by the cluster. For example, consider the row corresponding to the proton class in figure \ref{fig:clster_confmat}. The column corresponding to the largest entry in the proton row has zero other predicted classes in it. From this, we conclude that the proton cluster is a high quality, high purity cluster. 
+In addition to the performance measures reported in table \ref{tab:clstr_vgg}, it is interesting to observe which samples are being wrongly assigned. We achieve this by tabulating the assignments of samples relative to their ground truth labels. From these tables, we can infer which classes are more or less entangled with others. We tabulate the results for each dataset is in figure \ref{fig:clster_confmat}. We observe that the proton class is consistently assigned in a pure cluster. Purity is inferred by how much spread there is in the column between the ground truth labels. A high-quality cluster will, in addition to being pure, also capture most entries the class represented by the cluster. For example, consider the row corresponding to the proton class in figure \ref{fig:clster_confmati_filt}. The column corresponding to the largest entry in the proton row has zero other predicted classes in it. From this, we conclude that the proton cluster is a high quality, high purity cluster. 
+
+This high quality cluster also appears in the clustering of raw data. From figure \ref{fig:clster_confmati_raw} we observe that there is a high purity proton cluster. In contrast to the filtered data we observe that the deterioration in performance can largely be ascribed to the algorithm creating a proton + other cluster and a carbon + other cluster.
 
 \begin{figure}
 \centering
@@ -388,34 +404,25 @@ In addition to the performance measures reported in table \ref{tab:clstr_vgg}, i
 
 We repeat this analysis using a Principle Component Analysis (PCA) dimensionality reduction \footnote{
 PCA is a common techinque to find the significant variations in data by projecting the data along a subset of its covariance matrix eigenvectors \cite{Marsland2009}
-}{\color{green}(please define)} {\color{orange} does this work?} on the latent space of the VGG16 model. This is done to estimate to what degree the class separating information is encoded in the entirety of the latent space, or in some select regions. The results from the PCA analysis were virtually identical to the results sans the PCA, and so we omit them for brevity. 
+} on the latent space of the VGG16 model. This is done to estimate to what degree the class separating information is encoded in the entirety of the latent space, or in some select regions. The results from the PCA analysis were virtually identical to the results sans the PCA, and so we omit them for brevity. 
 
-Furthermore, we wish to characterize further the clusters presented in figure \ref{fig:clster_confmat}. To achieve this, we sample from the proton samples belonging to different clusters for the filtered and full data.
+Furthermore, we wish to characterize further the clusters presented in the matrix in figures \ref{fig:clster_confmati_filt} and \ref{fig:clster_confmati_raw}. To achieve this, we sample from the proton samples belonging to different clusters for the filtered and full data.
 
 \begin{figure}
 \includegraphics[width=\textwidth]{custom_work/Filteredexamples.pdf}
-\caption[Filtered proton samples by cluster belonging]{Illustrating a sample of proton events from different K-means clusters from the filtered dataset. Each row belongs to a single cluster corresponding to the filtered confusion matrix in figure \ref{fig:clster_confmat}}\label{fig:filtered_vgg_clster_repr}
+\caption[Filtered proton samples by cluster belonging]{Illustrating a sample of proton events from different K-means clusters from the filtered dataset. Each row belongs to a single cluster corresponding to the filtered confusion matrix in figure \ref{fig:clster_confmati_filt}}\label{fig:filtered_vgg_clster_repr}
 \end{figure} 
 
 \begin{figure}
 \includegraphics[width=\textwidth]{custom_work/Rawexamples.pdf}
-\caption[Full proton samples by cluster belonging]{Illustrating a sample of proton events from different K-means clusters from the raw dataset. Each row belongs to a single cluster corresponding to the full confusion matrix in figure \ref{fig:clster_confmat}}\label{fig:full_vgg_clster_repr}
+\caption[Full proton samples by cluster belonging]{Illustrating a sample of proton events from different K-means clusters from the raw dataset. Each row belongs to a single cluster corresponding to the full confusion matrix in figure \ref{fig:clster_confmati_raw}}\label{fig:full_vgg_clster_repr}
 \end{figure} 
 
 In addition to the results presented in this section, we performed clustering with a number of different algorithms included in the \lstinline{scikit-learn} package. None of them provided any notable differences from the K-means results or were significantly worse. Notably, the DBSCAN algorithm \cite{Ester96adensity-based}\cite{Bergstra2012} failed to provide any useful clustering results. We find this important as one of the significant drawbacks of K-means, and the deep clustering algorithm presented in section \ref{sec:mixae}, is that they are all dependent on pre-determining the number of clusters. This is not the case for DBSCAN. 
 
+\subsection{MIXAE clustering results}
 
-\subsection{Autoencoder clustering}
-
-
-\begin{table}[H]
-\centering 
-\caption[MIXAE clustering performance]{MIXAE clustering performance on the ${}^{46} Ar$ experimental data. In contrast with the VGG-16 + K-means approach we observe  significant variations in performance.}\label{tab:clstr_vgg}
-\input{./plots/mixae_clustering.tex}
-\end{table}
-
-
-In the previous section we demonstrated a potential for clustering of events from an AT-TPC experiment. To build on this result we will in this section explore the application of the mixture of autoencoders (MIXAE) algorithm introduced in section \ref{sec:mixae}.
+In the previous section we demonstrated a rather naive clustering technique for AT-TPC event classification. To build on this result we will in this section explore the application of the mixture of autoencoders (MIXAE) algorithm introduced in section \ref{sec:mixae}.
 Other algorithms for deep clustering based on autoencoder architectures were also implemented. These did not succeed in the clustering task and were omitted for brevity\footnote{The algoritms we implemented were the Deep Embedded Convolutional Clustering \cite{Guo2017} and its predecessor Deep Embedded Clustering \cite{Xie2016}}.
 
 In the MIXAE algorithm the hyper-parameters to adjust are all the ordinary parameters that we introduced in table \ref{tab:convae_hyperparams}. In addition to those parameters we have the weighting of the loss terms: $\theta$, $\alpha$ and $\gamma$. These weighting parameters are attached to the reconstruction loss, sample entropy and batch-wise entropy respectively \cite{Zhang}. 
@@ -423,29 +430,22 @@ We focused on the tuning of the clustering hyper-parameters, and heuristically s
 
 The parameters chosen for the autoencoders are listed in full in table \ref{tab:mixe_ae_hyperparams}.
 
+\begin{table}[H]
+\centering 
+\caption[MIXAE clustering performance]{MIXAE clustering performance on the ${}^{46} Ar$ experimental data. In contrast with the VGG-16 + K-means approach we observe  significant variations in performance.}\label{tab:clstr_vgg}
+\input{./plots/mixae_clustering.tex}
+\end{table}
 
 \subsection{Simulated AT-TPC data}
 
 
-Finally, for these parameters we re-ran the algorithm $N=10$ times to investigate the stability of the algorithm. The results are reported in figure \ref{fig:mixae_sim}. We observe that while the algorithm can achieve very strong performance, with an adjusted rand index (ARI) $ > 0.8$, it fluctuates strongly with repeated experiments. The $ARI$ is a clustering performance measure similar to accuracy, but adjusted for chance. We elaborate on the $ARI$ score in section \ref{sec:unsupervised_perf}. As mentioned in section \ref{sec:mixae} the batch-entropy has a second minimum when the cluster confidences are near equal. It is this behavior we observe in figure \ref{fig:mixae_sim}.
+Finally, for these parameters we re-ran the algorithm $N=10$ times to investigate the stability of the algorithm. The results are reported in figure \ref{fig:mixae_sim}. We observe that while the algorithm can achieve very strong performance, with an adjusted rand index (ARI) $ > 0.8$, it fluctuates strongly with repeated experiments. The $ARI$ is a clustering performance measure similar to accuracy, but adjusted for chance. We elaborate on the $ARI$ score in section \ref{sec:unsupervised_perf}. 
 
+We repeat the optimization steps in the previous paragraph for the filtered AT-TPC data. The exception being that we allow the algorithm to train on the labelled samples. Beginning with a wide grid equal to the grid used for the simulated data we searched over all parameter configurations to find promising values. We then performed a local search around these values to pin-point the hyperparameter configuration.
 
+\noindent The results of the runs are included in figure \ref{fig:mixae_clean}. We observe that the highest performing models reach an $ARI > 0.5$, which is higher than the performance achieved by the K-means algorithm applied to the VGG16 latent space. 
 
-\subsection{Filtered AT-TPC data}
-
-We repeat the optimization steps in the previous section for the filtered AT-TPC data. The exception being that we allow the algorithm to train on the labelled samples. Beginning with a wide grid equal to the grid used for the simulated data we searched over all parameter configurations to find promising values. We then performed a local search around these values to pin-point the hyperparameter configuration.
-
-\noindent The results of the runs are included in figure \ref{fig:mixae_clean}. We observe ghat the highest performing models reach an $ARI > 0.5$, which is higher than the performance achieved by the K-means algorithm applied to the VGG16 latent space. 
-
-
-
-
-\subsection{Full AT-TPC data}
-
-As in the two previous sections, we repeat the same procedure of iterative grid searches on the MIXAE loss-weights. Each configuration is re-run a total of $N=10$ times to capture fluctuations in the performance before a final selection is made on the hyperparameters. 
-
-\noindent As with the previous datasets we include a plot of the loss curves and performance measures for $N=10$ runs with the same loss-weight parameters, shown in figure \ref{fig:mixae_full}.
-
+We repeated the same procedure described in the two previous paragraphs to the raw dataset. Each configuration was re-run a total of $N=10$ times to capture fluctuations in the performance before a final selection is made on the hyperparameters. 
 
 
 \subsection{Comparing performance}
@@ -456,16 +456,12 @@ Applied to the real data the MIXAE correctly separates the proton class, however
 
 \begin{figure}[H]
 \centering
-
 	\includegraphics[width=\textwidth]{custom_work/Filtered_mixae_conf_mat.pdf}
-
 \end{figure}
+
 \begin{figure}[H]
 \centering
-
-
 	\includegraphics[width=\textwidth]{custom_work/Raw_mixae_conf_mat.pdf}
-
 \caption[MIXAE - confusion matrices]{Confusion matrices for the MIXAE clustering algorithm on filtered and full AT-TPC events. The true labels indicate samples belonging to the p (proton), carbon (C), or other classes. }\label{fig:mixae_confmat}
 \end{figure}
 
@@ -475,7 +471,17 @@ Lastly we wish to further investigate if there are systematic differences betwee
 \section{Conclusions and Perspectives}\label{sec{conclusion}}
 
 From our analysis it is clear that we are a ways off from a fully automated unsupervised method for track classification. It is also clear that there is significant potential in both avenues explored in this work. 
-In particular, the surprising ability of the K-means algorithm in picking out clear proton clusters from the VGG16 latent space lends itself well to an exploratory phase of analysis. The consistency of the predictive quality of the K-means model also means that 
+In particular, the surprising ability of the K-means algorithm in picking out clear proton clusters from the VGG16 latent space lends itself well to an exploratory phase of analysis.
+Another surprising facet of the K-means clustering is its consistent performance. As shown in table \ref{tab:clstr_vgg}, the variance is zero for the performance metrics. This result indicates that the clusters are very clearly defined in the VGG16 latent space. As we see from the non-proton clusters if figures \ref{fig:clster_confmati_filt} and \ref{fig:clster_confmati_raw}  that does not necessarily imply that the physical signals are correspondingly clear. 
+
+Additionally, a clear disadvantage to the K-means method is that the researcher has to specify the number of clusters in the data themselves. Each experiment then has to be considered in light of possible reaction channels to determine a sensible number of clusters for this approach. 
+
+The same weakness is present in the MIXAE implementation. Additionally, while it showed better optimal performance than the K-means method, it struggles with inconsistent results. This inconsistency was also notably not evident from the unsupervised training-objectives of the model. These two factors conspire to limit its immediate applicability. 
+
+In summary, we recommend that researchers performing unsupervised track classification begin with an implementation of the VGG16 + K-means approach. For future work, it is worth investigating whether the adaptations of bespoke models like the MIXAE algorithm will allow better performance at no significant cost to consistency.  Especially considering the flexibility to use 3D input representations or auxiliary physical goals in the optimization procedure. 
+
+
+{\color{orange}[RS Another abrupt end to a paragraph. Could probably use some rounding out.]} 
 
 \appendix  
 \section{VGG16}\label{app:vgg}
