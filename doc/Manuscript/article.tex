@@ -311,7 +311,7 @@ Training high-performing neural networks from scratch often requires enormous da
 
 In contrast with the classification work of \citet{Kuchera2019}, we do not assume access to ground truth labels and are trying to solve a fundamentally different learning problem. Thus, rather than fine-tuning a pre-trained network under the supervised learning regime, we extract the output of the pre-trained network's last convolutional layer as a latent representation of the events. We then cluster events based on this representation using the K-means++ algorithm with the standard choice of Euclidean distance.
 
-Building on the work by \citet{Kuchera2019}, we also use the VGG16 pre-trained network as a baseline for the clustering performance. We begin by considering a classical K-means approach to clustering. However, the output from the VGG16 network is very high dimensional which traditionally conflicts with good K-means results. With output vectors in $\R^{8192}$ the ratio between $L_p$ distances goes to one with increasing dimensionality, as shown by \citet{Aggarwal}. However, one of the central assumptions in the authors' finding is that the elements are uniformly distributed in the latent space. They note that it is then possible that if the class information lies in some sub-space of the latent data, $L_p$-norms may provide useful clusterings even in high dimensional spaces. To investigate this, we perform a $L_2$-norm based K-means clustering using the full VGG16 representation and the $10^2$ first principal components only. 
+{\color{cyan} [Ryan: I think there are a lot of words in the following two paragraphs that don't need to exist. Essentially, these paragraphs are a repeat of the last paragraph and parts of the last subsection, but with one or two extra details added in (e.g. using the top 100 principle components). As such, I would remove them and add the necessary details to the previous paragraph (or replace them with a small paragraph).]} Building on the work by \citet{Kuchera2019}, we also use the VGG16 pre-trained network as a baseline for the clustering performance. We begin by considering a classical K-means approach to clustering. However, the output from the VGG16 network is very high dimensional which traditionally conflicts with good K-means results. With output vectors in $\R^{8192}$ the ratio between $L_p$ distances goes to one with increasing dimensionality, as shown by \citet{Aggarwal}. However, one of the central assumptions in the authors' finding is that the elements are uniformly distributed in the latent space. They note that it is then possible that if the class information lies in some sub-space of the latent data, $L_p$-norms may provide useful clusterings even in high dimensional spaces. To investigate this, we perform a $L_2$-norm based K-means clustering using the full VGG16 representation and the $10^2$ first principal components only. 
 
 %{\color{blue} Are there supposed to be results here? -MPK}
 %\subsection{K-means}
@@ -322,20 +322,20 @@ The VGG16 model is pre-trained on the imagenet dataset, and subsequently applied
 
 \subsection{Deep clustering: Mixture of autoencoders}\label{sec:mixae}
 
-As an alternative to relying on a pre-trained model, we also consider bespoke end-to-end clustering models, which are specifically trained on the AT-TPC data. {\color{cyan} [Ryan: I think everything after this point in this paragraph should either be removed or go in a discussion at the end. Because it is entirely about DCEC, which isn't one of the two main methods we are presenting and more immediately isn't MIXAE, which is what this section is about. Or, this section just needs to be presented as something slightly more general, but right now, ``mixture of autoencoders'' is in the title.]} 
+As an alternative to relying on a pre-trained model, we also consider the MIXAE algorithm {\color{cyan} [Ryan: citation]}, a bespoke end-to-end clustering model which is specifically trained on the AT-TPC data.
 
-The MIXAE algorithm clusters data by pairing a set of encoder-decoder neural networks (autoencoder) with an auxiliary assignment network: each autoencoder constructs a representation of a given event while the assignment network assigns a set of cluster probabilities to the event. {\color{orange}[clear sentences about what the model does]} . The architecture is portrayed in figure \ref{fig:mixae}, tapered boxes denote a direction of compression in the network components. 
+The MIXAE model comprises several autoencoders, each of which corresponds to a cluster. The number of autoencoders, and thus the number of clusters, has to be determined beforehand. Each autoencoder constructs a latent representation of a given example. Those representations are used as inputs to an auxiliary network which assigns probabilities the clusters, indicating the likelihood that the given example belongs to each cluster. Examples are then assigned to the cluster with the highest probability. {\color{cyan} [Ryan: A description of the objective functions may or may not be worth including here, but I don't know what they are.]} The architecture is portrayed in Figure \ref{fig:mixae}, tapered boxes denote a direction of compression in the network components. 
 
-As the MIXAE model does not have access to ground truth labels the training consists of applying simple heuristics that constitute a necessary, but not sufficient, fulfilment for a high-quality MIXAE model given the assumptions made of the model. The heuristics can be stated as: 
+% The MIXAE algorithm clusters data by pairing a set of encoder-decoder neural networks (autoencoder) with an auxiliary assignment network: each autoencoder constructs a representation of a given event while the assignment network assigns a set of cluster probabilities to the event. {\color{orange}[clear sentences about what the model does]} . The architecture is portrayed in figure \ref{fig:mixae}, tapered boxes denote a direction of compression in the network components. 
+
+The MIXAE algorithm relies on a few simple assumptions which are necessary, but not sufficient, for producing a high-quality model. The assumptions can be stated as: 
 \begin{enumerate}
-	\item  Given a clustering assignment to a particular autoencoders' representation that autoencoders' reconstruction should be similar to the input event. 
-	\item Within a batch of events presented to the model, there should be a spread in the clustering assignment between all clusters. 
-	\item Each clustering prediction should be as close to a strong prediction as possible, i.e. assigning high probabilities is preferable to weak assignments.
+	\item  If an example is assigned to a particular cluster, the corresponding autoencoder's reconstruction should be accurate. 
+	\item Within a batch of examples presented to the model, assignments should spread across all clusters. 
+	\item Each clustering prediction should be as strong as possible, i.e. assigning high probabilities is preferable to weak assignments.
 \end{enumerate}
 
-\noindent For a more formal consideration of these heuristics and the assumptions made on the data by this model see \citet{Zhang}.
-
-{\color{cyan} [Ryan: When I reach the end of this section, I'm still not quite sure its obvious what MIXAE is doing. I don't necessarily know how to reword things yet, but I think a more intuitive initial explanation of what it does could be helpful.}
+\noindent {\color{cyan} [Ryan: Still needs a concluding sentence or two here.]} For a more formal consideration of these heuristics and the assumptions made on the data by this model see \citet{Zhang}.
 
 \begin{figure}[tb]
 	\centering
