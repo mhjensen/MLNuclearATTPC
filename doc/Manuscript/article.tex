@@ -163,9 +163,8 @@ In this section we give a brief overview of the data, for a more in-depth consid
 The AT-TPC data we studied for this work was recorded as charge time-series for each of the  the $\sim10^4$ detector pads.
 In this representation, an event is a record of $512$ time-buckets for each of the $10^4$ detector pads. In our analysis, we represent each event as a downsampled 2D projection.
 We chose to represent the data in 2D to facilitate the use of sophisticated image-recognition machine learning models, and this data representation was shown to successfully classify the events of this experiment in a supervised setting \cite{Kuchera2019}.
-First, the time-series data was represented as a 3D point cloud, where each point contains the maximum charge in the time-series trace. We log-transform to map the charge to the interval $[0, 1]$ for each point, then standardize the data. in the charge time-series and summing over the time-axis.
-%
-Additionally, we log-transform and normalize the data to the interval $[0, 1]$ for each point. The final representation for each event is a $128 \times 128$ matrix with each element ranging from $0$ to $1$.
+First, the time-series data was represented as a 3D point cloud, where each point contains the maximum charge in the time-series trace. We log-transform then min-max scale the charge, mapping the charge to the interval $[0, 1]$. The data is projected into 2D space by summing over the time-axis, then downsampled into an $128\times128$ pixel image.
+%Additionally, we log-transform and normalize the data to the interval $[0, 1]$ for each point. The final representation for each event is a $128 \times 128$ matrix with each element ranging from $0$ to $1$.
 
 One of the significant considerations for the analysis of AT-TPC data is to inject machine learning methods for track identification at the best point in the analysis pipeline.
 Using raw data is advantageous as it provides an unbiased view of the event, but the data volume and noise levels might be prohibitive for analysis.
@@ -188,7 +187,8 @@ $\%$ Other & $0$ & $62.8$ & $60.1$ \\
 
 \subsection{Simulated \texorpdfstring{${}^{46}$Ar}{46Ar}  events}\label{sec:data_sim}
 
-AT-TPC tracks were simulated with the \lstinline{pytpc} package developed by \citet{Bradt2017a}. Using the same parameters {\color{blue} what parameters are you referring to? -MPK} as for the ${}^{46}$Ar$(p, p)$ experiment, a small set of $N=4000$ events per class was generated, as well as a larger set of $N=40000$ events per class. 
+A set of $N=40000$ simulated AT-TPC events per class were simulated from a ${}^{46}$Ar$(p, p)$ experiment with the \lstinline{pytpc} package developed by \citet{Bradt2017a}. %Using the same parameters {\color{blue} what parameters are you referring to? -MPK} as for the 
+%Two simulated ${}^{46}$Ar$(p, p)$ experiment, a small set of $N=4000$ events per class was generated, as well as a larger set of $N=40000$ events per class. 
 
 To emulate the real-data case, we set a subset of the simulated data to be labelled and treat the rest as unlabelled data. We choose this partition to be $15\%$ of each class. We denote this subset and its associated labels as $\gamma_L=(\boldsymbol{X}_L, \boldsymbol{y}_L)$, while the entire dataset which is identified as $\boldsymbol{X}_F$. Note that $\boldsymbol{X}_L \subset \boldsymbol{X}_F$.
 
@@ -309,7 +309,7 @@ Training high-performing neural networks from scratch often requires enormous da
 
 In contrast with the classification work of \citet{Kuchera2019}, we do not assume access to ground truth labels and are trying to solve a fundamentally different learning problem. Thus, rather than fine-tuning a pre-trained network under the supervised learning regime, we extract the output of the pre-trained network's last convolutional layer as a latent representation of the events. We then cluster events based on this representation using the K-means++ algorithm with the standard choice of Euclidean distance.
 
-{\color{cyan} [Ryan: I think there are a lot of words in the following two paragraphs that don't need to exist. Essentially, these paragraphs are a repeat of the last paragraph and parts of the last subsection, but with one or two extra details added in (e.g. using the top 100 principle components). As such, I would remove them and add the necessary details to the previous paragraph (or replace them with a small paragraph).]} Building on the work by \citet{Kuchera2019}, we also use the VGG16 pre-trained network as a baseline for the clustering performance. We begin by considering a classical K-means approach to clustering. However, the output from the VGG16 network is very high dimensional which traditionally conflicts with good K-means results. With output vectors in $\R^{8192}$ the ratio between $L_p$ distances goes to one with increasing dimensionality, as shown by \citet{Aggarwal}. However, one of the central assumptions in the authors' finding is that the elements are uniformly distributed in the latent space. They note that it is then possible that if the class information lies in some sub-space of the latent data, $L_p$-norms may provide useful clusterings even in high dimensional spaces. To investigate this, we perform a $L_2$-norm based K-means clustering using the full VGG16 representation and the $10^2$ first principal components only. 
+%{\color{cyan} [Ryan: I think there are a lot of words in the following two paragraphs that don't need to exist. Essentially, these paragraphs are a repeat of the last paragraph and parts of the last subsection, but with one or two extra details added in (e.g. using the top 100 principle components). As such, I would remove them and add the necessary details to the previous paragraph (or replace them with a small paragraph).]} Building on the work by \citet{Kuchera2019}, we also use the VGG16 pre-trained network as a baseline for the clustering performance. We begin by considering a classical K-means approach to clustering. However, the output from the VGG16 network is very high dimensional which traditionally conflicts with good K-means results. With output vectors in $\R^{8192}$ the ratio between $L_p$ distances goes to one with increasing dimensionality, as shown by \citet{Aggarwal}. However, one of the central assumptions in the authors' finding is that the elements are uniformly distributed in the latent space. They note that it is then possible that if the class information lies in some sub-space of the latent data, $L_p$-norms may provide useful clusterings even in high dimensional spaces. To investigate this, we perform a $L_2$-norm based K-means clustering using the full VGG16 representation and the $10^2$ first principal components only. 
 
 %{\color{blue} Are there supposed to be results here? -MPK}
 %\subsection{K-means}
@@ -446,7 +446,9 @@ We considered the deep convolutional embedded clustering (DCEC) by \citet{Guo201
 
 
 \section{Conclusions and Perspectives}\label{sec{conclusion}}
-
+% Begin added by DB (6/17/2020)
+The purpose of this study is to explore the application of unsupervised learning algorithms to event identification from an active target detector. The necessity of identifying events from raw data prior to 
+% End added by DB (6/17/2020)
 From our analysis it is clear that we are a ways off from a fully automated unsupervised method for track classification. {\color{orange}[flip this to positive ]} It is also clear that there is significant potential in both avenues explored in this work. 
 In particular, the surprising ability of the K-means algorithm in picking out clear proton clusters from the VGG16 latent space lends itself well to an exploratory phase of analysis.
 Another surprising facet of the K-means clustering is its consistent performance. As shown in table \ref{tab:clstr_vgg}, the variance is zero for the performance metrics. This result indicates that the clusters are very clearly defined in the VGG16 latent space. As we see from the non-proton clusters if figures \ref{fig:clster_confmati_filt} and \ref{fig:clster_confmati_raw}  that does not necessarily imply that the physical signals are correspondingly clear. 
