@@ -169,7 +169,7 @@ First, the time-series data was represented as a 3D point cloud, where each poin
 One of the significant considerations for the analysis of AT-TPC data is to inject machine learning methods for track identification at the best point in the analysis pipeline.
 Using raw data is advantageous as it provides an unbiased view of the event, but the data volume and noise levels might be prohibitive for analysis.
 %On the opposite end of the pipeline, 
-Therefore, we will incrementally add bias to the analysis by applying the algorithm further down the analysis pipeline.. With the benefit being that more pre-processing improves the signal-to-noise ratio, possibly improving model performance.
+Therefore, incrementally add bias to the analysis by applying the algorithm further down the analysis pipeline.. With the benefit being that more pre-processing improves the signal-to-noise ratio, possibly improving model performance.
 To explore this trade-off between model performance and pre-processing bias, we performed analysis on simulated, cleaned and raw events.
 
 \begin{table}
@@ -190,7 +190,7 @@ $\%$ Other & $0$ & $62.8$ & $60.1$ \\
 A set of $N=40000$ simulated AT-TPC events per class were simulated from a ${}^{46}$Ar$(p, p)$ experiment with the \lstinline{pytpc} package developed by \citet{Bradt2017a}. %Using the same parameters {\color{blue} what parameters are you referring to? -MPK} as for the 
 %Two simulated ${}^{46}$Ar$(p, p)$ experiment, a small set of $N=4000$ events per class was generated, as well as a larger set of $N=40000$ events per class. 
 
-To emulate the real-data case, we set a subset of the simulated data to be labelled and treat the rest as unlabelled data. We choose this partition to be $15\%$ of each class. We denote this subset and its associated labels as $\gamma_L=(\boldsymbol{X}_L, \boldsymbol{y}_L)$, while the entire dataset which is identified as $\boldsymbol{X}_F$. Note that $\boldsymbol{X}_L \subset \boldsymbol{X}_F$.
+For validation, we set a subset of the simulated data to be labelled and treat the rest as unlabelled data. We choose this partition to be $15\%$ of each class. We denote this subset and its associated labels as $\gamma_L=(\boldsymbol{X}_L, \boldsymbol{y}_L)$, while the entire dataset which is identified as $\boldsymbol{X}_F$. Note that $\boldsymbol{X}_L \subset \boldsymbol{X}_F$.
 
 Two simulated events are displayed in figure \ref{fig:sim_samples}. The top row illustrates a proton-event, and the bottom a carbon-event. 
 
@@ -447,7 +447,7 @@ We considered the deep convolutional embedded clustering (DCEC) by \citet{Guo201
 
 \section{Conclusions and Perspectives}\label{sec{conclusion}}
 % Begin added by DB (6/17/2020)
-The purpose of this study is to explore the application of unsupervised learning algorithms to event identification from an active target detector. The necessity of identifying events from raw data prior to 
+The purpose of this study is to explore the application of unsupervised learning algorithms to event identification from an active target detector. The necessity of identifying events from raw data prior to full processing is becoming a major issue in the data analysis 
 % End added by DB (6/17/2020)
 From our analysis it is clear that we are a ways off from a fully automated unsupervised method for track classification. {\color{orange}[flip this to positive ]} It is also clear that there is significant potential in both avenues explored in this work. 
 In particular, the surprising ability of the K-means algorithm in picking out clear proton clusters from the VGG16 latent space lends itself well to an exploratory phase of analysis.
