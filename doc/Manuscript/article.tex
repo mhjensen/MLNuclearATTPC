@@ -69,7 +69,7 @@ Detectors and Associated Equipment}
 %% \address{Address\fnref{label3}}
 %% \fntext[label3]{}
 
-\title{Machine Learning Approaches  for Classification of Events in Active-Target Time Projection Chamber Experiments}
+\title{Unsupervised Learning  for Identifying  Events in Active Target  Experiments}
 
 %% use optional labels to link authors explicitly to addresses:
 %% \author[label1,label2]{}https://www.overleaf.com/project/5e73f990fcbd310001959b01
@@ -161,10 +161,11 @@ In addition, \cite{Kuchera2019} demonstrated that the purity and statistics of t
 In this section we give a brief overview of the data, for a more in-depth consideration we refer the reader to \cite{Mittig2015}, \cite{Suzuki2012} and  \cite{Bradt2017a}. 
 
 The AT-TPC data we studied for this work was recorded as charge time-series for each of the  the $\sim10^4$ detector pads.
-In this representation, an event is a record of 512 time-buckets for each of the detector pads. In our analysis, we represent each event as a downsampled 2D projection.
-We chose to represent the data in 2D to facilitate the use of sophisticated image-recognition machine learning models.
-The 2D representation of events was computed by viewing the event as a point cloud in the charge time-series and summing over the time-axis.
-Additionally, we log-transform and normalize the data to the interval $[0, 1]$ for each point {\color{blue} are you sure we log transformed? were you given peaks data or the 2D projections? -MPK}. The final representation for each event is a $128 \times 128$ matrix with each element ranging from $0$ to $1$.
+In this representation, an event is a record of $512$ time-buckets for each of the $10^4$ detector pads. In our analysis, we represent each event as a downsampled 2D projection.
+We chose to represent the data in 2D to facilitate the use of sophisticated image-recognition machine learning models, and this data representation was shown to successfully classify the events of this experiment in a supervised setting \cite{Kuchera2019}.
+First, the time-series data was represented as a 3D point cloud, where each point contains the maximum charge in the time-series trace. We log-transform to map the charge to the interval $[0, 1]$ for each point, then standardize the data. in the charge time-series and summing over the time-axis.
+%
+Additionally, we log-transform and normalize the data to the interval $[0, 1]$ for each point. The final representation for each event is a $128 \times 128$ matrix with each element ranging from $0$ to $1$.
 
 One of the significant considerations for the analysis of AT-TPC data is to inject machine learning methods for track identification at the best point in the analysis pipeline.
 Using raw data is advantageous as it provides an unbiased view of the event, but the data volume and noise levels might be prohibitive for analysis.
@@ -235,12 +236,12 @@ In addition, the selection task produced a binary result only, ``good" or``bad",
 In a broader perspective, an unsupervised classification algorithm would offer the possibility to ``discover" rare events not anticipated (or overlooked) by the physicist. These events would likely be filtered out using the traditional methods. From a practical point of view, compared to supervised learning, it also avoids the necessary labeling task of the learning set events, which is error prone and time consuming.
 
 \subsection{Why machine learning}
-
+{\bf we need to rewrite these bullet points, MHJ}
 \begin{itemize}
     \item Traditional MC methods fall short in two principal ways:
     \begin{itemize}
         \item The computational cost per event is too large given the size of the data-sets
-        \item The broken tracks, noisy environment creates bad fit statistics for otherwise useful events. End result is $f1 \sim 0.7 $
+        \item The broken tracks with noisy environment create bad fit statistics for otherwise useful events. End result is f$_1 \sim 0.7 $
         \item define a ``bad" fit as a non-proton event
     \end{itemize}
 \end{itemize}
@@ -321,14 +322,7 @@ The VGG16 model is pre-trained on the ImageNet dataset, and subsequently applied
 
 As an alternative to relying on a pre-trained model, we also consider the MIXAE algorithm \cite{Zhang}, a bespoke end-to-end clustering model which is specifically trained on the AT-TPC data.
 
-The MIXAE model comprises several autoencoders, each of which corresponds to a cluster. The number of autoencoders, and thus the number of clusters, has to be determined beforehand. Each autoencoder constructs a latent representation of a given example. Those representations are used as inputs to an auxiliary network which assigns probabilities to the clusters, indicating the likelihood that the given example belongs to each cluster. Examples are then assigned to the cluster with the highest probability. The models' objective can then be de-composed in three parts:
-\begin{enumerate}
-    \item Each batch should contain different classes
-    \item Each predicted cluster assignment should be confident. 
-    \item The reconstructions should be good. But as they are weighted by the cluster assignment, the importance of the reconstruction is proportional to the confidence in the cluster predictions.
-\end{enumerate}
-
-{\color{cyan} [Ryan: A description of the objective functions may or may not be worth including here, but I don't know what they are.]} The architecture is portrayed in Figure \ref{fig:mixae}, wherein tapered boxes denote a direction of compression in the network components. 
+The MIXAE model comprises several autoencoders, each of which corresponds to a cluster. The number of autoencoders, and thus the number of clusters, has to be determined beforehand. Each autoencoder constructs a latent representation of a given example. Those representations are used as inputs to an auxiliary network which assigns scores to the clusters, indicating the likelihood that the given example belongs to each cluster. Examples are then assigned to the cluster with the highest score. The architecture is portrayed in Figure \ref{fig:mixae}, wherein tapered boxes denote a direction of compression in the network components. 
 
 % The MIXAE algorithm clusters data by pairing a set of encoder-decoder neural networks (autoencoder) with an auxiliary assignment network: each autoencoder constructs a representation of a given event while the assignment network assigns a set of cluster probabilities to the event. {\color{orange}[clear sentences about what the model does]} . The architecture is portrayed in figure \ref{fig:mixae}, tapered boxes denote a direction of compression in the network components. 
 
@@ -339,7 +333,7 @@ The MIXAE algorithm relies on a few simple assumptions which are necessary, but 
 	\item Each clustering prediction should be as strong as possible, i.e. assigning high probabilities is preferable to weak assignments.
 \end{enumerate}
 
-\noindent {\color{cyan} [Ryan: Still needs a concluding sentence or two here.]} For a more formal consideration of these heuristics, the model objective aand the assumptions made on the data by this model see \citet{Zhang}.
+\noindent The objective during training is to enforce that these assumptions are met. For a more formal consideration of these heuristics, the model objective aand the assumptions made on the data by this model see \citet{Zhang}.
 
 \begin{figure}[tb]
 	\centering
@@ -429,13 +423,13 @@ It is also interesting to compare and contrast the clustering results from the M
 
 Applied to the real data the MIXAE correctly separates the proton class, however it is unable to separate the carbon events from the amorphous noise events or from the proton cluster. 
 
-\begin{figure}[H]
+\begin{figure}
 \centering
 	\includegraphics[width=\textwidth]{custom_work/Filtered_mixae_conf_mat.pdf}
 \caption{}\label{fig:mixae_confmat_filtered}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}
 \centering
 	\includegraphics[width=\textwidth]{custom_work/Raw_mixae_conf_mat.pdf}
 \caption[MIXAE - confusion matrices]{Confusion matrices for the MIXAE clustering algorithm on raw AT-TPC events. The true labels indicate samples belonging to the p (proton), carbon (C), or other classes. We observe that in }\label{fig:mixae_confmat_raw}
