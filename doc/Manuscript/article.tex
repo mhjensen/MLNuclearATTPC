@@ -1,6 +1,3 @@
-%robert was here sup robert -MIchelle was also here  
-
-
 %\documentclass[preprint,12pt]{elsarticle}
 % uncomment for submission to NIM A
 \documentclass[review,number,sort&compress]{elsarticle}
@@ -167,7 +164,7 @@ The AT-TPC data we studied for this work was recorded as charge time-series for 
 In this representation, an event is a record of 512 time-buckets for each of the detector pads. In our analysis, we represent each event as a downsampled 2D projection.
 We chose to represent the data in 2D to facilitate the use of sophisticated image-recognition machine learning models.
 The 2D representation of events was computed by viewing the event as a point cloud in the charge time-series and summing over the time-axis.
-Additionally, we log-transform and normalize the data to the interval $[0, 1]$ for each point. The final representation for each event is a $128 \times 128$ matrix with each element ranging from $0$ to $1$.
+Additionally, we log-transform and normalize the data to the interval $[0, 1]$ for each point {\color{blue} are you sure we log transformed? were you given peaks data or the 2D projections? -MPK}. The final representation for each event is a $128 \times 128$ matrix with each element ranging from $0$ to $1$.
 
 One of the significant considerations for the analysis of AT-TPC data is to inject machine learning methods for track identification at the best point in the analysis pipeline.
 Using raw data is advantageous as it provides an unbiased view of the event, but the data volume and noise levels might be prohibitive for analysis.
@@ -233,7 +230,7 @@ We illustrate two filtered events in figure \ref{fig:samples_filtered}. These ar
 \todo{Brute force serving as motivation for why we do unsupervised learning.}
 %The filtering task relied on a set of $\chi^2$ distributions based on different criteria, 
 The traditional event selection process involved a Monte-Carlo $\chi^2$ minimization method, however there was no well-defined method to quantify the effectiveness of the event selection from the thresholds applied to these distributions.
-{\color{blue} I think we discussed this method earlier, but I need to verify. otherwise needs more explanation -MPK}
+{\color{blue} Needs more explanation earlier in paper -MPK}
 In addition, the selection task produced a binary result only, ``good" or``bad", relative to the event of interest, while the data clearly contained more classes of events%, if only because of the presence of carbon in the target (from the isobutane gas).
 In a broader perspective, an unsupervised classification algorithm would offer the possibility to ``discover" rare events not anticipated (or overlooked) by the physicist. These events would likely be filtered out using the traditional methods. From a practical point of view, compared to supervised learning, it also avoids the necessary labeling task of the learning set events, which is error prone and time consuming.
 
@@ -317,14 +314,21 @@ In contrast with the classification work of \citet{Kuchera2019}, we do not assum
 %\subsection{K-means}
 
 %We begin by investigating the K-means clustering algorithm on the VGG16 latent space. 
-The VGG16 model is pre-trained on the imagenet dataset, and subsequently applied to the AT-TPC events without the classification layers. This creates a set of vectors $\boldsymbol{x} \in \R^{8192}$ as our new representation of the events. To cluster we use \lstinline{scikit-learn} implementation of the K-means algorithm, with default parameters \cite{Pedregosa2011}.
+The VGG16 model is pre-trained on the ImageNet dataset, and subsequently applied to the AT-TPC events without the classification layers. This creates a set of vectors $\boldsymbol{x} \in \R^{8192}$ as our new representation of the events. To cluster we use \lstinline{scikit-learn} implementation of the K-means algorithm, with default parameters \cite{Pedregosa2011}.
 
 
 \subsection{Deep clustering: Mixture of autoencoders}\label{sec:mixae}
 
-As an alternative to relying on a pre-trained model, we also consider the MIXAE algorithm {\color{cyan} [Ryan: citation]}, a bespoke end-to-end clustering model which is specifically trained on the AT-TPC data.
+As an alternative to relying on a pre-trained model, we also consider the MIXAE algorithm \cite{Zhang}, a bespoke end-to-end clustering model which is specifically trained on the AT-TPC data.
 
-The MIXAE model comprises several autoencoders, each of which corresponds to a cluster. The number of autoencoders, and thus the number of clusters, has to be determined beforehand. Each autoencoder constructs a latent representation of a given example. Those representations are used as inputs to an auxiliary network which assigns probabilities the clusters, indicating the likelihood that the given example belongs to each cluster. Examples are then assigned to the cluster with the highest probability. {\color{cyan} [Ryan: A description of the objective functions may or may not be worth including here, but I don't know what they are.]} The architecture is portrayed in Figure \ref{fig:mixae}, tapered boxes denote a direction of compression in the network components. 
+The MIXAE model comprises several autoencoders, each of which corresponds to a cluster. The number of autoencoders, and thus the number of clusters, has to be determined beforehand. Each autoencoder constructs a latent representation of a given example. Those representations are used as inputs to an auxiliary network which assigns probabilities to the clusters, indicating the likelihood that the given example belongs to each cluster. Examples are then assigned to the cluster with the highest probability. The models' objective can then be de-composed in three parts:
+\begin{enumerate}
+    \item Each batch should contain different classes
+    \item Each predicted cluster assignment should be confident. 
+    \item The reconstructions should be good. But as they are weighted by the cluster assignment, the importance of the reconstruction is proportional to the confidence in the cluster predictions.
+\end{enumerate}
+
+{\color{cyan} [Ryan: A description of the objective functions may or may not be worth including here, but I don't know what they are.]} The architecture is portrayed in Figure \ref{fig:mixae}, wherein tapered boxes denote a direction of compression in the network components. 
 
 % The MIXAE algorithm clusters data by pairing a set of encoder-decoder neural networks (autoencoder) with an auxiliary assignment network: each autoencoder constructs a representation of a given event while the assignment network assigns a set of cluster probabilities to the event. {\color{orange}[clear sentences about what the model does]} . The architecture is portrayed in figure \ref{fig:mixae}, tapered boxes denote a direction of compression in the network components. 
 
@@ -335,7 +339,7 @@ The MIXAE algorithm relies on a few simple assumptions which are necessary, but 
 	\item Each clustering prediction should be as strong as possible, i.e. assigning high probabilities is preferable to weak assignments.
 \end{enumerate}
 
-\noindent {\color{cyan} [Ryan: Still needs a concluding sentence or two here.]} For a more formal consideration of these heuristics and the assumptions made on the data by this model see \citet{Zhang}.
+\noindent {\color{cyan} [Ryan: Still needs a concluding sentence or two here.]} For a more formal consideration of these heuristics, the model objective aand the assumptions made on the data by this model see \citet{Zhang}.
 
 \begin{figure}[tb]
 	\centering
@@ -350,7 +354,7 @@ The MIXAE algorithm relies on a few simple assumptions which are necessary, but 
 
 The principal challenge in the AT-TPC experiments that we are trying to solve is the reliance on labelled samples in the analysis as future experiments may not have as visually dissimilar reaction products  as we observe in the ${}^{46}$Ar experiment.  The  ${}^{46}$Ar experiment does, however, provide a useful example where we can then explore unsupervised techniques. 
 
-We begin by exploring the results of applying a K-means approach on the latent space of a pre-trained network. Subsequently, we investigate the performance of the MIXAE algorithm outlined in section \ref{sec:mixae}.
+We begin by exploring the results of applying a K-means approach on the latent space of a pre-trained network. Subsequently, we investigate the performance of the MIXAE algorithm as outlined in section \ref{sec:mixae}.
 
 \subsection{K-means clustering on the VGG16 latent space}
 
@@ -363,7 +367,7 @@ The results of the clustering runs are included in table \ref{tab:clstr_vgg}. We
 \input{./plots/kmeans_vgg.tex}
 \end{table}
 
-In addition to the performance measures reported in table \ref{tab:clstr_vgg}, it is interesting to observe which samples are being wrongly assigned. We achieve this by tabulating the assignments of samples relative to their ground truth labels. From these tables, we can infer which classes are more or less entangled with others. We tabulate the results for each dataset is in figure \ref{fig:clster_confmat}. We observe that the proton class is consistently assigned in a pure cluster. Purity is inferred by how much spread there is in the column between the ground truth labels. A high-quality cluster will, in addition to being pure, also capture most entries the class represented by the cluster. For example, consider the row corresponding to the proton class in figure \ref{fig:clster_confmati_filt}. The column corresponding to the largest entry in the proton row has zero other predicted classes in it. From this, we conclude that the proton cluster is a high quality, high purity cluster. 
+In addition to the performance measures reported in table \ref{tab:clstr_vgg}, it is interesting to observe which samples are being wrongly assigned. To investigate this problem we tabulate the assignments of samples relative to their ground truth labels. From these tables, we can infer which classes are more or less entangled with others. The results for each dataset is shown in figures \ref{fig:clster_confmat_sim} \ref{fig:clster_confmati_filt} and \ref{fig:clster_confmati_raw}. We observe that the proton class is consistently assigned in a pure cluster. Purity is inferred by how much spread there is in the column between the ground truth labels. A high-quality cluster will, in addition to being pure, also capture most entries the class represented by the cluster. For example, consider the row corresponding to the proton class in figure \ref{fig:clster_confmati_filt}. The column corresponding to the largest entry in the proton row has zero other predicted classes in it. From this, we conclude that the proton cluster is a high quality, high purity cluster. 
 
 This high quality cluster also appears in the clustering of raw data. From figure \ref{fig:clster_confmati_raw} we observe that there is a high purity proton cluster. In contrast to the filtered data we observe that the deterioration in performance can largely be ascribed to the algorithm creating a proton + other cluster and a carbon + other cluster.
 
@@ -384,11 +388,12 @@ This high quality cluster also appears in the clustering of raw data. From figur
 \caption[Pre-trained network - confusion matrices]{Confusion matrix for the K-means clustering of raw AT-TPC events. The true labels indicate samples belonging to the p (proton), carbon (C), or other classes. }\label{fig:clster_confmati_raw}
 \end{figure}
 
-We repeat this analysis using a Principle Component Analysis (PCA) dimensionality reduction \footnote{
+We repeat this analysis using a Principle Component Analysis (PCA) dimensionality reduction\footnote{
 PCA is a common techinque to find the significant variations in data by projecting the data along a subset of its covariance matrix eigenvectors \cite{Marsland2009}
 } on the latent space of the VGG16 model. This is done to estimate to what degree the class separating information is encoded in the entirety of the latent space, or in some select regions. The results from the PCA analysis were virtually identical to the results sans the PCA, and so we omit them for brevity. 
 
-Furthermore, we wish to characterize further the clusters presented in the matrix in figures \ref{fig:clster_confmati_filt} and \ref{fig:clster_confmati_raw}. To achieve this, we sample from the proton samples belonging to different clusters for the filtered and full data.
+Furthermore, we wish to further characterize the clusters presented in the matrix in figures \ref{fig:clster_confmati_filt} and \ref{fig:clster_confmati_raw}. To achieve this, we sample examples from the proton samples belonging to different clusters for the filtered and full data.
+We display these examples in figures \ref{fig:filtered_vgg_clster_repr} and \ref{fig:full_vgg_clster_repr} respectively. Form these figures we gleam that the more noisy proton events are being clustered together with the amorphous other class. This is in line with the intuitive expectation from viewing the clustering tables in figures \ref{fig:clster_confmati_filt} and \ref{fig:clster_confmati_raw}.
 
 \begin{figure}
 \includegraphics[width=\textwidth]{custom_work/Filteredexamples.pdf}
@@ -403,32 +408,21 @@ Furthermore, we wish to characterize further the clusters presented in the matri
 
 \subsection{MIXAE clustering results}
 
-In the previous section we demonstrated a rather naive clustering technique for AT-TPC event classification. To build on this result we will in this section explore the application of the mixture of autoencoders (MIXAE) algorithm introduced in section \ref{sec:mixae}.
-Other algorithms for deep clustering based on autoencoder architectures were also implemented. These did not succeed in the clustering task and were omitted for brevity\footnote{The algoritms we implemented were the Deep Embedded Convolutional Clustering \cite{Guo2017} and its predecessor Deep Embedded Clustering \cite{Xie2016}}.
+In the previous section we demonstrated a powerful, but rather naive, clustering technique for AT-TPC track identification. To build on this result we will in this section explore the application of the mixture of autoencoders (MIXAE) algorithm introduced in section \ref{sec:mixae}.
+For details on hyper-parameter tuning and the experimental procedure for training the MIXAE algorithm see appendix \ref{ax: mixae}
 
-{\color{orange}[move to appendix]}
-In the MIXAE algorithm the hyper-parameters to adjust are all the ordinary parameters that we introduced in table \ref{tab:convae_hyperparams}. In addition to those parameters we have the weighting of the loss terms: $\theta$, $\alpha$ and $\gamma$. These weighting parameters are attached to the reconstruction loss, sample entropy and batch-wise entropy respectively \cite{Zhang}. 
-We focused on the tuning of the clustering hyper-parameters, and heuristically set the autoencoder hyper-parameters to a shallow $3\times3$ convolutional network.  
-
-The parameters chosen for the autoencoders are listed in full in table \ref{tab:mixe_ae_hyperparams}.
-
+After hyper parameter tuning each highest performing model is re-run $10$ times. The results are listed in table \ref{tab:clstr_mixae}'
+We observe that while the algorithm can achieve very strong performance, the performance varies. In some cases the MIXAE model converges to a seemingly good configuration, based on its unsupervised training goals. However, when inspecting its clustering performance against labeleled data that seemingly good model does no better than random. 
+This happens more frequently with raw data, indicating an interaction with the noise levels present in the events. 
+ 
 \begin{table}[H]
 \centering 
-\caption[MIXAE clustering performance]{MIXAE clustering performance on the ${}^{46} Ar$ experimental data. In contrast with the VGG-16 + K-means approach we observe  significant variations in performance.}\label{tab:clstr_vgg}
+\caption[MIXAE clustering performance]{MIXAE clustering performance on the ${}^{46} Ar$ experimental data. In contrast with the VGG-16 + K-means approach we observe  significant variations in performance.}\label{tab:clstr_mixae}
 \input{./plots/mixae_clustering.tex}
 \end{table}
 
-\subsection{Simulated AT-TPC data}
-
-
-Finally, for these parameters we re-ran the algorithm $N=10$ times to investigate the stability of the algorithm. The results are reported in figure \ref{fig:mixae_sim}. We observe that while the algorithm can achieve very strong performance, with an adjusted rand index (ARI) $ > 0.8$, it fluctuates strongly with repeated experiments. The $ARI$ is a clustering performance measure similar to accuracy, but adjusted for chance. We elaborate on the $ARI$ score in section \ref{sec:unsupervised_perf}. 
-
-We repeat the optimization steps in the previous paragraph for the filtered AT-TPC data. The exception being that we allow the algorithm to train on the labelled samples. Beginning with a wide grid equal to the grid used for the simulated data we searched over all parameter configurations to find promising values. We then performed a local search around these values to pin-point the hyperparameter configuration.
-
-\noindent The results of the runs are included in figure \ref{fig:mixae_clean}. We observe that the highest performing models reach an $ARI > 0.5$, which is higher than the performance achieved by the K-means algorithm applied to the VGG16 latent space. 
-
-We repeated the same procedure described in the two previous paragraphs to the raw dataset. Each configuration was re-run a total of $N=10$ times to capture fluctuations in the performance before a final selection is made on the hyperparameters. In contrast to the previous two results the MIXAE algorith very rarely converges to a high performig configuration. In fact, most runs are indistinguishable from random chance clusterings.
-
+As with the VGG16 + KMeans approach we wish to further characterize the clustering results. Taking the best performing MIXAE model on filtered and raw data we tabulate the clusters against their labels. These tables are present in figures \ref{fig:mixae_confmat_filtered} and \ref{fig:mixae_confmat_raw} for filtered and raw data, respectively.
+ 
 \subsection{Comparing performance}
 
 It is also interesting to compare and contrast the clustering results from the MIXAE model with those of the VGG16$+$K-means outside the fairly abstract accuracies and rand scores. It is especially interesting to compare the cluster assignments, as they can inform further research efforts in the clustering of AT-TPC events. We illustrate the clustering with confusion matrices that are shown in figure \ref{fig:mixae_confmat}. From these matrices, we observe that the MIXAE applied to the clean data correctly clusters the noise events. Additionally, it identifies two proton clusters. We observe that these proton clusters are both less pure than the VGG16+K-means clusters and that there does not seem to be a visually meaningful difference between these clusters. The latter is inferred from figure \ref{fig:filtered_mixae_clster_repr}. 
@@ -438,12 +432,13 @@ Applied to the real data the MIXAE correctly separates the proton class, however
 \begin{figure}[H]
 \centering
 	\includegraphics[width=\textwidth]{custom_work/Filtered_mixae_conf_mat.pdf}
+\caption{}\label{fig:mixae_confmat_filtered}
 \end{figure}
 
 \begin{figure}[H]
 \centering
 	\includegraphics[width=\textwidth]{custom_work/Raw_mixae_conf_mat.pdf}
-\caption[MIXAE - confusion matrices]{Confusion matrices for the MIXAE clustering algorithm on filtered and full AT-TPC events. The true labels indicate samples belonging to the p (proton), carbon (C), or other classes. }\label{fig:mixae_confmat}
+\caption[MIXAE - confusion matrices]{Confusion matrices for the MIXAE clustering algorithm on raw AT-TPC events. The true labels indicate samples belonging to the p (proton), carbon (C), or other classes. We observe that in }\label{fig:mixae_confmat_raw}
 \end{figure}
 
 Lastly we wish to further investigate if there are systematic differences between proton events that were placed in different clusters for the clean and full data. From figure \ref{fig:mixae_confmat} we see that the MIXAE algorithm creates two proton clusters for the filtered data, and places about fifty per-cent of the proton events in a cluster with the amorphous "other" events.
@@ -479,9 +474,14 @@ The choice of the kernel size is based on the fact that a stacked $3 \times 3$ k
 \includegraphics[width=\textwidth]{plots/vgg_architectures.png}
 \end{table}
 
-\section{MIXAE hyper-parameter tuning}
+\section{MIXAE hyper-parameter tuning}\label{ax: mixae}
 
-To train the MIXAE clustering algorithm, we use the large simulated dataset with $M=80000$ points, evenly distributed between proton- and carbon-events. The algorithm is trained on a subset of $60000$ of these samples, and we track performance on the remaining $20000$ events. Since there are then only three remaining hyperparameters we choose to perform a coarse grid-search as described in section \ref{sec:hyperparam_search_arch}.
+In the MIXAE algorithm the hyper-parameters to adjust are all the ordinary parameters that we introduced in table \ref{tab:convae_hyperparams}. In addition to those parameters we have the weighting of the loss terms: $\theta$, $\alpha$ and $\gamma$. These weighting parameters are attached to the reconstruction loss, sample entropy and batch-wise entropy respectively \cite{Zhang}. 
+We focused on the tuning of the clustering hyper-parameters, and heuristically set the autoencoder hyper-parameters to a shallow $3\times3$ convolutional network.  
+
+The parameters chosen for the autoencoders are listed in full in table \ref{tab:mixe_ae_hyperparams}.
+
+To train the MIXAE clustering algorithm, we use the large simulated dataset with $M=80000$ points, evenly distributed between proton- and carbon-events. The algorithm is trained on a subset of $60000$ of these samples, and we track performance on the remaining $20000$ events. Since there are then only three remaining hyperparameters we choose to perform a coarse grid-search as described in section \ref{sec:hyperparam_search_arch}.Finally, for these parameters we re-ran the algorithm $N=10$ times to investigate the stability of the algorithm.
 
 \begin{table}
 \centering
