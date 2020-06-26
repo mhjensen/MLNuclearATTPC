@@ -232,7 +232,7 @@ We illustrate two filtered events in figure \ref{fig:samples_filtered}. These ar
 %The filtering task relied on a set of $\chi^2$ distributions based on different criteria, 
 The traditional event selection process involved a Monte-Carlo $\chi^2$ minimization method, however there was no well-defined method to quantify the effectiveness of the event selection from the thresholds applied to these distributions.
 {\color{blue} Needs more explanation earlier in paper -MPK}
-In addition, the selection task produced a binary result only, ``good" or``bad", relative to the event of interest, while the data clearly contained more classes of events%, if only because of the presence of carbon in the target (from the isobutane gas).
+In addition, the selection task produced a binary result only, ``good" or``bad", relative to the event of interest, while the data clearly contained more classes of events.%, if only because of the presence of carbon in the target (from the isobutane gas).
 In a broader perspective, an unsupervised classification algorithm would offer the possibility to ``discover" rare events not anticipated (or overlooked) by the physicist. These events would likely be filtered out using the traditional methods. From a practical point of view, compared to supervised learning, it also avoids the necessary labeling task of the learning set events, which is error prone and time consuming.
 
 \subsection{Why machine learning}
@@ -315,14 +315,14 @@ In contrast with the classification work of \citet{Kuchera2019}, we do not assum
 %\subsection{K-means}
 
 %We begin by investigating the K-means clustering algorithm on the VGG16 latent space. 
-The VGG16 model is pre-trained on the ImageNet dataset, and subsequently applied to the AT-TPC events without the classification layers. This creates a set of vectors $\boldsymbol{x} \in \R^{8192}$ as our new representation of the events. To cluster we use \lstinline{scikit-learn} implementation of the K-means algorithm, with default parameters \cite{Pedregosa2011}.
+The user a VGG16 model that is pre-trained on the ImageNet dataset and subsequently applied to the AT-TPC events without the classification layers. This creates a set of vectors $\boldsymbol{x} \in \R^{8192}$ as our new representation of the events. To cluster, we use the \lstinline{scikit-learn} implementation of the K-means++ algorithm with default parameters \cite{Pedregosa2011}.
 
 
 \subsection{Deep clustering: Mixture of autoencoders}\label{sec:mixae}
 
 As an alternative to relying on a pre-trained model, we also consider the MIXAE algorithm \cite{Zhang}, a bespoke end-to-end clustering model which is specifically trained on the AT-TPC data.
 
-The MIXAE model comprises several autoencoders, each of which corresponds to a cluster. The number of autoencoders, and thus the number of clusters, has to be determined beforehand. Each autoencoder constructs a latent representation of a given example. Those representations are used as inputs to an auxiliary network which assigns scores to the clusters, indicating the likelihood that the given example belongs to each cluster. Examples are then assigned to the cluster with the highest score. The architecture is portrayed in Figure \ref{fig:mixae}, wherein tapered boxes denote a direction of compression in the network components. 
+The MIXAE model comprises several autoencoders, each of which corresponds to a cluster. The number of autoencoders, and thus the number of clusters, has to be determined beforehand. Each autoencoder constructs a latent representation of a given example. Those representations are used as inputs to an auxiliary network which assigns scores to the clusters, indicating the likelihood that the given example belongs to each cluster. Examples are then assigned to the cluster with the highest score.  
 
 % The MIXAE algorithm clusters data by pairing a set of encoder-decoder neural networks (autoencoder) with an auxiliary assignment network: each autoencoder constructs a representation of a given event while the assignment network assigns a set of cluster probabilities to the event. {\color{orange}[clear sentences about what the model does]} . The architecture is portrayed in figure \ref{fig:mixae}, tapered boxes denote a direction of compression in the network components. 
 
@@ -333,7 +333,9 @@ The MIXAE algorithm relies on a few simple assumptions which are necessary, but 
 	\item Each clustering prediction should be as strong as possible, i.e. assigning high probabilities is preferable to weak assignments.
 \end{enumerate}
 
-\noindent The objective during training is to enforce that these assumptions are met. For a more formal consideration of these heuristics, the model objective aand the assumptions made on the data by this model see \citet{Zhang}.
+\noindent The objective during training is to enforce that these assumptions are met. The architecture is portrayed in Figure \ref{fig:mixae}, wherein tapered boxes denote a direction of compression in the network components.
+
+For a more formal consideration of these heuristics, the model objective aand the assumptions made on the data by this model see \citet{Zhang}.
 
 \begin{figure}[tb]
 	\centering
@@ -343,7 +345,7 @@ The MIXAE algorithm relies on a few simple assumptions which are necessary, but 
 \end{figure}
 {\color{blue} This section ends quite abruptly -MPK}
 
-
+{\color{blue} MPK edit this}
 \section{Results and Discussions}\label{sec:results}
 
 The principal challenge in the AT-TPC experiments that we are trying to solve is the reliance on labelled samples in the analysis as future experiments may not have as visually dissimilar reaction products  as we observe in the ${}^{46}$Ar experiment.  The  ${}^{46}$Ar experiment does, however, provide a useful example where we can then explore unsupervised techniques. 
@@ -457,7 +459,7 @@ In particular, the ability of the K-means algorithm in picking out clear proton 
 Another interesting facet of the K-means clustering is its consistent performance. As shown in table \ref{tab:clstr_vgg}, the variance is zero for the performance metrics. This result indicates that the clusters are very clearly defined in the VGG16 latent space. However, as can be seen from the non-proton clusters in figures \ref{fig:clster_confmati_filt} and \ref{fig:clster_confmati_raw},  this does not necessarily imply that the physical signals are correspondingly clear. 
 A caveat to the K-means method is that the number of clusters has to be specified in advance. Each experiment then has to be considered in light of possible reaction channels to determine a sensible number of clusters for this approach. 
 
-The same caveat is present in the MIXAE implementation. While it showed better optimal performance than the K-means method, some inconsistencies were observed, that were notably not evident from the unsupervised training-objectives of the model. These two factors currently conspire to limit its immediate applicability, and more developments are needed for this approach. 
+The same caveat is present in the MIXAE implementation. While it shows better optimal performance than the K-means method, some inconsistencies were observed, that were notably not evident from the unsupervised training-objectives of the model. These two factors currently conspire to limit its immediate applicability, and more developments are needed for this approach. 
 
 In summary, our study shows that unsupervised track classification with an implementation of the VGG16 + K-means approach is a viable solution. For future work, it is worth investigating whether the adaptation of bespoke models like the MIXAE algorithm will allow better performance at no significant cost to consistency.  
 %Especially considering the flexibility to use 3D input representations or auxiliary physical goals in the optimization procedure. 
