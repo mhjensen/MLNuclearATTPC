@@ -360,10 +360,10 @@ As with the clustering accuracy, an ARI score is bounded in the range $[0, 1]$ w
 
 The performance is measured by comparing model predictions on the labelled subset of data (see table \ref{tab:datasets}) of the ARI.
 
-{\color{blue} MPK edit this}
+
 \section{Results and Discussions}\label{sec:results}
 
-The principal challenge in the AT-TPC experiments that we are trying to address is the reliance on labelled samples in the analysis, as future experiments may not have as visually dissimilar reaction products as we observe in the ${}^{46}$Ar experiment.  The  ${}^{46}$Ar experiment does, however, provide a useful example where we can then explore unsupervised techniques. 
+The principal challenge in the AT-TPC experiments that we are trying to address is the reliance on labelled samples in the analysis, as future experiments may not have as visually dissimilar reaction products as we observe in the ${}^{46}$Ar experiment.  The ability to label data in the the ${}^{46}$Ar experiment does, however, provide a useful example where we can then explore unsupervised techniques. 
 
 We first explore the results of applying a K-means approach on the latent space of a pre-trained network. Subsequently, we investigate the performance of the MIXAE algorithm as outlined in section \ref{sec:mixae}.
 
@@ -378,6 +378,7 @@ The results of the clustering runs are included in table \ref{tab:clstr_vgg}. We
 \input{./plots/kmeans_vgg.tex}
 \end{table}
 
+{\color{blue} This section may contain info that you can move to the metrics section??}
 In addition to the performance measures reported in table \ref{tab:clstr_vgg}, it is interesting to observe which samples are wrongly assigned. To investigate this problem, we tabulate the assignments of samples relative to their ground truth labels. From these tables, we can infer which classes are more or less entangled with others. The results for each dataset is shown in figures \ref{fig:clster_confmat_sim} \ref{fig:clster_confmati_filt} and \ref{fig:clster_confmati_raw}. We observe that the proton class is consistently assigned in a pure cluster. Purity is inferred by how much spread there is in the column between the ground truth labels. A high-quality cluster will, in addition to being pure, also capture most entries the class represented by the cluster. For example, consider the row corresponding to the proton class in figure \ref{fig:clster_confmati_filt}. The column corresponding to the largest entry in the proton row has zero other predicted classes in it. From this, we conclude that the proton cluster is a high quality, high purity cluster. 
 
 This high-quality cluster also appears in the clustering of raw data. From figure \ref{fig:clster_confmati_raw}, we observe that there is a high purity proton cluster. In contrast to the filtered data we observe that the deterioration in performance can largely be ascribed to the algorithm creating a proton + other cluster and a carbon + other cluster.
@@ -399,11 +400,13 @@ This high-quality cluster also appears in the clustering of raw data. From figur
 \caption[Pre-trained network - confusion matrices]{Confusion matrix for the K-means clustering of raw AT-TPC events. The true labels indicate samples belonging to the p (proton), carbon (C), or other classes. }\label{fig:clster_confmati_raw}
 \end{figure}
 
+
 We repeat this analysis using a Principle Component Analysis (PCA) dimensionality reduction\footnote{
 PCA is a common techinque to find the significant variations in data by projecting the data along a subset of its covariance matrix eigenvectors \cite{Marsland2009}
-} on the latent space of the VGG16 model. This is done to estimate to what degree the class separating information is encoded in the entirety of the latent space, or in some select regions. The results from the PCA analysis were virtually identical to the results sans the PCA, and so we omit them for brevity. 
+} on the latent space of the VGG16 model. This is done to estimate to what degree the class separating information is encoded in the entirety of the latent space, or in some select regions. The results from the PCA analysis {\color{blue} using the top XX principal components} were virtually identical to the results sans the PCA, indicating that a lower-dimensional encoding of the data is sufficient for data clustering for this experiment.
+%and so we omit them for brevity. 
 
-Furthermore, we wish to further characterize the clusters presented in the matrix in figures \ref{fig:clster_confmati_filt} and \ref{fig:clster_confmati_raw}. To achieve this, we sample examples from the proton samples belonging to different clusters for the filtered and full data.
+To further investigate the clusters presented in the matrix in figures \ref{fig:clster_confmati_filt} and \ref{fig:clster_confmati_raw}, we sample examples from the proton samples belonging to different clusters for the filtered and full data.
 We display these examples in figures \ref{fig:filtered_vgg_clster_repr} and \ref{fig:full_vgg_clster_repr} respectively. Form these figures we gleam that the more noisy proton events are being clustered together with the amorphous other class. This is in line with the intuitive expectation from viewing the clustering tables in figures \ref{fig:clster_confmati_filt} and \ref{fig:clster_confmati_raw}.
 
 \begin{figure}
@@ -422,8 +425,8 @@ We display these examples in figures \ref{fig:filtered_vgg_clster_repr} and \ref
 In the previous section we demonstrated a powerful, but rather naive, clustering technique for AT-TPC track identification. To build on this result we will in this section explore the application of the mixture of autoencoders (MIXAE) algorithm introduced in section \ref{sec:mixae}.
 For details on hyper-parameter tuning and the experimental procedure for training the MIXAE algorithm see appendix \ref{ax: mixae}
 
-After hyper parameter tuning each highest performing model is re-run $10$ times. The results are listed in table \ref{tab:clstr_mixae}.
-We observe that while the algorithm can achieve very strong performance, the performance varies. In some cases the MIXAE model converges to a seemingly good configuration, based on its unsupervised training goals. However, when inspecting its clustering performance against labeleled data that seemingly good model does no better than random. 
+After hyperparameter tuning, each highest performing model is run $10$ times. The results are listed in table \ref{tab:clstr_mixae}.
+We observe that, while the algorithm can achieve very strong performance, the performance varies. In some cases the MIXAE model converges to a seemingly good configuration, based on its unsupervised training goals. However, when inspecting its clustering performance against labelled data that seemingly good model does no better than random. 
 This happens more frequently with raw data, indicating an interaction with the noise levels present in the events. 
  
 \begin{table}[H]
@@ -432,7 +435,7 @@ This happens more frequently with raw data, indicating an interaction with the n
 \input{./plots/mixae_clustering.tex}
 \end{table}
 
-As with the VGG16 + KMeans approach we wish to further characterize the clustering results. Taking the best performing MIXAE model on filtered and raw data we tabulate the clusters against their labels. These tables are present in figures \ref{fig:mixae_confmat_filtered} and \ref{fig:mixae_confmat_raw} for filtered and raw data, respectively.
+As with the VGG16 + KMeans approach we wish to further investigate the clustering results. Taking the best performing MIXAE model on filtered and raw data we tabulate the clusters against their labels. These tables are present in figures \ref{fig:mixae_confmat_filtered} and \ref{fig:mixae_confmat_raw} for filtered and raw data, respectively.
 
 Applied to raw data the MIXAE captures a proton cluster in a similar vein to the K-means approach. The MIXAE forms a proton-majority cluster, but with a significant portion of the more noisy proton events being clustered with the other-class. Additionally, we do not observe the carbon events being separated from either the amorphous noise events or from the proton cluster. 
 
@@ -441,13 +444,13 @@ On filtered data the highest performing MiXAE model achieves strong separation o
 \begin{figure}
 \centering
 	\includegraphics[width=\textwidth]{custom_work/Filtered_mixae_conf_mat.pdf}
-\caption[MIXAE - confusion matrices]{Confusion matrix for the MIXAE clustering algorithm on filtered AT-TPC events. The true labels indicate samples belonging to the p (proton), carbon (C), or other classes. We observe that the algorithm forms two proton-majority clusters, and one clearly defined cluster of the other events. }\label{fig:mixae_confmat_filtered}
+\caption[MIXAE - confusion matrices]{Confusion matrix for the MIXAE clustering algorithm on filtered AT-TPC events. The true labels indicate samples belonging to the \texttt{p} (proton), \texttt{C} (Carbon), or \texttt{other} classes. We observe that the algorithm forms two proton-majority clusters, and one clearly defined cluster of the other events. }\label{fig:mixae_confmat_filtered}
 \end{figure}
 
 \begin{figure}
 \centering
 	\includegraphics[width=\textwidth]{custom_work/Raw_mixae_conf_mat.pdf}
-\caption[MIXAE - confusion matrices]{Confusion matrices for the MIXAE clustering algorithm on raw AT-TPC events. The true labels indicate samples belonging to the p (proton), carbon (C), or other classes. We observe that the algorithm correctly caputers a majority proton-event cluster in cluster 0. However, in contrast with the K-means approach this cluster is contaminated to some extend with both carbon and other events. }\label{fig:mixae_confmat_raw}
+\caption[MIXAE - confusion matrices]{Confusion matrices for the MIXAE clustering algorithm on raw AT-TPC events. The true labels indicate samples belonging to the p (proton), carbon (C), or \texttt{other} classes. We observe that the algorithm correctly caputers a majority proton-event cluster in cluster 0. However, in contrast with the K-means approach this cluster is contaminated to some extend with both carbon and other events. }\label{fig:mixae_confmat_raw}
 \end{figure}
 
 \subsection{Performance comparison and ?????}
