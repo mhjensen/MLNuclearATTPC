@@ -236,15 +236,15 @@ In addition, the selection task produced a binary result only, ``good" or``bad",
 In a broader perspective, an unsupervised classification algorithm would offer the possibility to ``discover" rare events not anticipated (or overlooked) by the physicist. These events would likely be filtered out using the traditional methods. From a practical point of view, compared to supervised learning, it also avoids the necessary labeling task of the learning set events, which is error prone and time consuming.
 
 \subsection{Why machine learning}
-{\bf we need to rewrite these bullet points, MHJ}
-\begin{itemize}
-    \item Traditional MC methods fall short in two principal ways:
-    \begin{itemize}
-        \item The computational cost per event is too large given the size of the data-sets
-        \item The broken tracks with noisy environment create bad fit statistics for otherwise useful events. End result is f$_1 \sim 0.7 $
-        \item define a ``bad" fit as a non-proton event
-    \end{itemize}
-\end{itemize}
+%{\bf we need to rewrite these bullet points, MHJ}
+%\begin{itemize}
+%    \item Traditional MC methods fall short in two principal ways:
+%    \begin{itemize}
+%        \item The computational cost per event is too large given the size of the data-sets
+%        \item The broken tracks with noisy environment create bad fit statistics for otherwise useful events. End result is f$_1 \sim 0.7 $
+%        \item define a ``bad" fit as a non-proton event
+%    \end{itemize}
+%\end{itemize}
 
 The $\chi^2$ approach used in the traditional analysis performed on the $^{46}$Ar data is extremely computationally expensive because it involves the simulation of thousands of tracks for each recorded event, which are performed each iteration of the Monte-Carlo fitting sequence. Even though the reaction of interest in the $^{46}$Ar experiment had the largest cross section (elastic scattering), the sheer number of events to analyse (in the hundreds of thousands) necessitated the use of parallel processing on a high performance computing cluster {\color{blue} is there a metric we can give here? -MPK}. In the case of an experiment where the reaction of interest would represent less than a few percent of the total cross section, this procedure would become highly inefficient and prohibitive. 
 %Most of the CPU time would be spent on simulating events that are not of interest.
@@ -299,7 +299,7 @@ labelled & $2400$ & $1774$ &  $1582$ \\
 
 % The VGG16 network is one of six analogous networks proposed by \citet{Simonyan2014}. The network architectures are fairly straightforward; for VGG16, there are sixteen layers in the network. The first thirteen of which are convolutional layers with exclusively $3 \times 3$ kernels.  The full architecture is detailed in appendix \ref{app:vgg}.
 
-Training high-performing neural networks from scratch often requires enormous datasets and computation time. However, it has been found that models which are trained at large scale will learn general features that are applicable to a variety of tasks. For example, large neural networks which are trained on the ImageNet dataset \cite{Russakovsky2015} --- a diverse image classification task --- learn how to identify lines, edges, and other common shapes which are useful for numerous problems. Thus, it is common practice to initialize the convolutional layers of a network with the pre-trained weights learned from ImageNet (or some other large dataset). The training process then only has to fine-tune the network for the specific task. Since we are building on prior knowledge in this case, learning becomes far more efficient and better performance can often be achieved. \citet{Kuchera2019} used machine learning methods to classify the products of $^{46}$Ar reactions in the AT-TPC, and they found that a CNN initialized with ImageNet weights resulted in the most successful classification.
+Training high-performing neural networks from scratch often requires enormous datasets and computation time. However, it has been found that models which are trained at large scale will learn general features that are applicable to a variety of tasks. For example, large neural networks which are trained on the ImageNet dataset \cite{Russakovsky2015} --- a diverse image classification task --- learn how to identify lines, edges, and other common shapes that are useful for numerous problems. Thus, it is common practice to initialize the convolutional layers of a network with the pre-trained weights learned from ImageNet (or some other large dataset). The training process then only has to fine-tune the network for the specific task. Since we are building on prior knowledge in this case, learning becomes far more efficient, and better performance can often be achieved. \citet{Kuchera2019} used machine learning methods to classify the products of $^{46}$Ar reactions in the AT-TPC, and they found that a CNN initialized with ImageNet weights resulted in the most successful classification.
 
 \subsection{Clustering on latent spaces}
 
@@ -307,7 +307,7 @@ Training high-performing neural networks from scratch often requires enormous da
 
 % The clustering algorithm we found to give the strongest result is the K-means algorithm. This algorithm is contingent on having a distance measurement between two datapoints. We found that the standard choice of a euclidian norm on the vector differences provided the best outcomes.
 
-In contrast with the classification work of \citet{Kuchera2019}, we do not assume access to ground truth labels and are trying to solve a fundamentally different learning problem. Thus, rather than fine-tuning a pre-trained network under the supervised learning regime, we extract the output of the pre-trained network's last convolutional layer as a latent representation of the events. We then cluster events based on this representation using the K-means++ algorithm with the standard choice of Euclidean distance.
+In contrast with the classification work of \citet{Kuchera2019}, we do not assume access to ground truth labels and are trying to solve a fundamentally different learning problem. Thus, rather than fine-tuning a pre-trained network under the supervised learning regime, we extract the output of the pre-trained network's last convolutional layer as a latent representation of the events, where each event is represented as a vector in $\R^{8192}$. We then cluster events based on this representation using the Scikit-Learn implementation of the K-means++ algorithm with default parameters \cite{Pedregosa2011}.
 
 %{\color{cyan} [Ryan: I think there are a lot of words in the following two paragraphs that don't need to exist. Essentially, these paragraphs are a repeat of the last paragraph and parts of the last subsection, but with one or two extra details added in (e.g. using the top 100 principle components). As such, I would remove them and add the necessary details to the previous paragraph (or replace them with a small paragraph).]} Building on the work by \citet{Kuchera2019}, we also use the VGG16 pre-trained network as a baseline for the clustering performance. We begin by considering a classical K-means approach to clustering. However, the output from the VGG16 network is very high dimensional which traditionally conflicts with good K-means results. With output vectors in $\R^{8192}$ the ratio between $L_p$ distances goes to one with increasing dimensionality, as shown by \citet{Aggarwal}. However, one of the central assumptions in the authors' finding is that the elements are uniformly distributed in the latent space. They note that it is then possible that if the class information lies in some sub-space of the latent data, $L_p$-norms may provide useful clusterings even in high dimensional spaces. To investigate this, we perform a $L_2$-norm based K-means clustering using the full VGG16 representation and the $10^2$ first principal components only. 
 
@@ -315,7 +315,7 @@ In contrast with the classification work of \citet{Kuchera2019}, we do not assum
 %\subsection{K-means}
 
 %We begin by investigating the K-means clustering algorithm on the VGG16 latent space. 
-The user a VGG16 model that is pre-trained on the ImageNet dataset and subsequently applied to the AT-TPC events without the classification layers. This creates a set of vectors $\boldsymbol{x} \in \R^{8192}$ as our new representation of the events. To cluster, we use the \lstinline{scikit-learn} implementation of the K-means++ algorithm with default parameters \cite{Pedregosa2011}.
+% The user a VGG16 model that is pre-trained on the ImageNet dataset and subsequently applied to the AT-TPC events without the classification layers. This creates a set of vectors $\boldsymbol{x} \in \R^{8192}$ as our new representation of the events. To cluster, we use the \lstinline{scikit-learn} implementation of the K-means++ algorithm with default parameters \cite{Pedregosa2011}.
 
 
 \subsection{Deep clustering: Mixture of autoencoders}\label{sec:mixae}
@@ -333,9 +333,9 @@ The MIXAE algorithm relies on a few simple assumptions which are necessary, but 
 	\item Each clustering prediction should be as strong as possible, i.e. assigning high probabilities is preferable to weak assignments.
 \end{enumerate}
 
-\noindent The objective during training is to enforce that these assumptions are met. The architecture is portrayed in Figure \ref{fig:mixae}, wherein tapered boxes denote a direction of compression in the network components.
+\noindent The learning objective encourages these assumptions to be met. The architecture is portrayed in Figure \ref{fig:mixae}, wherein tapered boxes denote a direction of compression in the network components.
 
-For a more formal consideration of these heuristics, the model objective aand the assumptions made on the data by this model see \citet{Zhang}.
+For a more formal consideration of these heuristics, the model objective and the assumptions made on the data by this model see \citet{Zhang}.
 
 \begin{figure}[tb]
 	\centering
@@ -345,12 +345,28 @@ For a more formal consideration of these heuristics, the model objective aand th
 \end{figure}
 {\color{blue} This section ends quite abruptly -MPK}
 
+
+\subsection{Measuring performance}
+
+We measure the performance of the clustering algorithms by two functions: clustering accuracy and the adjusted rand index (ARI). 
+Ordinarily, we define accuracy as the agreement between a set of class predictions and their ground truth labels. 
+However, with a clustering algorithm, there is no a priori knowledge of which cluster represents what ground-truth class. 
+Since, in this example, we have access to ground-truth labels, we can define a clustering accuracy by calculating the maximum accuracy achieved by permuting which cluster should indicate a given class. 
+A measure of clustering accuracy falls in the $[0, 1]$ range where $1$ denotes perfect agreement.  
+
+Since we have access to ground truth labels, we can also calculate the ARI, which  measures the agreement between two sets of labels but {\color{blue}adjusts for chance assignments:: define this mathematically} \cite{Hubert1985}.
+{\color{blue}  The effect is that a trivial clustering algorithm which predicts only one label will evaluate to ARI$=0$, but will have a nonzero accuracy:: need the math for this to be clear}.
+As with the clustering accuracy, an ARI score is bounded in the range $[0, 1]$ where $1$ denotes perfect agreement.
+%We refer to \citet{Hubert1985} for a detailed consideration of the ARI.
+
+The performance is measured by comparing model predictions on the labelled subset of data (see table \ref{tab:datasets}) of the ARI.
+
 {\color{blue} MPK edit this}
 \section{Results and Discussions}\label{sec:results}
 
-The principal challenge in the AT-TPC experiments that we are trying to solve is the reliance on labelled samples in the analysis as future experiments may not have as visually dissimilar reaction products  as we observe in the ${}^{46}$Ar experiment.  The  ${}^{46}$Ar experiment does, however, provide a useful example where we can then explore unsupervised techniques. 
+The principal challenge in the AT-TPC experiments that we are trying to solve is the reliance on labelled samples in the analysis as future experiments may not have as visually dissimilar reaction products as we observe in the ${}^{46}$Ar experiment.  The  ${}^{46}$Ar experiment does, however, provide a useful example where we can then explore unsupervised techniques. 
 
-We begin by exploring the results of applying a K-means approach on the latent space of a pre-trained network. Subsequently, we investigate the performance of the MIXAE algorithm as outlined in section \ref{sec:mixae}.
+We first explore the results of applying a K-means approach on the latent space of a pre-trained network. Subsequently, we investigate the performance of the MIXAE algorithm as outlined in section \ref{sec:mixae}.
 
 \subsection{K-means clustering on the VGG16 latent space}
 
@@ -363,9 +379,9 @@ The results of the clustering runs are included in table \ref{tab:clstr_vgg}. We
 \input{./plots/kmeans_vgg.tex}
 \end{table}
 
-In addition to the performance measures reported in table \ref{tab:clstr_vgg}, it is interesting to observe which samples are being wrongly assigned. To investigate this problem we tabulate the assignments of samples relative to their ground truth labels. From these tables, we can infer which classes are more or less entangled with others. The results for each dataset is shown in figures \ref{fig:clster_confmat_sim} \ref{fig:clster_confmati_filt} and \ref{fig:clster_confmati_raw}. We observe that the proton class is consistently assigned in a pure cluster. Purity is inferred by how much spread there is in the column between the ground truth labels. A high-quality cluster will, in addition to being pure, also capture most entries the class represented by the cluster. For example, consider the row corresponding to the proton class in figure \ref{fig:clster_confmati_filt}. The column corresponding to the largest entry in the proton row has zero other predicted classes in it. From this, we conclude that the proton cluster is a high quality, high purity cluster. 
+In addition to the performance measures reported in table \ref{tab:clstr_vgg}, it is interesting to observe which samples are wrongly assigned. To investigate this problem, we tabulate the assignments of samples relative to their ground truth labels. From these tables, we can infer which classes are more or less entangled with others. The results for each dataset is shown in figures \ref{fig:clster_confmat_sim} \ref{fig:clster_confmati_filt} and \ref{fig:clster_confmati_raw}. We observe that the proton class is consistently assigned in a pure cluster. Purity is inferred by how much spread there is in the column between the ground truth labels. A high-quality cluster will, in addition to being pure, also capture most entries the class represented by the cluster. For example, consider the row corresponding to the proton class in figure \ref{fig:clster_confmati_filt}. The column corresponding to the largest entry in the proton row has zero other predicted classes in it. From this, we conclude that the proton cluster is a high quality, high purity cluster. 
 
-This high quality cluster also appears in the clustering of raw data. From figure \ref{fig:clster_confmati_raw} we observe that there is a high purity proton cluster. In contrast to the filtered data we observe that the deterioration in performance can largely be ascribed to the algorithm creating a proton + other cluster and a carbon + other cluster.
+This high-quality cluster also appears in the clustering of raw data. From figure \ref{fig:clster_confmati_raw}, we observe that there is a high purity proton cluster. In contrast to the filtered data we observe that the deterioration in performance can largely be ascribed to the algorithm creating a proton + other cluster and a carbon + other cluster.
 
 \begin{figure}
 \centering
