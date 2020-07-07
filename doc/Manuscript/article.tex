@@ -453,7 +453,7 @@ On filtered data the highest performing MiXAE model achieves strong separation o
 \caption[MIXAE - confusion matrices]{Confusion matrices for the MIXAE clustering algorithm on raw AT-TPC events. The true labels indicate samples belonging to the p (proton), carbon (C), or \texttt{other} classes. We observe that the algorithm correctly caputers a majority proton-event cluster in cluster 0. However, in contrast with the K-means approach this cluster is contaminated to some extend with both carbon and other events. }\label{fig:mixae_confmat_raw}
 \end{figure}
 
-\subsection{Performance comparison and ?????}
+\subsection{Performance comparison}
 
 The most striking result we present in this work is the success of the K-means approach. As noted by \cite{Aggarwal} distance measures become less informative in higher dimensional spaces, but the K-means algorithm clusters events well in a very high-dimensional space.
 Another surprise is the stability of the K-means algorithm. A stability we attribute to the quality of the VGG16 latent space in creating class-separating sub-spaces. While the separations are not perfect, the stability and quality of the proton track identification create solid empirical grounding for applying this approach to other active target experiments. 
