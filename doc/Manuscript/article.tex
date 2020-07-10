@@ -101,7 +101,7 @@ The overarching goal is to identify classes of events in the early stages of the
 %Machine learning presents an interesting avenue for researchers operating the AT-TPC, as traditional analysis methods of AT-TPC data are computationally expensive and have to fit all tracks against the event type of interest. The latter presents a considerable challenge when either the space of reactions is not known prior to the analysis, or the event type of interest is not the most abundant. 
 The application of unsupervised clustering  algorithms to the analysis of two-dimensional projections of particle tracks from a resonant proton scattering experiment on $^{46}$Ar is introduced. We explore the performance of autoencoder neural networks and a pre-trained VGG16 \cite{Simonyan2014} convolutional neural network.
 %on two tasks: a semi-supervised classification task and the unsupervised clustering of particle tracks. 
-%On the semi-supervised task, we find that a logistic regression classifier trained on small labelled subsets of the latent space of these models perform very well, both on simulated and real data. On the clustering task, 
+%On the semi-supervised task, we find that a logistic regression classifier trained on small labeled subsets of the latent space of these models perform very well, both on simulated and real data. On the clustering task, 
 We find that a $K$-means algorithm applied to the simulated data in the VGG16 latent space forms almost perfect clusters. Additionally, the VGG16+K-means approach finds high purity clusters of proton events for real experimental data. We explore also the application of autoencoder neural networks to clustering by implementing. With autoencoder neural networks we find improved descriptions of data from experiments.
 
 
@@ -140,7 +140,7 @@ The AT-TPC \cite{Bradt2017} is a novel type of detector designed specifically fo
 The concept of active targets aim at mitigating this compromise, by turning the target itself into a detector \cite{BECEIRONOVO2015}. Most active target detectors such as the AT-TPC are composed of a time projection chamber (TPC) where the detector gas is at the same time the target material. Recoil particles that originate from a nuclear reaction between a beam nucleus and a gas nucleus can be tracked from the vertex of the reaction to their final position inside the active volume of the target. Their properties can therefore be measured without any loss of resolution regardless of the amount of material traversed by the beam. At the same time, the detection efficiency is dramatically increased by the very large solid angle covered in this geometry. A direct consequence of this concept is the inclusiveness of the experimental data recorded by this type of detector: any nuclear reaction happening within the target is recorded. Although this sounds like an advantage from the scientific point of view, it poses great challenges during the analysis phase, that are reminiscent of bubble chamber times and on par with event classification challenges in particle physics today, see for example the recent review of Mehta {\em et al.} \cite{mehta2019}. More often than not, the reaction channel of interest has one of the lowest cross sections, therefore the physicist is faced with the task of sorting out the corresponding events from the ``background" of other reaction channels. 
 
 % motivating ML work:
-Because TPCs produce three-dimensional images of charged particle tracks, the event identification task is often akin to a visual inspection (comparable to the analyses made in the bubble chamber era), which is not practical nowadays because of the large quantities of data. Machine learning techniques then appear as a promising prospect, in particular in the image recognition domain where much progress has been made recently \cite{mehta2019}. In addition, machine learning (ML) algorithms offer new possibilities such as the potential discovery of unforeseen phenomena that would have been missed by more traditional analysis methods. Prior work has demonstrated the ability to apply supervised classification machine learning methods to AT-TPC data when a labeled training set is available, whether through hand-labeled data or labeled simulated data (a {\em transfer learning} application) \cite{Kuchera2019}. In some experiments, a labeled dataset is unavailable. This could be  due to the inability to hand-label events, or the case where one does not know {\em a priori} the types and behaviors of the reactions present in the detector in order to generate a labeled, simulated dataset. In the latter case, there must also exist a validation dataset of real data, still requiring the ability to label a subset of the real data. The unsupervised separation of event types, or {\em clustering}, based on a set of ML algorithms is hereby examined, using experimental data recorded by the AT-TPC during its commissioning experiment from a radioactive $^{46}$Ar beam reacting on an isobutane target composed of proton and carbon nuclei. 
+Because TPCs produce three-dimensional images of charged particle tracks, the event identification task is often akin to a visual inspection (comparable to the analyses made in the bubble chamber era), which is not practical nowadays because of the large quantities of data. Machine learning techniques then appear as a promising prospect, in particular in the image recognition domain where much progress has been made recently \cite{mehta2019}. In addition, machine learning (ML) algorithms offer new possibilities such as the potential discovery of unforeseen phenomena that would have been missed by more traditional analysis methods. Prior work has demonstrated the ability to apply supervised classification machine learning methods to AT-TPC data when a labeled training set is available, whether through hand-labeled data or labeled simulated data (a {\em transfer learning} application) \cite{Kuchera2019}. In some experiments, a labeled data set is unavailable. This could be  due to the inability to hand-label events, or the case where one does not know {\em a priori} the types and behaviors of the reactions present in the detector in order to generate a labeled, simulated data set. In the latter case, there must also exist a validation data set of real data, still requiring the ability to label a subset of the real data. The unsupervised separation of event types, or {\em clustering}, based on a set of ML algorithms is hereby examined, using experimental data recorded by the AT-TPC during its commissioning experiment from a radioactive $^{46}$Ar beam reacting on an isobutane target composed of proton and carbon nuclei. 
 
 \section{Experimental Details} 
 \label{Sec:Exp}
@@ -149,11 +149,11 @@ The experiment was performed at the National Superconducting Cyclotron Facility 
 
 The detector was placed inside the bore of a MRI solenoid energized to $\sim 2$ Tesla. This axial magnetic field served the purpose of bending the trajectories of the recoil particles in order to i) increase their length and ii) provide a measurement of their bending radius, directly related to their magnetic rigidity. Because the recoil particles travel in gas, they slow down and eventually stop, therefore their trajectories are described by three-dimensional spirals (see \cite{Bradt2017}). One of the difficulties encountered in the analysis is that the shape of these spirals does not have an analytical form because it follows the energy-loss profile of the particles. It therefore needs to be simulated via an integration, which is numerically costly. Other difficulties are related to several experimental effects that deteriorate the quality of the data, namely saturation and cross-talk effects, as well as random noise. 
 
-The method used in \cite{Bradt2018} to analyze the data followed a three-phase sequence: cleaning, filtering and fitting. Traditional methods were used to perform each of these tasks, and ultimately extract the scientific information, but there were severe limitations and high computational costs that become prohibitive in data sets larger by an order of magnitude. 
+The method used in \cite{Bradt2018} to analyze the data followed a three-phase sequence: cleaning, filtering and fitting. Traditional methods were used to perform each of these tasks, and ultimately extract the scientific information, but there were severe limitations and high computational costs that become prohibitive in data sets larger by an order of magnitude.  In particular, as for the data presented and analyzed here, with data sets in the terabyte region or larger, these more traditional methods become prohibitively expensive from a computational stand.
 % Begin added by DB (06/10/2020)
 The cleaning was performed using a combination of linear and circular Hough transforms on a 2-dimensional projection of the tracks \cite{Bradt2017}. The following filtering and fitting phases were performed simultaneously, by defining the cost function to the fitting algorithm as a sum of three $\chi^2$ components based on i) the position of the track in space, ii) the energy deposited on each pixel of the sensor plane, and iii) the location of the vertex of the reaction. While various fitting algorithms were tested, the most accurate was a Monte-Carlo algorithm that explored the six-dimensional phase space of the particle's kinematics parameters, reducing it progressively at each iteration step until the desired accuracy was reached \cite{Bradt2017}. Although this algorithm ended up being the most accurate, it is extremely costly computationally because of the very large number of simulated tracks needed for each event. The filtering was performed by setting limits to the $\chi^2$ distributions, below which the events were assigned as proton scattering. This is a very inefficient method because it requires performing the fitting for all events, including those that are not of interest. Pioneering work on event identification using machine learning methods, namely the use of a pre-trained convolutional neural networks (CNN), later showed that the filtering phase would better be performed using this type of technique \cite{Kuchera2019}. 
 % End added by DB (06/10/2020)
-In addition, \cite{Kuchera2019} demonstrated that the purity and statistics of the data are improved with the use of ML.
+In addition, the authors of Ref.~\cite{Kuchera2019} demonstrated that the purity and statistics of the data are improved with the use of ML.
 
 % From DB (06/19/2020)
 From the experimenter's point of view, it is clear that the method used in \cite{Bradt2018} to identify and filter events is not the most efficient computationally. The ML methods explored in \cite{Kuchera2019} are a step forward, but they still rely on supervised learning methods that require data labeling, a time-consuming and error-prone process. The aim of the present study is to investigate unsupervised learning methods that bypass the labeling step, and form classes of events independently from the experimenter's input. The task of labeling the different classes is then much less time-consuming and can potentially lead to the discovery of unforeseen types of events.
@@ -163,20 +163,20 @@ From the experimenter's point of view, it is clear that the method used in \cite
 In this section we give a brief overview of the data, for a more in-depth consideration we refer the reader to \cite{Mittig2015}, \cite{Suzuki2012} and  \cite{Bradt2017a}. 
 
 The AT-TPC data we studied for this work was recorded as charge time-series for each of the  the $\sim10^4$ detector pads.
-In this representation, an event is a record of $512$ time-buckets for each of the $10^4$ detector pads. In our analysis, we represent each event as a downsampled 2D projection.
-We chose to represent the data in 2D to facilitate the use of sophisticated image-recognition machine learning models, and this data representation was shown to successfully classify the events of this experiment in a supervised setting \cite{Kuchera2019}.
-First, the time-series data was represented as a 3D point cloud, where each point contains the maximum charge in the time-series trace. We log-transform then min-max scale the charge, mapping the charge to the interval $[0, 1]$. The data is projected into 2D space by summing over the time-axis, then downsampled into an $128\times128$ pixel image.
+In this representation, an event is a record of $512$ time-buckets for each of the $10^4$ detector pads. In our analysis, we represent each event as a down-sampled two-dimensional  projection.
+We chose to represent the data in two dimensions to facilitate the use of sophisticated image-recognition machine learning models, and this data representation was shown to successfully classify the events of this experiment in a supervised setting \cite{Kuchera2019}.
+First, the time-series data was represented as a three-dimensional  point cloud, where each point contains the maximum charge in the time-series trace. We log-transform then min-max scale the charge, mapping the charge to the interval $[0, 1]$. The data is projected into two-dimensional  space by summing over the time-axis, then down-sampled into a $128\times128$ pixel image.
 %Additionally, we log-transform and normalize the data to the interval $[0, 1]$ for each point. The final representation for each event is a $128 \times 128$ matrix with each element ranging from $0$ to $1$.
 
 One of the significant considerations for the analysis of AT-TPC data is to inject machine learning methods for track identification at the best point in the analysis pipeline.
 Using raw data is advantageous as it provides an unbiased view of the event, but the data volume and noise levels might be prohibitive for analysis.
 %On the opposite end of the pipeline, 
-Therefore, incrementally add bias to the analysis by applying the algorithm further down the analysis pipeline.. With the benefit being that more pre-processing improves the signal-to-noise ratio, possibly improving model performance.
-To explore this trade-off between model performance and pre-processing bias, we performed analysis on simulated, cleaned and raw events.
+Therefore, we incrementally add bias to the analysis by applying the algorithm further down the analysis pipeline, with the benefit being that more preprocessing improves the signal-to-noise ratio, possibly improving model performance.
+To explore this trade-off between model performance and preprocessing bias, we performed our analysis on simulated, cleaned and raw events.
 
 \begin{table}
 \centering
-\caption{Event class percentages for each of the datasets used in this analysis. The decrease in the "other" class of events from full to filtered data owes to the thresholding of events. If an event contains fewer than $20$ data-points it is discarded }\label{tab:class_distr}
+\caption{Event class percentages for each of the data sets used in this analysis. The decrease in the "other" class of events from full to filtered data owes to the thresholding of events. If an event contains fewer than $20$ data points it is discarded }\label{tab:class_distr}
 \begin{tabular}{lccc}
 \toprule
 {} & Simulated & Full & Filtered \\
@@ -189,32 +189,32 @@ $\%$ Other & $0$ & $62.8$ & $60.1$ \\
 
 \subsection{Simulated \texorpdfstring{${}^{46}$Ar}{46Ar}  events}\label{sec:data_sim}
 
-A set of $N=40000$ simulated AT-TPC events per class were simulated from a ${}^{46}$Ar$(p, p)$ experiment with the \lstinline{pytpc} package developed by \citet{Bradt2017a}. %Using the same parameters {\color{blue} what parameters are you referring to? -MPK} as for the 
+A set of $N=40000$ simulated AT-TPC events per class was obtained  from a ${}^{46}$Ar$(p, p)$ experiment with the \lstinline{pytpc} package developed by \citet{Bradt2017a}. %Using the same parameters {\color{blue} what parameters are you referring to? -MPK} as for the 
 %Two simulated ${}^{46}$Ar$(p, p)$ experiment, a small set of $N=4000$ events per class was generated, as well as a larger set of $N=40000$ events per class. 
 
-For validation, we set a subset of the simulated data to be labelled and treat the rest as unlabelled data. We choose this partition to be $15\%$ of each class. We denote this subset and its associated labels as $\gamma_L=(\boldsymbol{X}_L, \boldsymbol{y}_L)$, while the entire dataset which is identified as $\boldsymbol{X}_F$. Note that $\boldsymbol{X}_L \subset \boldsymbol{X}_F$.
+For validation, we set a subset of the simulated data to be labeled and treat the rest as unlabeled data. We chose this partition to consist of  $15\%$ of the data. We denote this subset and its associated labels as $\gamma_L=(\boldsymbol{X}_L, \boldsymbol{y}_L)$, while the entire data set is identified as $\boldsymbol{X}_F$. Note that $\boldsymbol{X}_L \subset \boldsymbol{X}_F$.
 
 
 
 \subsection{Raw \texorpdfstring{${}^{46}$Ar}{46Ar}  events}\label{sec:data_real}
 
 The events analyzed in this section were retrieved from the ${}^{46}$Ar resonant proton scattering experiment recorded with the AT-TPC. 
-While we denote these events as raw, it is important to note that what we mean is a raw 2D representation of peak-only events.
+While we denote these events as raw, it is important to note that what we mean is a raw two-dimensional representation of peak-only events.
 
 %The sensor plane in the AT-TPC is very sensitive, as such there is substantial noise in the ${}^{46}$Ar data. The noise can be attributed to structural noise from electronics cross-talk, and possible interactions with cosmic background radiation, as well as other sources of charged particles. Part of the challenge for this data then comes from understanding of the physics of the major contributing factors to this noise. \todo{I guess this paragraph can go. It reads very thesis-y, but I'm not sure what to do here to sensibly frame the raw data}
 
-We display two different events from the ${}^{46}$Ar experiment in figure \ref{fig:samples}. The top row illustrates a carbon event with a large fraction of noise, while the bottom row shows a proton event nearly devoid of noise.
+We display two different events from the ${}^{46}$Ar experiment in figure \ref{fig:samples}. The top row illustrates a carbon event with a large fraction of noise, while the bottom row shows a proton event almost free of noise.
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\textwidth]{custom_work/examples_raw.pdf}
-\caption[Displaying unfiltered events in 2D and 3D]{Two- and three-dimensional representations of two events from the ${}^{46}$Ar experiment. Each row is one event in two projections, where the color intensity of each point indicates higher charge values recorded by the detector.}\label{fig:samples}
+\caption[Displaying unfiltered events in two and three dimensions]{Two- and three-dimensional representations of two events from the ${}^{46}$Ar experiment. Each row is one event in two projections, where the color intensity of each point indicates higher charge values recorded by the detector.}\label{fig:samples}
 \end{figure}
 
 \subsection{Filtered \texorpdfstring{${}^{46}$Ar}{46Ar} events}\label{sec:filtered}
 
 
-As we saw in the previous section, the detector picks up a significant amount of noise. We split the noise broadly in two categories,  one being random-uncorrelated noise and the second is structured noise. The former can be quite trivially removed with a nearest-neighbour algorithm that checks if a point in the event is close to any other. To remove the correlated noise, researchers at the NSCL developed an algorithm based on the Hough transform \cite{Newman1972}. This transformation is a common technique in computer vision, used to identify common geometric shapes like lines and circles, and has been used extensively in high-energy particle physics since the bubble-chamber era \cite{Hough:1959}.  %Essentially, the algorithm draws many lines (of whatever desired geometry) through each data-point and checks whether these lines intersect with points in the dataset. Locations in parameter space that generate many intersections then become bright spots, allowing us to filter away points that are not close to these points. These algorithms remove a large amount of the unstructured noise and are computationally rather cheap. \todo{Also pretty thesis-y language. Do not like}
+As we saw in the previous section, the detector picks up a significant amount of noise. We split the noise broadly in two categories,  one being random-uncorrelated noise and the second is structured noise. The former can be quite trivially removed with a nearest-neighbour algorithm that checks if a point in the event is close to any other. To remove the correlated noise, researchers at the NSCL developed an algorithm based on the Hough transform \cite{Newman1972}. This transformation is a common technique in computer vision, used to identify common geometric shapes like lines and circles, and has been used extensively in high-energy particle physics since the bubble-chamber era \cite{Hough:1959}.  %Essentially, the algorithm draws many lines (of whatever desired geometry) through each data-point and checks whether these lines intersect with points in the data set. Locations in parameter space that generate many intersections then become bright spots, allowing us to filter away points that are not close to these points. These algorithms remove a large amount of the unstructured noise and are computationally rather cheap. \todo{Also pretty thesis-y language. Do not like}
 
 We illustrate two filtered events in figure \ref{fig:samples_filtered}. These are the same events as shown in figure \ref{fig:samples}, but with the Hough and nearest neighbours filtering applied. 
 
@@ -230,8 +230,8 @@ We illustrate two filtered events in figure \ref{fig:samples_filtered}. These ar
 \subsection{Classifying  events} 
 %The filtering task relied on a set of $\chi^2$ distributions based on different criteria, 
 The traditional Monte-Carlo event selection process, described in Section~\ref{Sec:Exp}, does not have a well-defined method to quantify the effectiveness of the event selection.
-In addition, the selection task produced a binary result only, ``good" or``bad", relative to the event of interest, while the data clearly contained more classes of events.%, if only because of the presence of carbon in the target (from the isobutane gas).
-In a broader perspective, an unsupervised classification algorithm would offer the possibility to ``discover" rare events not anticipated (or overlooked) by the physicist. These events would likely be filtered out using the traditional methods. From a practical point of view, compared to supervised learning, it also avoids the necessary labeling task of the learning set events, which is error prone and time consuming.
+In addition, the selection task produced a binary result only, either ``good" or``bad" relative to the event of interest. The data contain however many more classes of events.%, if only because of the presence of carbon in the target (from the isobutane gas).
+In a broader perspective, an unsupervised classification algorithm would offer the possibility to ``discover" rare events which may not be expected or are overlooked. These events would likely be filtered out using the traditional methods. From a practical point of view, compared to supervised learning, it also avoids the necessary labeling task of the learning set events, which is error prone and time consuming.
 
 \subsection{Why machine learning}
 %{\bf we need to rewrite these bullet points, MHJ}
@@ -247,7 +247,7 @@ In a broader perspective, an unsupervised classification algorithm would offer t
 The $\chi^2$ approach used in the traditional analysis performed on the $^{46}$Ar data is extremely computationally expensive because it involves the simulation of thousands of tracks for each recorded event, which are performed each iteration of the Monte-Carlo fitting sequence. Even though the reaction of interest in the $^{46}$Ar experiment had the largest cross section (elastic scattering), the sheer number of events to analyse (in the hundreds of thousands) necessitated the use of parallel processing on a high performance computing cluster {\color{blue} is there a metric we can give here? -MPK}. In the case of an experiment where the reaction of interest would represent less than a few percent of the total cross section, this procedure would become highly inefficient and prohibitive. 
 %Most of the CPU time would be spent on simulating events that are not of interest.
 The computationally expensive fitting procedure would be applied to every event, instead of the few percent of the events that are of interest for the analysis.
-An unsupervised ML algorithm able to separate the data without a priori knowledge of the different types of events increases the efficiency of the analysis tremendously, and allows the downstream analysis to concentrate on the fitting efforts only on events of interest. In addition, the clustering allows for more exploration of the data, potentially enabling new discovery of unexpected reaction types.
+An unsupervised ML algorithm able to separate the data without {\em a priori} knowledge of the different types of events increases the efficiency of the analysis tremendously, and allows the downstream analysis to concentrate on the fitting efforts only on events of interest. In addition, the clustering allows for more exploration of the data, potentially enabling new discovery of unexpected reaction types.
 
 %\subsection{Data}
 %{\color{green}What is the intent of this section? Display some data examples to illustrate the points above?}
@@ -257,7 +257,7 @@ An unsupervised ML algorithm able to separate the data without a priori knowledg
 
 \begin{table}[hbtp]
 \centering
-\caption{Descriptions of number of events in the data.}\label{tab:datasets}
+\caption{Descriptions of number of events in the data.}\label{tab:data sets}
 \begin{tabular}{lccc}
 \toprule
 {} & Simulated & Full & Filtered \\
@@ -293,11 +293,11 @@ labelled & $2400$ & $1774$ &  $1582$ \\
 
 % Using a CNN algorithm comes with the caveat that the data should be image-like. This caveat is especially stringent when applying pre-trained models to new data. For the $^{46}$Ar data we project the 3D point clouds in each event to a 2D matrix representation of the X-Y plane, summing over the Z-axis. Applying a pre-trained model is a common technique in computer science, and \citet{Kuchera2019} showed that a pre-trained CNN model outperforms bespoke models for the classification of $^{46}$Ar data. We build on the classification result in this work by using a pre-trained CNN model as a spring-board for our clustering models.
 
-% In the Machine Learning community, it is not uncommon to publish packaged models with fitted parameters from image recognition contests. These models are trained on datasets with millions of images and classify between hundreds of distinct classes; one such is the imagenet dataset. In their work, \citet{Kuchera2019} used the VGG16 architecture trained on imagenet to classify ${}^{46}$Ar data. In our work we also found the VGG16 architecture to capture the strongest event-separating representation for clustering purposes. 
+% In the Machine Learning community, it is not uncommon to publish packaged models with fitted parameters from image recognition contests. These models are trained on data sets with millions of images and classify between hundreds of distinct classes; one such is the imagenet data set. In their work, \citet{Kuchera2019} used the VGG16 architecture trained on imagenet to classify ${}^{46}$Ar data. In our work we also found the VGG16 architecture to capture the strongest event-separating representation for clustering purposes. 
 
 % The VGG16 network is one of six analogous networks proposed by \citet{Simonyan2014}. The network architectures are fairly straightforward; for VGG16, there are sixteen layers in the network. The first thirteen of which are convolutional layers with exclusively $3 \times 3$ kernels.  The full architecture is detailed in appendix \ref{app:vgg}.
 
-Training high-performing neural networks from scratch often requires enormous datasets and computation time. However, it has been found that models which are trained at large scale will learn general features that are applicable to a variety of tasks. For example, large neural networks which are trained on the ImageNet dataset \cite{Russakovsky2015} --- a diverse image classification task --- learn how to identify lines, edges, and other common shapes that are useful for numerous problems. Thus, it is common practice to initialize the convolutional layers of a network with the pre-trained weights learned from ImageNet (or some other large dataset). The training process then only has to fine-tune the network for the specific task. Since we are building on prior knowledge in this case, learning becomes far more efficient, and better performance can often be achieved. \citet{Kuchera2019} used machine learning methods to classify the products of $^{46}$Ar reactions in the AT-TPC, and they found that a CNN initialized with ImageNet weights resulted in the most successful classification.
+Training high-performing neural networks from scratch often requires enormous data sets and computation time. However, it has been found that models which are trained at large scale will learn general features that are applicable to a variety of tasks. For example, large neural networks which are trained on the ImageNet data set \cite{Russakovsky2015} --- a diverse image classification task --- learn how to identify lines, edges, and other common shapes that are useful for numerous problems. Thus, it is common practice to initialize the convolutional layers of a network with the pre-trained weights learned from ImageNet (or some other large data set). The training process then only has to fine-tune the network for the specific task. Since we are building on prior knowledge in this case, learning becomes far more efficient, and better performance can often be achieved. \citet{Kuchera2019} used machine learning methods to classify the products of $^{46}$Ar reactions in the AT-TPC, and they found that a CNN initialized with ImageNet weights resulted in the most successful classification.
 
 \subsection{Clustering on latent spaces}
 
@@ -313,7 +313,7 @@ In contrast with the classification work of \citet{Kuchera2019}, we do not assum
 %\subsection{K-means}
 
 %We begin by investigating the K-means clustering algorithm on the VGG16 latent space. 
-% The user a VGG16 model that is pre-trained on the ImageNet dataset and subsequently applied to the AT-TPC events without the classification layers. This creates a set of vectors $\boldsymbol{x} \in \R^{8192}$ as our new representation of the events. To cluster, we use the \lstinline{scikit-learn} implementation of the K-means++ algorithm with default parameters \cite{Pedregosa2011}.
+% The user a VGG16 model that is pre-trained on the ImageNet data set and subsequently applied to the AT-TPC events without the classification layers. This creates a set of vectors $\boldsymbol{x} \in \R^{8192}$ as our new representation of the events. To cluster, we use the \lstinline{scikit-learn} implementation of the K-means++ algorithm with default parameters \cite{Pedregosa2011}.
 
 
 \subsection{Deep clustering: Mixture of autoencoders}\label{sec:mixae}
@@ -386,7 +386,7 @@ To compute the ARI we use the elements from the contingency table to evaluate th
 The important distinction to make between the clustering accuracy and the ARI is that the clustering accuracy is a simple comparison that does not account for chance assignments, while the ARI does. In effect, this means that the accuracy is a good heuristic for the performance which is tempered by the ARI. 
 %We refer to \citet{Hubert1985} for a detailed consideration of the ARI.
 
-The performance is measured by comparing model predictions on the labelled subset of data (see table \ref{tab:datasets}).
+The performance is measured by comparing model predictions on the labelled subset of data (see table \ref{tab:data sets}).
 
 
 \section{Results and Discussions}\label{sec:results}
@@ -397,7 +397,7 @@ We first explore the results of applying a K-means approach on the latent space 
 
 \subsection{K-means clustering on the VGG16 latent space}
 
-The results of the clustering runs are included in table \ref{tab:clstr_vgg}. We observe that we are able to attain near-perfect clustering on simulated data and that there is a sharp decline in performance as we add noise by moving to the filtered and raw datasets. 
+The results of the clustering runs are included in table \ref{tab:clstr_vgg}. We observe that we are able to attain near-perfect clustering on simulated data and that there is a sharp decline in performance as we add noise by moving to the filtered and raw data sets. 
 
 
 \begin{table}[H]
@@ -407,7 +407,7 @@ The results of the clustering runs are included in table \ref{tab:clstr_vgg}. We
 \end{table}
 
 {\color{blue} This section may contain info that you can move to the metrics section??}
-In addition to the performance measures reported in table \ref{tab:clstr_vgg}, it is interesting to observe which samples are wrongly assigned. To investigate this problem, we tabulate the assignments of samples relative to their ground truth labels. From these tables, we can infer which classes are more or less entangled with others. The results for each dataset is shown in figures \ref{fig:clster_confmat_sim} \ref{fig:clster_confmati_filt} and \ref{fig:clster_confmati_raw}. We observe that the proton class is consistently assigned in a pure cluster. Purity is inferred by how much spread there is in the column between the ground truth labels. A high-quality cluster will, in addition to being pure, also capture most entries the class represented by the cluster. For example, consider the row corresponding to the proton class in figure \ref{fig:clster_confmati_filt}. The column corresponding to the largest entry in the proton row has zero other predicted classes in it. From this, we conclude that the proton cluster is a high quality, high purity cluster. 
+In addition to the performance measures reported in table \ref{tab:clstr_vgg}, it is interesting to observe which samples are wrongly assigned. To investigate this problem, we tabulate the assignments of samples relative to their ground truth labels. From these tables, we can infer which classes are more or less entangled with others. The results for each data set is shown in figures \ref{fig:clster_confmat_sim} \ref{fig:clster_confmati_filt} and \ref{fig:clster_confmati_raw}. We observe that the proton class is consistently assigned in a pure cluster. Purity is inferred by how much spread there is in the column between the ground truth labels. A high-quality cluster will, in addition to being pure, also capture most entries the class represented by the cluster. For example, consider the row corresponding to the proton class in figure \ref{fig:clster_confmati_filt}. The column corresponding to the largest entry in the proton row has zero other predicted classes in it. From this, we conclude that the proton cluster is a high quality, high purity cluster. 
 
 This high-quality cluster also appears in the clustering of raw data. From figure \ref{fig:clster_confmati_raw}, we observe that there is a high purity proton cluster. In contrast to the filtered data we observe that the deterioration in performance can largely be ascribed to the algorithm creating a proton + other cluster and a carbon + other cluster.
 
@@ -439,12 +439,12 @@ We display these examples in figures \ref{fig:filtered_vgg_clster_repr} and \ref
 
 \begin{figure}
 \includegraphics[width=\textwidth]{custom_work/Filteredexamples.pdf}
-\caption[Filtered proton samples by cluster belonging]{Illustrating a sample of proton events from different K-means clusters from the filtered dataset. Each row belongs to a single cluster corresponding to the filtered confusion matrix in figure \ref{fig:clster_confmati_filt}}\label{fig:filtered_vgg_clster_repr}
+\caption[Filtered proton samples by cluster belonging]{Illustrating a sample of proton events from different K-means clusters from the filtered data set. Each row belongs to a single cluster corresponding to the filtered confusion matrix in figure \ref{fig:clster_confmati_filt}}\label{fig:filtered_vgg_clster_repr}
 \end{figure} 
 
 \begin{figure}
 \includegraphics[width=\textwidth]{custom_work/Rawexamples.pdf}
-\caption[Full proton samples by cluster belonging]{Illustrating a sample of proton events from different K-means clusters from the raw dataset. Each row belongs to a single cluster corresponding to the full confusion matrix in figure \ref{fig:clster_confmati_raw}}\label{fig:full_vgg_clster_repr}
+\caption[Full proton samples by cluster belonging]{Illustrating a sample of proton events from different K-means clusters from the raw data set. Each row belongs to a single cluster corresponding to the full confusion matrix in figure \ref{fig:clster_confmati_raw}}\label{fig:full_vgg_clster_repr}
 \end{figure} 
 
 
@@ -498,7 +498,7 @@ Additionally, we considered the deep convolutional embedded clustering (DCEC) by
 
 \section{Conclusions and Perspectives}\label{sec{conclusion}}
 % Begin edit by DB (6/17/2020)
-The purpose of this study is to explore the application of unsupervised learning algorithms to event identification from an active target detector. The necessity to identify events from raw data prior to full processing is becoming a major issue in the data analysis of detectors with complex responses such as the AT-TPC.
+The purpose of this study has been to explore the application of unsupervised learning algorithms to event identification from an active target detector. The necessity to identify events from raw data prior to full processing is becoming a major issue in the data analysis of detectors with complex responses such as the AT-TPC.
 As shown by both avenues explored in this work, it is clear that there is significant potential to eventually achieve event classification using fully automated unsupervised methods.
 
 In particular, the ability of the K-means algorithm in picking out clear proton clusters from the VGG16 latent space lends itself well to an exploratory phase of analysis, where clusters of events corresponding to different reaction channels could be later identified by the experimenter.
@@ -507,7 +507,7 @@ A caveat to the K-means method is that the number of clusters has to be specifie
 
 The same caveat is present in the MIXAE implementation. While it shows better optimal performance than the K-means method, some inconsistencies were observed, that were notably not evident from the unsupervised training-objectives of the model. These two factors currently conspire to limit its immediate applicability, and more developments are needed for this approach. 
 
-In summary, our study shows that unsupervised track classification with an implementation of the VGG16 + K-means approach is a viable solution. For future work, it is worth investigating whether the adaptation of bespoke models like the MIXAE algorithm will allow better performance at no significant cost to consistency.  
+In summary, our study shows that unsupervised track classification with an implementation of the VGG16 + K-means approach is a viable solution. For future work, it is worth investigating whether the adaptation of  models like the MIXAE algorithm will allow better performance at no significant cost to consistency.  
 %Especially considering the flexibility to use 3D input representations or auxiliary physical goals in the optimization procedure. 
 The two examples of unsupervised machine learning methods studied in this work are a first encouraging step towards automated classification of events that could not only greatly reduce the resource cost of analysis, but also eventually boost the efficiency of the experiment by allowing post-trigger decisions based on such algorithm implemented in hardware. Much progress remains to be done before achieving these goals.
 % End edit by DB (6/17/2020)
@@ -528,7 +528,7 @@ The two examples of unsupervised machine learning methods studied in this work a
 \section{VGG16}\label{app:vgg}
 The choice of the kernel size is based on the fact that a stacked $3 \times 3$ kernel is equivalent to larger kernels in terms of the receptive field of the output. Three $3 \times 3$ kernels with stride $1$ have a $7 \times 7$ receptive field, but the larger kernel has $81\%$ more parameters and only one non-linearity \cite{Simonyan2014}. Stacking the smaller kernels then contributes to a lower computational cost. Additionally, there is a regularizing effect from the lowered number of parameters and increased explanatory power from the additional non-linearities.
 \begin{table}
-\caption[vgg architectures]{Showing the details of the VGG network architectures. Network D trained on the ImageNet \cite{Russakovsky2015} dataset the network known as  VGG16 and is what we use in this thesis.}\label{tab:vgg}
+\caption[vgg architectures]{Showing the details of the VGG network architectures. Network D trained on the ImageNet \cite{Russakovsky2015} data set the network known as  VGG16 and is what we use in this thesis.}\label{tab:vgg}
 \includegraphics[width=\textwidth]{plots/vgg_architectures.png}
 \end{table}
 
@@ -539,7 +539,7 @@ We focused on the tuning of the clustering hyper-parameters, and heuristically s
 
 The parameters chosen for the autoencoders are listed in full in table \ref{tab:mixe_ae_hyperparams}.
 
-To train the MIXAE clustering algorithm, we use the large simulated dataset with $M=80000$ points, evenly distributed between proton- and carbon-events. The algorithm is trained on a subset of $60000$ of these samples, and we track performance on the remaining $20000$ events. Since there are then only three remaining hyperparameters we choose to perform a coarse grid-search as described in section \ref{sec:hyperparam_search_arch}.Finally, for these parameters we re-ran the algorithm $N=10$ times to investigate the stability of the algorithm.
+To train the MIXAE clustering algorithm, we use the large simulated data set with $M=80000$ points, evenly distributed between proton- and carbon-events. The algorithm is trained on a subset of $60000$ of these samples, and we track performance on the remaining $20000$ events. Since there are then only three remaining hyperparameters we choose to perform a coarse grid-search as described in section \ref{sec:hyperparam_search_arch}.Finally, for these parameters we re-ran the algorithm $N=10$ times to investigate the stability of the algorithm.
 
 \begin{table}
 \centering
@@ -562,7 +562,7 @@ The grids selected for the search are listed in table \ref{tab:mixae_loss_weight
 \gamma = 10^5.
 \end{align}
 
-For the full dataset the MIXAE hyperparameters converge to the same values as for the clean data:
+For the full data set the MIXAE hyperparameters converge to the same values as for the clean data:
 
 \begin{align}
 \theta &= 10^{1}, \\
