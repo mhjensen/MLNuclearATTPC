@@ -318,7 +318,7 @@ In contrast with the classification work of \citet{Kuchera2019}, we do not assum
 
 \subsection{Deep clustering: Mixture of autoencoders}\label{sec:mixae}
 
-As an alternative to relying on a pre-trained model, we also consider the MIXAE algorithm \cite{Zhang}, a bespoke end-to-end clustering model which is specifically trained on the AT-TPC data.
+As an alternative to relying on a pre-trained model, we also consider the MIXAE algorithm \cite{Zhang}, which is an end-to-end clustering model specifically trained on the AT-TPC data.
 
 The MIXAE model comprises several autoencoders, each of which corresponds to a cluster. The number of autoencoders, and thus the number of clusters, has to be determined beforehand. Each autoencoder constructs a latent representation of a given example. Those representations are used as inputs to an auxiliary network which assigns scores to the clusters, indicating the likelihood that the given example belongs to each cluster. Examples are then assigned to the cluster with the highest score.  
 
@@ -487,7 +487,7 @@ The most striking result we present in this work is the success of the K-means a
 Another surprise is the stability of the K-means algorithm. A stability we attribute to the quality of the VGG16 latent space in creating class-separating sub-spaces. While the separations are not perfect, the stability and quality of the proton track identification create solid empirical grounding for applying this approach to other active target experiments. 
 
 
-It is also interesting to compare and contrast the clustering results from the MIXAE model with those of the VGG16$+$K-means. In particular, the discrepancy in stability is worth noting. While the top performing MIXAE runs outperform the K-means approach, its reliability suffers. However, the high performance achieved shines a light on valuable potential research into more bespoke models for unsupervised track identification.
+It is also interesting to compare and contrast the clustering results from the MIXAE model with those of the VGG16$+$K-means. In particular, the discrepancy in stability is worth noting. While the top performing MIXAE runs outperform the K-means approach, its reliability suffers. However, the high performance achieved shines a light on valuable potential research into more tailored models for unsupervised track identification.
 
 
 \subsection{Alternative approaches}
