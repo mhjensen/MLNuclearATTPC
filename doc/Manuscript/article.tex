@@ -346,19 +346,48 @@ For a more formal consideration of these heuristics, the model objective and the
 
 
 \subsection{Measuring performance}
+Unsupervised machine learning very typically goes hand-in-hand with a lack of ground-truth labelled data. In the face of such missing data, a model is ordinarily assessed by measures that do not depend on knowing the ground truth for any samples. 
+However, as our work aims to explore the application of unsupervised methods to track identification, we chose the ${}^{46}$Ar data we have some ground truth labels to evaluate our models. The measures we use to evaluate the models we then chose to be ones which measure the similarities between two arbitrary sets of clustering assignments while holding one to be the ground truth. 
 
-We measure the performance of the clustering algorithms by two functions: clustering accuracy and the adjusted rand index (ARI). 
-Ordinarily, we define accuracy as the agreement between a set of class predictions and their ground truth labels. 
-However, with a clustering algorithm, there is no a priori knowledge of which cluster represents what ground-truth class. 
-Since, in this example, we have access to ground-truth labels, we can define a clustering accuracy by calculating the maximum accuracy achieved by permuting which cluster should indicate a given class. 
-A measure of clustering accuracy falls in the $[0, 1]$ range where $1$ denotes perfect agreement.  
 
-Since we have access to ground truth labels, we can also calculate the ARI, which  measures the agreement between two sets of labels but {\color{blue}adjusts for chance assignments:: define this mathematically} \cite{Hubert1985}.
-{\color{blue}  The effect is that a trivial clustering algorithm which predicts only one label will evaluate to ARI$=0$, but will have a nonzero accuracy:: need the math for this to be clear}.
-As with the clustering accuracy, an ARI score is bounded in the range $[0, 1]$ where $1$ denotes perfect agreement.
+We measure the performance of the clustering algorithms by two functions: clustering accuracy and the adjusted rand index (ARI)\cite{Hubert1985}. Both of these measurements fall in the range $ [0, \hspace{0.1cm}1]$, where $0$ denotes a complete disagreement and $1$ a complete agreement between the ground truth and predicted labels.
+
+To compute the metrics we have to solve problem introduced by the arbitrary labels of a clustering algorithm. That is, we do not know which predicted assignment should correspond to a proton or carbon event. In short, we want to find the most reasonable correspondence between the clusters and the ground truth classes. To solve this problem we first define two sets; the ground truth labels $\mathbf{y} = [y_i, \hspace{0.2cm} y_{i +1}, \ldots]$ and the corresponding predictions $\mathbf{\hat{y}} = [\hat{y}_i, \hspace{0.2cm} \hat{y}_{i +1}, \ldots]$. Furthermore, let both $y_i$ and $\hat{y}_i$ be integer representations of an events ground truth, or predicted class, respectively. 
+
+To compute both the ARI and the clustering accuracy we also have to construct the contingency table between two sets of clustering assignments. A contingency matrix defines the overlaps between classes in these sets, and its general form is shown in table \ref{tab:contingency}.
+
+\begin{table}[H]
+\centering
+\caption{General form of a contingency table. $y_n$ and $\hat{y}_n$ are the ground truth labels and clustering assignments respectively. The $w_{ij}$'s then describe how many samples are in clusters $y_i$ and simultaneously in $\hat{y}_j$.}\label{tab:contingency}
+\begin{tabular}{c|ccc|c}
+& $y_1$ &$y_2$ & $\cdots$ & sums \\
+\midrule
+$\hat{y}_1$ & $w_{11}$ & $w_{12}$ &  $\cdots$ & $e_1$ \\
+$\hat{y}_2$ & $w_{21}$ & $w_{22}$ &  $\cdots$ & $e_2$\\
+$\vdots$ & $\vdots$ & \vdots & $\ddots$ & \vdots \\
+\hline
+sums & $f_1$ & $f_2$ & $\hdots$ 
+\end{tabular}
+\end{table}
+
+The algorithm for finding the clustering accuracy can then be described in these steps: 
+
+\begin{itemize}
+    \item Compute the matrix $\mathbf{W}$ from the contingency table between $\mathbf{y}$ and $\mathbf{\hat{y}}$
+    \item Subtract $\mathbf{W}$ from its maximum value to find the bipartite graph representation of the assignment problem.
+    \item Use an algorithm, like the Hungarian algorithm, to solve the assignment problem, and take the average of the values in $\mathbf{W}$ this solution indicates. This average is the clustering accuracy. 
+\end{itemize}
+
+To compute the ARI we use the elements from the contingency table to evaluate the function introduced by \citet{Hubert1985}
+
+\begin{equation}\label{eq:ari}
+\text{ARI} = \frac{\sum  \binom{w_{ij}}{2} - \left[\sum  \binom{e_{i}}{2} \sum  \binom{f_{j}}{2}  \right]/\binom{n}{2}}{\frac{1}{2}\left[\sum  \binom{e_{i}}{2} + \sum  \binom{f_{j}}{2}  \right]- \left[\sum  \binom{e_{i}}{2} \sum  \binom{f_{j}}{2}  \right]/\binom{n}{2}}.
+\end{equation}
+
+The important distinction to make between the clustering accuracy and the ARI is that the clustering accuracy is a simple comparison that does not account for chance assignments, while the ARI does. In effect, this means that the accuracy is a good heuristic for the performance which is tempered by the ARI. 
 %We refer to \citet{Hubert1985} for a detailed consideration of the ARI.
 
-The performance is measured by comparing model predictions on the labelled subset of data (see table \ref{tab:datasets}) of the ARI.
+The performance is measured by comparing model predictions on the labelled subset of data (see table \ref{tab:datasets}).
 
 
 \section{Results and Discussions}\label{sec:results}
