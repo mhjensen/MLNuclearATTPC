@@ -399,12 +399,11 @@ We first explore the results of applying a K-means approach on the latent space 
 
 \subsection{K-means clustering on the VGG16 latent space}
 
-The results of the clustering runs are included in table \ref{tab:clstr_vgg}. We observe that we are able to attain near-perfect clustering on simulated data and that there is a sharp decline in performance as we add noise by moving to the filtered and raw data sets. 
-
+The results of the clustering runs are included in table \ref{tab:clstr_vgg}, we ran the k-means algorithm $N=1000$ times to assess the variability in the performance. We observe that the clustering on simulated data attains the highest performance, and that there is a decline in performance as we add noise by moving to the filtered and raw data sets. We observe that the k-means algorithm for the simulated data converges to either to a very good solution, or to a very poor one. This fluctuation is ordinarily suppressed with the convention for re-running the fit several times and picking the strongest performing one for prediction.
 
 \begin{table}[H]
 \centering 
-\caption[K-means on pre-trained model]{K-means clustering results on AT-TPC event data. We observe that the performance predictably decreases with the amount of noise in the data.}\label{tab:clstr_vgg}
+\caption[K-means on pre-trained model]{K-means clustering results on AT-TPC event data, for $N=1000$ runs of the k-means algorithm. We observe that the performance predictably decreases with the amount of noise in the data.}\label{tab:clstr_vgg}
 \input{./plots/kmeans_vgg.tex}
 \end{table}
 
