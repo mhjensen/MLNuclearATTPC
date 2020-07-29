@@ -230,7 +230,7 @@ We illustrate two filtered events in figure \ref{fig:samples_filtered}. These ar
 \subsection{Classifying  events} 
 %The filtering task relied on a set of $\chi^2$ distributions based on different criteria, 
 The traditional Monte-Carlo event selection process, described in Section~\ref{Sec:Exp}, does not have a well-defined method to quantify the effectiveness of the event selection.
-In addition, the selection task produced a binary result only, either ``good" or``bad" relative to the event of interest. The data contain however many more classes of events.%, if only because of the presence of carbon in the target (from the isobutane gas).
+In addition, the selection task produced a binary result only, either a ``good" or``bad" fit to the event of interest. A ``bad'' fit is then assumed to be a different event type, and is removed from the analysis. %, if only because of the presence of carbon in the target (from the isobutane gas).
 In a broader perspective, an unsupervised classification algorithm would offer the possibility to ``discover" rare events which may not be expected or are overlooked. These events would likely be filtered out using the traditional methods. From a practical point of view, compared to supervised learning, it also avoids the necessary labeling task of the learning set events, which is error prone and time consuming.
 
 \subsection{Why machine learning}
@@ -403,7 +403,7 @@ The results of the clustering runs are included in table \ref{tab:clstr_vgg}, we
 
 \begin{table}[H]
 \centering 
-\caption[K-means on pre-trained model]{K-means clustering results on AT-TPC event data, for $N=1000$ runs of the k-means algorithm. We observe that the performance predictably decreases with the amount of noise in the data.}\label{tab:clstr_vgg}
+\caption[K-means on pre-trained model]{K-means clustering results on AT-TPC event data in the VGG-16 latent space, for $N=1000$ runs of the k-means algorithm. We observe that the performance predictably decreases with the amount of noise in the data.}\label{tab:clstr_vgg}
 \input{./plots/kmeans_vgg.tex}
 \end{table}
 
