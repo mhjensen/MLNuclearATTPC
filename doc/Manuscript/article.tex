@@ -52,8 +52,7 @@
 \newcommand{\loss}{\mathcal{L}}
 
 \journal{Nuclear Instruments and Methods
-in Physics Research Section A: Accelerators, Spectrometers,
-Detectors and Associated Equipment}
+in Physics Research Section A}
 
 \begin{document}
 
@@ -96,10 +95,10 @@ Detectors and Associated Equipment}
 
 \begin{abstract}
 % Modified by DB (6/8/2020)
-This article presents novel applications of machine learning methods to the problem of event separation in an active target detector, the Active-Target Time Projection Chamber (AT-TPC) \cite{Bradt2017}. 
-The overarching goal is to identify classes of events in the early stages of the data analysis, thereby improving its efficiency by limiting the computationally expensive processing to events of interest only, which are often not the most abundant.
+This article presents novel applications of unsupervised machine learning methods to the problem of event separation in an active target detector, the Active-Target Time Projection Chamber (AT-TPC) \cite{Bradt2017}. 
+The overarching goal is to group similar events in the early stages of the data analysis, thereby improving efficiency by limiting the computationally expensive processing of unnecessary events.
 %Machine learning presents an interesting avenue for researchers operating the AT-TPC, as traditional analysis methods of AT-TPC data are computationally expensive and have to fit all tracks against the event type of interest. The latter presents a considerable challenge when either the space of reactions is not known prior to the analysis, or the event type of interest is not the most abundant. 
-The application of unsupervised clustering  algorithms to the analysis of two-dimensional projections of particle tracks from a resonant proton scattering experiment on $^{46}$Ar is introduced. We explore the performance of autoencoder neural networks and a pre-trained VGG16 \cite{Simonyan2014} convolutional neural network.
+The application of unsupervised clustering algorithms to the analysis of two-dimensional projections of particle tracks from a resonant proton scattering experiment on $^{46}$Ar is introduced. We explore the performance of autoencoder neural networks and a pre-trained VGG16 \cite{Simonyan2014} convolutional neural network.
 %on two tasks: a semi-supervised classification task and the unsupervised clustering of particle tracks. 
 %On the semi-supervised task, we find that a logistic regression classifier trained on small labeled subsets of the latent space of these models perform very well, both on simulated and real data. On the clustering task, 
 We find that a $K$-means algorithm applied to the simulated data in the VGG16 latent space forms almost perfect clusters. Additionally, the VGG16+$K$-means approach finds high purity clusters of proton events for real experimental data. We explore also the application of autoencoder neural networks to clustering by implementing. With autoencoder neural networks we find improved descriptions of data from experiments.
@@ -110,9 +109,9 @@ We find that a $K$-means algorithm applied to the simulated data in the VGG16 la
 \end{abstract}
 
 %%Graphical abstract
-\begin{graphicalabstract}
+%\begin{graphicalabstract}
 %\includegraphics{grabs}
-\end{graphicalabstract}
+%\end{graphicalabstract}
 
 %%Research highlights
 \begin{highlights}
@@ -196,19 +195,19 @@ To explore this trade-off between model performance and preprocessing bias, we p
 %\end{tabular}
 %\end{table}
 
-\subsection{Simulated \texorpdfstring{${}^{46}$Ar}{46Ar}  events}\label{sec:data_sim}
+\subsection{Simulated \texorpdfstring{${}^{46}$Ar}{46Ar} events}\label{sec:data_sim}
 
-A set of $N=40000$ simulated AT-TPC events per class was obtained  from a ${}^{46}$Ar$(p, p)$ experiment with the {\em pytpc} package developed by \citet{Bradt2017a}. %, see table \ref{tab:class_distr}. %Using the same parameters {\color{blue} what parameters are you referring to? -MPK} as for the 
+A set of $N=40000$ simulated AT-TPC events per class was obtained  from a ${}^{46}$Ar$(p, p)$ experiment with the \texttt{pytpc} package developed by \citet{Bradt2017a}. %, see table \ref{tab:class_distr}. %Using the same parameters {\color{blue} what parameters are you referring to? -MPK} as for the 
 %Two simulated ${}^{46}$Ar$(p, p)$ experiment, a small set of $N=4000$ events per class was generated, as well as a larger set of $N=40000$ events per class. 
 
-For validation, we set a subset of the simulated data to be labeled and treat the rest as unlabeled data. We chose this partition to consist of  $15\%$ of the data. We denote this subset and its associated labels as $\gamma_L=(\boldsymbol{X}_L, \boldsymbol{y}_L)$, while the entire data set is identified as $\boldsymbol{X}_F$. Note that $\boldsymbol{X}_L \subset \boldsymbol{X}_F$.
+For validation, we select a subset of the simulated data to be labeled and treat the rest as unlabeled data. We chose this partition to consist of  $15\%$ of the data. We denote this subset and its associated labels as $\gamma_L=(\boldsymbol{X}_L, \boldsymbol{y}_L)$, while the entire data set is identified as $\boldsymbol{X}_F$. Note that $\boldsymbol{X}_L \subset \boldsymbol{X}_F$.
 
 
 
 \subsection{Raw \texorpdfstring{${}^{46}$Ar}{46Ar}  events}\label{sec:data_real}
 
 The events analyzed in this section were retrieved from the ${}^{46}$Ar resonant proton scattering experiment recorded with the AT-TPC. 
-While we denote these events as raw, it is important to note that what we intend is a raw two-dimensional representation of peak-only events.
+While we denote these events as raw, it is important to note that what we intend is a raw two-dimensional projection of events.
 
 %The sensor plane in the AT-TPC is very sensitive, as such there is substantial noise in the ${}^{46}$Ar data. The noise can be attributed to structural noise from electronics cross-talk, and possible interactions with cosmic background radiation, as well as other sources of charged particles. Part of the challenge for this data then comes from understanding of the physics of the major contributing factors to this noise. \todo{I guess this paragraph can go. It reads very thesis-y, but I'm not sure what to do here to sensibly frame the raw data}
 
@@ -334,7 +333,7 @@ The MIXAE algorithm relies on a few simple assumptions which are necessary, but 
 
 The learning objective encourages these assumptions to be met. For a more formal consideration of the model objective and the assumptions made on the data by this model see \citet{Zhang}.
 
-The architecture is portrayed in Fig.~\ref{fig:mixae}, wherein tapered boxes denote a direction of compression in the network components. In the figure each encoder and decoder pair makes up an autoencoder. The assignment of the cluster belonging to a sample, $\mathbf{\hat{x}}$, is taken to be the index of the maximal element in the vector $\mathbf{p}$ as shown in the right-most part of the figure. Finally, the model is trained end-to-end with back propagation \cite{Linnainmaa1976}, as implemented in the machine learning library TensorFlow \cite{tensorflow}.
+The architecture is portrayed in Fig.~\ref{fig:mixae}, wherein tapered boxes denote a direction of compression in the network components. In the figure each encoder and decoder pair makes up an autoencoder. The assignment of the cluster belonging to a sample, $\mathbf{\hat{x}}$, is taken to be the index of the maximal element in the vector $\mathbf{p}$ as shown in the right-most part of the figure. Finally, the model is trained end-to-end with back propagation \cite{Linnainmaa1976}, as implemented in the machine learning package TensorFlow \cite{tensorflow}.
 
 
 \begin{figure}[tbh]
@@ -401,13 +400,16 @@ We first explore the results of applying a $K$-means approach on the latent spac
 
 \subsection{$K$-means clustering on the VGG16 latent space}\label{sec:kmeans_results}
 
-The results of the clustering runs are included in table \ref{tab:clstr_vgg1}. We ran the $K$-means algorithm $N=100$ times with $M=10$ initializations, per run, of the cluster centroids to assess the variability in the performance. To quantify the results we report the best performing model (Top 1), and the mean and standard deviation for the result.
+The results of the clustering runs are included in table \ref{tab:clstr_vgg1}. We ran the $K$-means algorithm $N=100$ times with $M=10$ initializations per run, of the cluster centroids to assess the variability in the performance. The K-means algorithm returns the best performing model of the $M$ initializations on the unsupervised objective. We report performance on the labelled subset of data, using the labels to identify the top-performing model (Top 1). Additionally, we report the mean and standard deviation of the algorithm on the $N$ trials, which indicate unsupervised performance.   
+
+%The mean and standard deviation are metrics reported using no label information.
+%To quantify the results we report the best performing model (Top 1), and the mean and standard deviation for the result.
 
 We observe that the clustering on simulated data attains the highest performance, and that there is a decline in performance as we add noise by moving to the filtered and raw data sets. The results are shown in table \ref{tab:clstr_vgg10}. 
 
 \begin{table}[H]
 \centering 
-\caption[$K$-means on pre-trained model]{$K$-means clustering results on AT-TPC event data in the VGG-16 latent space, for $N=100$ runs of the $K$-means algorithm with $M=10$ initializations. To quantify the results we report the best performing model (Top 1), and the mean and standard deviation for the result ($\mu\pm \sigma$). We observe that the performance predictably decreases with the amount of noise in the data.}\label{tab:clstr_vgg10}
+\caption[$K$-means on pre-trained model]{$K$-means clustering results on AT-TPC event data in the VGG-16 latent space, for $N=100$ runs of the $K$-means algorithm with $M=10$ initializations. We observe that the performance predictably decreases with the amount of noise in the data.}\label{tab:clstr_vgg10}
 \input{./plots/kmeans_vgg_init10.tex}
 \end{table}
 
@@ -415,7 +417,7 @@ We observe that the clustering on simulated data attains the highest performance
 
 \begin{table}[H]
 \centering 
-\caption[$K$-means on pre-trained model]{$K$-means clustering results on AT-TPC event data in the VGG-16 latent space, for $N=1000$ runs of the $K$-means algorithm with $M=1$ initializations. To quantify the results we report the best performing model (Top 1), and the mean and standard deviation for the result ($\mu\pm \sigma$). We observe that there is significant variability in the results, which is ordinarily masked by picking the best-performing model by re-running the algorithm. }\label{tab:clstr_vgg1}
+\caption[$K$-means on pre-trained model]{$K$-means clustering results on AT-TPC event data in the VGG-16 latent space, for $N=1000$ runs of the $K$-means algorithm with $M=1$ initializations. We observe that there is significant variability in the results, which is ordinarily masked by $M$ re-initializations that avoid local minima. }\label{tab:clstr_vgg1}
 \input{./plots/kmeans_vgg_init1.tex}
 \end{table}
 
@@ -443,7 +445,7 @@ This high-quality cluster also appears in the clustering of raw data. From Fig.~
 
 
 We repeat this analysis using a Principle Component Analysis (PCA) dimensionality reduction\footnote{
-PCA is a common techinque to find the significant variations in data by projecting the data along a subset of its covariance matrix eigenvectors \cite{vidal2016,Marsland2009}
+PCA is a common technique to find the significant variations in data by projecting the data along a subset of its covariance matrix eigenvectors \cite{vidal2016,Marsland2009}
 } on the latent space of the VGG16 model. This is done to estimate to what degree the class separating information is encoded in the entirety of the latent space, or in some select regions. The results from the PCA analysis, using the top 100 principal components, were virtually identical to our previous results not containing  the PCA analysis. This in an interesting observation which indicates that the class-encoding information is contained in a minority of the axes of variation in the data.
 %and so we omit them for brevity. 
 
@@ -515,8 +517,7 @@ The purpose of this study has been to explore the application of unsupervised le
 As shown by both avenues explored in this work, it is clear that there is significant potential to eventually achieve event classification using fully automated unsupervised methods.
 
 In particular, the ability of the $K$-means algorithm in picking out clear proton clusters from the VGG16 latent space lends itself well to an exploratory phase of analysis, where clusters of events corresponding to different reaction channels could be later identified by the experimenter.
-Another interesting facet of the $K$-means clustering is its consistent performance. As shown in table \ref{tab:clstr_vgg1}, the variance is zero for the performance metrics. This result indicates that the clusters are very clearly defined in the VGG16 latent space. However, as can be seen from the non-proton clusters in Figs.~\ref{fig:clster_confmati_filt} and \ref{fig:clster_confmati_raw},  this does not necessarily imply that the physical signals are correspondingly clear.  Furthermore, the unsupervised metric that decides which of the $M$ $K$-means initializations perform the best does not necessarily coincide perfectly with separating the event classes. This is evidenced by the highest performing model for the raw data showing up in table \ref{tab:clstr_vgg1}, and being filtered out from table \ref{tab:clstr_vgg10}
-
+Another interesting facet of the $K$-means clustering is its consistent performance. As shown in table \ref{tab:clstr_vgg1}, the variance is zero for the performance metrics. This result indicates that the clusters are very clearly defined in the VGG16 latent space. However, as can be seen from the non-proton clusters in Figs.~\ref{fig:clster_confmati_filt} and \ref{fig:clster_confmati_raw},  this does not necessarily imply that the physical signals are correspondingly clear.  Furthermore, the unsupervised metric that decides which of the $M$ $K$-means initializations perform the best does not necessarily coincide perfectly with separating the event classes. This is evidenced by the highest performing model measured on labelled data (Top 1) for the raw data showing up in table \ref{tab:clstr_vgg1}, and being filtered out from table \ref{tab:clstr_vgg10}.
 
 A caveat to the $K$-means method is that the number of clusters has to be specified in advance. Each experiment then has to be considered in light of possible reaction channels to determine a sensible number of clusters for this approach. 
 
@@ -539,21 +540,16 @@ The two examples of unsupervised machine learning methods studied in this work a
 
 %{\color{orange}[RS Another abrupt end to a paragraph. Could probably use some rounding out.]} 
 \subsection*{Acknowledgements}
-MHJ’s work is supported by U.S. National Science Foundation Grants No. PHY-1404159 and PHY-2013047. This project has also received support from the INTPART project of the Research Council of Norway (Grant No. 288125).
+MHJ’s work is supported by U.S. National Science Foundation Grants No. PHY-1404159 and PHY-2013047. This project has also received support from the INTPART project of the Research Council of Norway (Grant No. 288125) and the Davidson Research Initiative. 
 
 \appendix  
 \section{VGG16}\label{app:vgg}
 
-The VGGNet models are a family of high-performing image classification, and object localization networks. In the VGGNet architecture a small kernel size is leveraged to increase expressive power in a very deep convolutional network. 
+The VGGNet models are a family of high-performing image classification, and object localization networks. In the VGGNet architecture a small kernel size is leveraged to increase expressive power in a very deep convolutional network. A tabulated view of the VGG models can be seen in \cite{Simonyan2014}. 
 
-The choice of the kernel size is based on the fact that a stacked $3 \times 3$ kernel is equivalent to larger kernels in terms of the receptive field of the output. Three $3 \times 3$ kernels with stride $1$ have a $7 \times 7$ receptive field, but the larger kernel has $81\%$ more parameters and only one non-linearity \cite{Simonyan2014}. Stacking the smaller kernels then contributes to a lower computational cost. Additionally, there is a regularizing effect from the lowered number of parameters and increased explanatory power from the additional non-linearities. The architecture is shown in detail in table \ref{tab:vgg}.
+The choice of the kernel size is based on the fact that a stacked $3 \times 3$ kernel is equivalent to larger kernels in terms of the receptive field of the output. Three $3 \times 3$ kernels with stride $1$ have a $7 \times 7$ receptive field, but the larger kernel has $81\%$ more parameters and only one non-linearity \cite{Simonyan2014}. Stacking the smaller kernels then contributes to a lower computational cost. Additionally, there is a regularizing effect from the lowered number of parameters and increased explanatory power from the additional non-linearities.
 
 VGGnet models are distributed freely with weights trained on the ImageNet \cite{deng2009imagenet} image classification task. For the results in section \ref{sec:kmeans_results} we used a VGG16 model pre trained on ImageNet data.
-
-\begin{table}
-\caption[vgg architectures]{Showing the details of the VGG network architectures. Network D trained on the ImageNet \cite{Russakovsky2015} data set the network known as  VGG16 and is what we use in this thesis. Table  }\label{tab:vgg}
-\includegraphics[width=\textwidth]{plots/vgg_architectures.png}
-\end{table}
 
 \section{MIXAE hyper-parameter tuning}\label{ax: mixae}
 
