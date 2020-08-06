@@ -406,7 +406,7 @@ We observe that the clustering on simulated data attains the highest performance
 
 \begin{table}[H]
 \centering 
-\caption[$K$-means on pre-trained model]{$K$-means clustering results on AT-TPC event data in the VGG-16 latent space, for $N=100$ runs of the $K$-means algorithm with $M=10$ initializations. We observe that the performance predictably decreases with the amount of noise in the data.}\label{tab:clstr_vgg10}
+\caption[$K$-means on pre-trained model]{$K$-means clustering results on AT-TPC event data in the VGG-16 latent space, for $N=100$ runs of the $K$-means algorithm with $M=10$ initializations. To quantify the results we report the best performing model (Top 1), and the mean and standard deviation for the result ($\mu\pm \sigma$). We observe that the performance predictably decreases with the amount of noise in the data.}\label{tab:clstr_vgg10}
 \input{./plots/kmeans_vgg_init10.tex}
 \end{table}
 
@@ -414,7 +414,7 @@ We observe that the clustering on simulated data attains the highest performance
 
 \begin{table}[H]
 \centering 
-\caption[$K$-means on pre-trained model]{$K$-means clustering results on AT-TPC event data in the VGG-16 latent space, for $N=1000$ runs of the $K$-means algorithm with $M=1$ initializations. We observe that there is significant variability in the results, which is ordinarily masked by picking the best-performing model by re-running the algorithm. }\label{tab:clstr_vgg1}
+\caption[$K$-means on pre-trained model]{$K$-means clustering results on AT-TPC event data in the VGG-16 latent space, for $N=1000$ runs of the $K$-means algorithm with $M=1$ initializations. To quantify the results we report the best performing model (Top 1), and the mean and standard deviation for the result ($\mu\pm \sigma$). We observe that there is significant variability in the results, which is ordinarily masked by picking the best-performing model by re-running the algorithm. }\label{tab:clstr_vgg1}
 \input{./plots/kmeans_vgg_init1.tex}
 \end{table}
 
@@ -472,7 +472,7 @@ This happens more frequently with the raw data, indicating an interaction with t
 % This table is not properly explained, what is init=10? and what is top 1? 
 \begin{table}[H]
 \centering 
-\caption[MIXAE clustering performance]{MIXAE clustering performance on the ${}^{46} Ar$ experimental data with $N=10$ runs of the algorithm. In contrast with the VGG-16 + $K$-means approach we observe  significant variations in performance.}\label{tab:clstr_mixae}
+\caption[MIXAE clustering performance]{MIXAE clustering performance on the ${}^{46} Ar$ experimental data with $N=10$ runs of the algorithm. To quantify the results we report the best performing model (Top 1), and the mean and standard deviation for the result ($\mu\pm \sigma$). In contrast with the VGG-16 + $K$-means approach we observe  significant variations in performance.}\label{tab:clstr_mixae}
 \input{./plots/mixae_clustering.tex}
 \end{table}
 
@@ -514,7 +514,7 @@ The purpose of this study has been to explore the application of unsupervised le
 As shown by both avenues explored in this work, it is clear that there is significant potential to eventually achieve event classification using fully automated unsupervised methods.
 
 In particular, the ability of the $K$-means algorithm in picking out clear proton clusters from the VGG16 latent space lends itself well to an exploratory phase of analysis, where clusters of events corresponding to different reaction channels could be later identified by the experimenter.
-Another interesting facet of the $K$-means clustering is its consistent performance. As shown in table \ref{tab:clstr_vgg1}, the variance is zero for the performance metrics. This result indicates that the clusters are very clearly defined in the VGG16 latent space. However, as can be seen from the non-proton clusters in Figs.~\ref{fig:clster_confmati_filt} and \ref{fig:clster_confmati_raw},  this does not necessarily imply that the physical signals are correspondingly clear. {\color{orange} Furthermore, the unsupervised metric that decides which of the $M$ $K$-means initializations perform the best does not necessarily coincide perfectly with separating the event classes. This is evidenced by the highest performing model for the raw data showing up in table \ref{tab:clstr_vgg1}, and being filtered out in table \ref{tab:clstr_vgg10}}
+Another interesting facet of the $K$-means clustering is its consistent performance. As shown in table \ref{tab:clstr_vgg1}, the variance is zero for the performance metrics. This result indicates that the clusters are very clearly defined in the VGG16 latent space. However, as can be seen from the non-proton clusters in Figs.~\ref{fig:clster_confmati_filt} and \ref{fig:clster_confmati_raw},  this does not necessarily imply that the physical signals are correspondingly clear.  Furthermore, the unsupervised metric that decides which of the $M$ $K$-means initializations perform the best does not necessarily coincide perfectly with separating the event classes. This is evidenced by the highest performing model for the raw data showing up in table \ref{tab:clstr_vgg1}, and being filtered out from table \ref{tab:clstr_vgg10}
 
 
 A caveat to the $K$-means method is that the number of clusters has to be specified in advance. Each experiment then has to be considered in light of possible reaction channels to determine a sensible number of clusters for this approach. 
@@ -598,7 +598,7 @@ Lastly we supply the configuration used for the individual convolutional autoenc
 \begin{table}[H]
 \renewcommand*{\arraystretch}{0.5}
 \centering
-\caption{Hyperparameters selected for the autoencoder components of the MIXAE algorithm, see table \ref{tab:convae_hyperparams} for a full description of the parameters.}\label{tab:mixe_ae_hyperparams}
+\caption{Hyperparameters selected for the autoencoder components of the MIXAE algorithm}\label{tab:mixe_ae_hyperparams}
 \setlength{\extrarowheight}{15pt}
 \hspace*{-0.5in}
 \begin{tabular}{ll}
@@ -627,6 +627,9 @@ $\beta_2$ & $0.99$ \\
 \end{tabular}
 \end{table}
 
+\section{Data}
+
+The data used  for the analysis in this work were partitioned as shown in table \ref{tab:data sets}. 
 \begin{table}[hbtp]
 \centering
 \caption{Descriptions of number of events in the data.}\label{tab:data sets}
