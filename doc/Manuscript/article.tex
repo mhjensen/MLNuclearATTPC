@@ -340,7 +340,8 @@ The architecture is portrayed in Fig.~\ref{fig:mixae}, wherein tapered boxes den
 \begin{figure}[tbh]
 	\centering
 	\includegraphics[width=.8\textwidth]{plots/mixae.pdf}
-	\caption[Mixture of autoencoders schematic]{Schematic of a MIXAE model. A sample $\hat{\boldsymbol{x}}$ is compressed to set of lower-dimensional representations $\{\boldsymbol{z}^{(i)}\}$ by $N$ autoencoders. These samples are concatenated and passed through an auxiliary assignment network that predicts a confidence of cluster belonging for each autoencoder. For further details see the text. Figure adapted from \citet{Zhang}}
+	\caption[Mixture of autoencoders schematic]{Schematic of a MIXAE model. A sample $\hat{\boldsymbol{x}}$ is compressed to set of lower-dimensional representations $\{\boldsymbol{z}^{(i)}\}$ by $N$ autoencoders \cite{Zhang}. These samples are concatenated and passed through an auxiliary assignment network that predicts a confidence of cluster belonging for each autoencoder.}
+	%For further details see the text. Figure adapted from \citet{Zhang}}
 	\label{fig:mixae}
 \end{figure}
 
@@ -465,7 +466,7 @@ We display these examples in Figs.~\ref{fig:filtered_vgg_clster_repr} and \ref{f
 In the previous section we demonstrated a powerful, but rather naive, clustering technique for AT-TPC track identification. To build on this result we will in this section explore the application of the mixture of autoencoders (MIXAE) algorithm introduced in section \ref{sec:mixae}.
 For details on hyper-parameter tuning and the experimental procedure for training the MIXAE algorithm see the appendix \ref{ax: mixae}. 
 
-With the best set of hyperparameters, each highest performing model is thereafter run $10$ times\footnote{The MIXAE model is significantly more computationally expensive to train than a $K$-means model. Reulting in the skew in number of runs in the two cases.}. The results are listed in table \ref{tab:clstr_mixae}.
+With the best set of hyperparameters, each highest performing model is thereafter run $10$ times\footnote{The MIXAE model is significantly more computationally expensive to train than a $K$-means model. Resulting in the skew in number of runs in the two cases.}. The results are listed in table \ref{tab:clstr_mixae}.
 We observe that, while the algorithm can achieve a very strong performance, the performance varies. In some cases the MIXAE model converges to a seemingly good configuration, based on its unsupervised training goals. However, when inspecting its clustering performance against labelled data, the seemingly good model does no better than a model based on random selection. 
 This happens more frequently with the raw data, indicating an interaction with the noise levels present in the events. 
  
@@ -547,7 +548,7 @@ The VGGNet models are a family of high-performing image classification, and obje
 
 The choice of the kernel size is based on the fact that a stacked $3 \times 3$ kernel is equivalent to larger kernels in terms of the receptive field of the output. Three $3 \times 3$ kernels with stride $1$ have a $7 \times 7$ receptive field, but the larger kernel has $81\%$ more parameters and only one non-linearity \cite{Simonyan2014}. Stacking the smaller kernels then contributes to a lower computational cost. Additionally, there is a regularizing effect from the lowered number of parameters and increased explanatory power from the additional non-linearities. The architecture is shown in detail in table \ref{tab:vgg}.
 
-VGGnet models are distributed freely with weights trained on the imagenet \cite{deng2009imagenet} image classification task. For the results in section \ref{sec:kmeans_results} we used a VGG16 model pre trained on imagenet data.
+VGGnet models are distributed freely with weights trained on the ImageNet \cite{deng2009imagenet} image classification task. For the results in section \ref{sec:kmeans_results} we used a VGG16 model pre trained on ImageNet data.
 
 \begin{table}
 \caption[vgg architectures]{Showing the details of the VGG network architectures. Network D trained on the ImageNet \cite{Russakovsky2015} data set the network known as  VGG16 and is what we use in this thesis. Table  }\label{tab:vgg}
@@ -556,7 +557,7 @@ VGGnet models are distributed freely with weights trained on the imagenet \cite{
 
 \section{MIXAE hyper-parameter tuning}\label{ax: mixae}
 
-In the MIXAE algorithm the hyper-parameters to adjust are all the ordinary parameters associated with a neueral network. We chose to base our neural network parameter choices on the VGG16 architecture. 
+In the MIXAE algorithm the hyper-parameters to adjust are all the ordinary parameters associated with a neural network. We chose to base our neural network parameter choices on the VGG16 architecture. 
 The parameters chosen for the autoencoders are listed in full in table \ref{tab:mixe_ae_hyperparams}.
 
 In addition to those parameters we have the weighting of the loss terms: $\theta$, $\alpha$ and $\gamma$. These weighting parameters are attached to the reconstruction loss, sample entropy and batch-wise entropy respectively \cite{Zhang}. 
