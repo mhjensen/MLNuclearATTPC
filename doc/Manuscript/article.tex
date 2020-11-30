@@ -96,13 +96,14 @@ in Physics Research Section A}
 
 \begin{abstract}
 % Modified by DB (6/8/2020)
-This article presents novel applications of unsupervised machine learning methods to the problem of event separation in an active target detector, the Active-Target Time Projection Chamber (AT-TPC) \cite{Bradt2017}. 
-The overarching goal is to group similar events in the early stages of the data analysis, thereby improving efficiency by limiting the computationally expensive processing of unnecessary events.
 %Machine learning presents an interesting avenue for researchers operating the AT-TPC, as traditional analysis methods of AT-TPC data are computationally expensive and have to fit all tracks against the event type of interest. The latter presents a considerable challenge when either the space of reactions is not known prior to the analysis, or the event type of interest is not the most abundant. 
-The application of unsupervised clustering algorithms to the analysis of two-dimensional projections of particle tracks from a resonant proton scattering experiment on $^{46}$Ar is introduced. We explore the performance of autoencoder neural networks and a pre-trained VGG16 \cite{Simonyan2014} convolutional neural network.
 %on two tasks: a semi-supervised classification task and the unsupervised clustering of particle tracks. 
 %On the semi-supervised task, we find that a logistic regression classifier trained on small labeled subsets of the latent space of these models perform very well, both on simulated and real data. On the clustering task, 
-We find that a $K$-means algorithm applied to the simulated data in the VGG16 latent space forms almost perfect clusters. Additionally, the VGG16+$K$-means approach finds high purity clusters of proton events for real experimental data. We also explore the application of clustering the latent space of autoencoder neural networks for event separation. While these networks show strong performance, they suffer from high variability in their results.  %With autoencoder neural networks we find improved descriptions of data from experiments.
+%With autoencoder neural networks we find improved descriptions of data from experiments.
+This article presents novel applications of unsupervised machine learning methods to the problem of event separation in an active target detector, the Active-Target Time Projection Chamber (AT-TPC) \cite{Bradt2017}. 
+The overarching goal is to group similar events in the early stages of the data analysis, thereby improving efficiency by limiting the computationally expensive processing of unnecessary events.
+The application of unsupervised clustering algorithms to the analysis of two-dimensional projections of particle tracks from a resonant proton scattering experiment on $^{46}$Ar is introduced. We explore the performance of autoencoder neural networks and a pre-trained VGG16 \cite{Simonyan2014} convolutional neural network.
+We find that a $K$-means algorithm applied to the simulated data in the VGG16 latent space forms almost perfect clusters. Additionally, the VGG16+$K$-means approach finds high purity clusters of proton events for real experimental data. We also explore the application of clustering the latent space of autoencoder neural networks for event separation. While these networks show strong performance, they suffer from high variability in their results.  
 
 \end{abstract}
 
@@ -195,7 +196,7 @@ To explore this trade-off between model performance and preprocessing bias, we p
 
 \subsection{Simulated \texorpdfstring{${}^{46}$Ar}{46Ar} events}\label{sec:data_sim}
 
-A set of $N=40000$ simulated AT-TPC events per class was obtained  from a ${}^{46}$Ar$(p, p)$ experiment with the \texttt{pytpc} package developed by \citet{Bradt2017a}. %, see table \ref{tab:class_distr}. %Using the same parameters {\color{blue} what parameters are you referring to? -MPK} as for the 
+A set of $N=8000$ simulated AT-TPC events per class was obtained  from a ${}^{46}$Ar$(p, p)$ experiment with the \texttt{pytpc} package developed by \citet{Bradt2017a}. %, see table \ref{tab:class_distr}. %Using the same parameters {\color{blue} what parameters are you referring to? -MPK} as for the 
 %Two simulated ${}^{46}$Ar$(p, p)$ experiment, a small set of $N=4000$ events per class was generated, as well as a larger set of $N=40000$ events per class. 
 
 For validation, we select a subset of the simulated data to be labeled and treat the rest as unlabeled data. We chose this partition to consist of  $15\%$ of the data. We denote this subset and its associated labels as $\gamma_L=(\boldsymbol{X}_L, \boldsymbol{y}_L)$, while the entire data set is identified as $\boldsymbol{X}_F$. Note that $\boldsymbol{X}_L \subset \boldsymbol{X}_F$.
@@ -559,7 +560,7 @@ The parameters chosen for the autoencoders are listed in full in table \ref{tab:
 In addition to those parameters we have the weighting of the loss terms: $\theta$, $\alpha$ and $\gamma$. These weighting parameters are attached to the reconstruction loss, sample entropy and batch-wise entropy respectively \cite{Zhang}. 
 We focused on the tuning of the clustering hyper-parameters, and defined the autoencoder hyper-parameters to be a shallow $3\times3$ convolutional network as detailed in the previous paragraph.  
 
-To train the MIXAE clustering algorithm, we use the large simulated data set with $M=80000$ points, evenly distributed between proton- and carbon-events. The algorithm is trained on a subset of $60000$ of these samples, and we track performance on the remaining $20000$ events. On real data the algorithm is trained on an unlabelled set of data, and evaluated on a labelled subset\footnote{see table \ref{tab:data sets} for details}. Since there are then only three remaining hyperparameters we choose to perform a coarse grid-search for the optimal configuration. Finally, for the best parameters we re-ran the algorithm $N=10$ times to investigate the stability of the algorithm.
+To train the MIXAE clustering algorithm, we use a large simulated data set with $M=80000$ points, evenly distributed between proton- and carbon-events. The algorithm is trained on a subset of $60000$ of these samples, and we track performance on the remaining $20000$ events. On real data the algorithm is trained on an unlabelled set of data, and evaluated on a labelled subset\footnote{see table \ref{tab:data sets} for details}. Since there are then only three remaining hyperparameters we choose to perform a coarse grid-search for the optimal configuration. Finally, for the best parameters we re-ran the algorithm $N=10$ times to investigate the stability of the algorithm.
 
 \begin{table}
 \centering
@@ -635,7 +636,7 @@ The data used  for the analysis in this work were partitioned as shown in table 
 {} & Simulated & Full & Filtered \\
 \midrule
 Total &  $8000$ & $51891$ & $49169$ \\
-labelled & $2400$ & $1774$ &  $1582$ \\ 
+Labelled & $2400$ & $1774$ &  $1582$ \\ 
 \bottomrule
 \end{tabular}
 \end{table}
