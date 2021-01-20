@@ -1,0 +1,46 @@
+\documentclass[12pt]{article}
+
+\begin{document}
+
+This article presents unsupervised machine learning methods and results for event separation in
+the Active-Target Time Projection Chamber (AT-TPC). This work extends a previous related
+study [Ref. 6, published in NIMA 2019] from supervised machine learning to unsupervised
+learning. Some of the potentially attractive feature of unsupervised learning could include
+bypassing the labeling step, forming classes of events independently from the experimenter’s input,
+and processing larger amounts (~ TB) of data efficiently. By filtering out un-interesting events, an
+unsupervised classification algorithm would also offer the possibility to discover rare events which
+may not be expected or are overlooked. These rare events would likely be filtered out using the
+traditional methods. The c2 approach used in the traditional analysis performed on the 46Ar data
+could be computationally expensive because it involves the simulation of thousands of tracks for
+each recorded event.
+
+
+I am in favor of the publication of the paper in NIMA, subject to clarifications of the terms used
+and data method descriptions in the manuscript. Furthermore, the discussions about the results
+have mainly been focusing on data method metrics. It would be very helpful to connect or
+extrapolate the results to the physics models and understanding or traditional instrumentation
+metrics such as ground truth derived from physics models, signal to noise, noise reduction, etc.,
+since NIMA is not a data science journal, at least not yet.
+
+
+Below are some examples.
+\begin{itemize}
+\item Line 29, Simulated data? Line 193 simulated events… from a Ar(p,p) experiment. Are these
+simulation data or experimental data? The use of word simulated is confusing. Based on the context,
+it appears that only experimental data is used for this work.
+\item Line 124-125, simulated via an integration, which is numerically costly. Rephrase and clarify how
+costly quantitatively. Similar clarifications needed in Line 131, Line 145 and Table 2.
+\item Figure 1. Add some discussions about the experimental information and physics behind the
+observed patterns. For example, which direction is the incoming beam? Beam energy? Vertex at
+(0,0)? The direction of the magnetic field?
+\item Line 306, Sample $\hat{x}$, presumably each of these is a 2D image x-y? what are the sample
+dimensions?
+\item Lines 330 \& 331, define Ground truth labels y and predictions $\hat{y}$, how are they derived from
+the raw data (2D projections of the AT-TPC)? Or the latent layer outputs of a pre-trained neural
+network? Or else?
+\item Figures 4, Figure 5, Figure 6, Figure 9, Figure 10, are data science metric results. Needs update or
+move some of them to the appendix.
+\item Figure 7, Figure 8, elucidate the physics and understanding behind the pattern would be helpful.
+Similar to the comments to Figure 1 above.
+\end{itemize}
+\end{document}
