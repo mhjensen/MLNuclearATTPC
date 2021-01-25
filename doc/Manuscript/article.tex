@@ -357,7 +357,7 @@ However, as our work aims to explore the application of unsupervised methods to 
 
 We measure the performance of the clustering algorithms by two functions: the clustering accuracy and the adjusted rand index (ARI)\cite{Hubert1985}. Both of these measurements fall in the range $ [0, \hspace{0.1cm}1]$, where $0$ denotes a complete disagreement and $1$ a complete agreement between the ground truth and predicted labels.
 
-To compute the metrics we have to solve problems introduced by the arbitrary labels of a clustering algorithm. That is, we do not know which predicted assignment should correspond to a proton or carbon event. In short, we want to find the most reasonable correspondence between the clusters and the ground truth classes. To solve this problem we first define two sets; the ground truth labels $\mathbf{y} = [y_i, \hspace{0.2cm} y_{i +1}, \ldots]$ and the corresponding predictions $\mathbf{\hat{y}} = [\hat{y}_i, \hspace{0.2cm} \hat{y}_{i +1}, \ldots]$. Furthermore, we let both $y_i$ and $\hat{y}_i$ be integer representations of an event's ground truth, and predicted class, respectively. 
+To compute the metrics we have to solve problems introduced by the arbitrary labels of a clustering algorithm. That is, we do not know which predicted assignment should correspond to a proton or carbon event. In short, we want to find the most reasonable correspondence between the clusters and the ground truth classes. To solve this problem we first define two sets; the ground truth labels $\mathbf{y} = [y_i, \hspace{0.2cm} y_{i +1}, \ldots]$ as determined in section \ref{sec:datadescript}, and the corresponding predictions $\mathbf{\hat{y}} = [\hat{y}_i, \hspace{0.2cm} \hat{y}_{i +1}, \ldots]$. Furthermore, we let both $y_i$ and $\hat{y}_i$ be integer representations of an event's ground truth, and predicted class, respectively. 
 
 To compute both the ARI and the clustering accuracy we also have to construct the contingency table between two sets of clustering assignments. A contingency matrix defines the overlaps between classes in these sets, and its general form is shown in table \ref{tab:contingency}.
 
@@ -443,7 +443,7 @@ We display these examples in Figs.~\ref{fig:filtered_vgg_clster_repr} and \ref{f
 
 \begin{figure}
 \includegraphics[width=\textwidth]{custom_work/Filteredexamples.pdf}
-\caption[Filtered proton samples by cluster belonging]{Illustration of  a sample of proton events from different $K$-means clusters originating from the filtered data set. Each row belongs to a single cluster corresponding to the filtered confusion matrix in Fig.~\ref{fig:clster_confmati_filt}}\label{fig:filtered_vgg_clster_repr}
+\caption[Filtered proton samples by cluster belonging]{A sample of proton events from different $K$-means clusters from the filtered data set. The top row shows proton samples that are intermingled with noise events in the models' predictions, and the bottom row belongs to a cluster that contains proton events almost exclusively. Each row belongs to a single cluster corresponding to the filtered confusion matrix in Fig.~\ref{fig:clster_confmati_filt}}\label{fig:filtered_vgg_clster_repr}
 \end{figure} 
 
 \begin{figure}
