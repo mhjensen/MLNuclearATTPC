@@ -39,6 +39,7 @@
 \usepackage{pdflscape}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
+\usepackage{xcolor}
 
 \usepackage{natbib}
 \bibliographystyle{unsrtnat}
@@ -151,9 +152,10 @@ present the methods applied and our results and discussions, respectively. Final
 The goal of the experiment was to measure the evolution of the elastic and inelastic cross sections between $^{46}$Ar and protons as a function of energy (the {\em excitation function}), and observe resonances in the composite system $^{47}$K that correspond to analog states in the nucleus $^{47}$Ar. Spectroscopic information can then be obtained from the shape and amplitude of the observed resonances \cite{Bradt2018}. 
 The experiment was performed at the National Superconducting Cyclotron Facility (NSCL) where a $^{46}$Ar beam was produced via fragmentation of a $^{48}$Ca beam on a $^9$Be target at about 140 MeV/u. The $^{46}$Ar isotopes were then filtered, thermalized, and finally re-accelerated to 4.6 MeV/u by a linear accelerator. This scheme was used to produce a low-emittance beam, which is necessary to guarantee a good energy resolution in the excitation function. Because the  $^{46}$Ar beam particles lose energy as they traverse the target gas volume, the position of the reaction vertex along the beam axis is directly related to the energy at which the reaction occurs. This allows the AT-TPC to measure the excitation function over a wide range of energies from a single beam energy.
 
-The detector was placed inside the bore of an MRI solenoid energized to $\sim 2$ Tesla. This axial magnetic field served the purpose of bending the trajectories of the recoil particles in order to i) increase their length and ii) provide a measurement of their bending radius, directly related to their magnetic rigidity. Because the recoil particles travel in gas, they slow down and eventually stop, therefore their trajectories are described by three-dimensional spirals (see \cite{Bradt2017}). One of the difficulties encountered in the analysis is that the shape of these spirals does not have an analytical form because it follows the energy-loss profile of the particles. It therefore needs to be simulated via an integration, which is numerically costly. Other difficulties are related to several experimental effects that deteriorate the quality of the data, namely saturation and cross-talk effects, as well as random noise. 
+The detector was placed inside the bore of an MRI solenoid energized to $\sim 2$ Tesla. This axial magnetic field served the purpose of bending the trajectories of the recoil particles in order to i) increase their length and ii) provide a measurement of their bending radius, directly related to their magnetic rigidity. Because the recoil particles travel in gas, they slow down and eventually stop, therefore their trajectories are described by three-dimensional spirals (see \cite{Bradt2017}). One of the difficulties encountered in the analysis is that the shape of these spirals does not have an analytical form because it follows the energy-loss profile of the particles. It therefore needs to be simulated via an integration, which is numerically costly. Common integration methods such as Runge-Kutta have a computational cost typically one of magnitude larger than an analytical calculation. Other difficulties are related to several experimental effects that deteriorate the quality of the data, namely saturation and cross-talk effects, as well as random noise. 
 
-The method used in \cite{Bradt2018} to analyze the data followed a three-phase sequence: cleaning, filtering and fitting. Traditional methods were used to perform each of these tasks, and ultimately extract the scientific information, but there were severe limitations and high computational costs that become prohibitive in data sets larger by an order of magnitude.  In particular, as for the data presented and analyzed here, with data sets in the terabyte region or larger, these more traditional methods become prohibitively expensive from a computational stand.
+The method used in \cite{Bradt2018} to analyze the data followed a three-phase sequence: cleaning, filtering and fitting. Traditional methods were used to perform each of these tasks, and ultimately extract the scientific information, but there were severe limitations and high computational costs that become prohibitive in data sets larger by an order of magnitude.  In particular, as for the data presented and analyzed here, with data sets in the terabyte region or larger, these more traditional methods become prohibitively expensive from a computational stand. This is particularly the case when using the Monte-Carlo fitting procedure (explained later in text), because of the thousands of calculated tracks that are required for each individual event. For instance, the analysis of the $^{46}$Ar(p,p) data required several seconds per event on a CPU cluster composed of about 100 nodes.
+
 % Begin added by DB (06/10/2020)
 The cleaning was performed using a combination of linear and circular Hough transforms on a 2-dimensional projection of the tracks \cite{Bradt2017}. The following filtering and fitting phases were performed simultaneously, by defining the cost function to the fitting algorithm as a sum of three $\chi^2$ components based on i) the position of the track in space, ii) the energy deposited on each pixel of the sensor plane, and iii) the location of the vertex of the reaction. While various fitting algorithms were tested, the most accurate was a Monte-Carlo algorithm that explored the six-dimensional phase space of the particle's kinematics parameters, reducing it progressively at each iteration step until the desired accuracy was reached \cite{Bradt2017}. Although this algorithm ended up being the most accurate, it is extremely costly computationally because of the very large number of simulated tracks needed for each event. The filtering was performed by setting limits to the $\chi^2$ distributions, below which the events were assigned as proton scattering. This is a very inefficient method because it requires performing the fitting for all events, including those that are not of interest. Pioneering work on event identification using machine learning methods, namely the use of a pre-trained convolutional neural networks (CNN), later showed that the filtering phase would better be performed using this type of technique \cite{Kuchera2019}. 
 % End added by DB (06/10/2020)
@@ -169,14 +171,15 @@ In this section we give a brief overview of the data, for a more in-depth consid
 The AT-TPC data we studied for this work was recorded as charge time-series for each of the  the $\sim10^4$ detector pads.
 In this representation, an event is a record of $512$ time-buckets for each of the $10^4$ detector pads. In our analysis, we represent each event as a down-sampled two-dimensional  projection.
 We chose to represent the data in two dimensions to facilitate the use of advanced image-recognition machine learning models, and this data representation was shown to successfully classify the events of this experiment in a supervised setting \cite{Kuchera2019}.
-First, the time-series data was represented as a three-dimensional  point cloud, where each point contains the maximum charge in the time-series trace. We log-transform the data and perform a min-max scaling in order to  map the data to the interval $[0, 1]$. The data is projected onto a two-dimensional  space by summing over the time-axis. Thereafter the data is down-sampled into a $128\times128$ pixel image.
+First, the time-series data was represented as a three-dimensional  point cloud, where each point contains the maximum charge in the time-series trace. We log-transform the data and perform a min-max scaling in order to  map the data to the interval $[0, 1]$. The data is projected onto a two-dimensional  space by summing over the time-axis. The two-dimensional data is then down-sampled into a $128\times128$ pixel image by discretizing the space in the $x-y$ plane and summing all charge values that fall within the bounds for each element location.
+%{\bf via sum-pooling}.
 %Additionally, we log-transform and normalize the data to the interval $[0, 1]$ for each point. The final representation for each event is a $128 \times 128$ matrix with each element ranging from $0$ to $1$.
 
 One of the significant considerations for the analysis of AT-TPC data is to inject machine learning methods for track identification at the best point in the analysis pipeline.
 Using raw data is advantageous as it provides an unbiased view of the event, but the data volume and noise levels might be prohibitive for the analysis.
 %On the opposite end of the pipeline, 
 Therefore, we incrementally add bias to the analysis by applying the algorithm further down the analysis pipeline, with the benefit being that more preprocessing improves the signal-to-noise ratio, possibly improving model performance.
-To explore this trade-off between model performance and preprocessing bias, we performed our analysis on simulated, cleaned and raw events as discussed below.
+To explore this trade-off between model performance and preprocessing bias, we performed our analysis on simulated, raw and cleaned events as discussed below.
 
 
 % MHJ comment: this table is barely described in the text, do we need it? If so, we need to add more text.
@@ -196,28 +199,31 @@ To explore this trade-off between model performance and preprocessing bias, we p
 
 \subsection{Simulated \texorpdfstring{${}^{46}$Ar}{46Ar} events}\label{sec:data_sim}
 
-A set of $N=8000$ simulated AT-TPC events per class was obtained  from a ${}^{46}$Ar$(p, p)$ experiment with the \texttt{pytpc} package developed by \citet{Bradt2017a}. %, see table \ref{tab:class_distr}. %Using the same parameters {\color{blue} what parameters are you referring to? -MPK} as for the 
+A set of $N=8000$ simulated AT-TPC events per class was generated from the \texttt{pytpc} package developed by \citet{Bradt2017a} for the analysis of the  ${}^{46}$Ar$(p, p)$ experiment.
+%A set of $N=8000$ simulated AT-TPC events per class was obtained  from a ${}^{46}$Ar$(p, p)$ experiment with the \texttt{pytpc} package developed by \citet{Bradt2017a}.%, see table \ref{tab:class_distr}. %Using the same parameters {\color{blue} what parameters are you referring to? -MPK} as for the 
 %Two simulated ${}^{46}$Ar$(p, p)$ experiment, a small set of $N=4000$ events per class was generated, as well as a larger set of $N=40000$ events per class. 
 
 For validation, we select a subset of the simulated data to be labeled and treat the rest as unlabeled data. We chose this partition to consist of  $15\%$ of the data. We denote this subset and its associated labels as $\gamma_L=(\boldsymbol{X}_L, \boldsymbol{y}_L)$, while the entire data set is identified as $\boldsymbol{X}_F$. Note that $\boldsymbol{X}_L \subset \boldsymbol{X}_F$.
 
-
+{\bf As this dataset is generated via simulation, the true labels are known for this dataset.}
 
 \subsection{Raw \texorpdfstring{${}^{46}$Ar}{46Ar}  events}\label{sec:data_real}
 
 The events analyzed in this section were retrieved from the ${}^{46}$Ar resonant proton scattering experiment recorded with the AT-TPC. 
-While we denote these events as raw, it is important to note that what we intend is a raw two-dimensional projection of events.
+While we denote these events as raw, it is important to note that what we intend is a raw two-dimensional projection of events {\bf without any post-processing done to clean the data}.
 
 %The sensor plane in the AT-TPC is very sensitive, as such there is substantial noise in the ${}^{46}$Ar data. The noise can be attributed to structural noise from electronics cross-talk, and possible interactions with cosmic background radiation, as well as other sources of charged particles. Part of the challenge for this data then comes from understanding of the physics of the major contributing factors to this noise. \todo{I guess this paragraph can go. It reads very thesis-y, but I'm not sure what to do here to sensibly frame the raw data}
 
-We display two different events from the ${}^{46}$Ar experiment in Fig.~\ref{fig:samples}. The top row illustrates a carbon event with a large fraction of noise, while the bottom row shows a proton event almost free of noise.
+We display two different events from the ${}^{46}$Ar experiment in Fig.~\ref{fig:samples}. The top row illustrates a proton event with a distinctive spiral-shaped track, while the bottom row shows a carbon event with a large fraction of noise. 
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\textwidth]{custom_work/examples_raw.pdf}
-\caption[Displaying unfiltered events in two and three dimensions]{Two- and three-dimensional representations of two events from the ${}^{46}$Ar experiment. Each row is one event in two projections, where the color intensity of each point indicates higher charge values recorded by the detector. The top row illustrates a carbon event with a large fraction of noise, while the bottom row shows a proton event almost free of noise.}\label{fig:samples}
+\caption[Displaying unfiltered events in two and three dimensions]{Two- and three-dimensional representations of two events from the ${}^{46}$Ar experiment. Each row is one event in two projections, where the color intensity of each point indicates higher charge values recorded by the detector. The top row illustrates a proton event with a distinctive spiral-shaped track, while the bottom row shows a carbon event with a large fraction of noise. The beam direction is oriented along the z-axis (from positive to negative), close to the (x,y) origin. The magnetic field is oriented on the same axis as the beam, causing the bending of the charged particle's trajectories. The spiral shape is caused by the slowing down of the particles inside the gas volume. The bending radius of the tracks depends not only on the energy, but also on the mass-to-charge ratio of the particles, hence the large difference between proton and carbon events (see also section \ref{Sec:Exp}).}
+\label{fig:samples}
 \end{figure}
 
+{\bf A subset of this data was hand-labeled for validation.}
 \subsection{Filtered \texorpdfstring{${}^{46}$Ar}{46Ar} events}\label{sec:filtered}
 
 
@@ -230,7 +236,7 @@ We illustrate two filtered events in Fig.~\ref{fig:samples_filtered}. These are 
 \includegraphics[width=0.9\textwidth, height=9cm]{custom_work/examples_filtered.pdf}
 \caption[Displaying filtered events in 2D and 3D]{Two- and three-dimensional representations of two events from the ${}^{46}$Ar experiment. Each row is one event in two projections, where the lightness of each point indicates higher charge values. These events have been filtered with a nearest neighbors algorithm and an algorithm based on the Hough transform \cite{Newman1972}.}\label{fig:samples_filtered}
 \end{figure}
-
+{\bf The same subset of hand-labeled data from Section~\ref{sec:data_real} was used for validation.}
 
 \section{Methods}\label{sec:methods}
 
@@ -332,7 +338,7 @@ The MIXAE algorithm relies on a few simple assumptions which are necessary, but 
 
 The learning objective encourages these assumptions to be met. For a more formal consideration of the model objective and the assumptions made on the data by this model see \citet{Zhang}.
 
-The architecture is portrayed in Fig.~\ref{fig:mixae}, wherein tapered boxes denote a direction of compression in the network components. In the figure each encoder and decoder pair makes up an autoencoder. The assignment of the cluster belonging to a sample, $\mathbf{\hat{x}}$, is taken to be the index of the maximal element in the vector $\mathbf{p}$ as shown in the right-most part of the figure. Finally, the model is trained end-to-end with back propagation \cite{Linnainmaa1976}, as implemented in the machine learning package TensorFlow \cite{tensorflow}.
+The architecture is portrayed in Fig.~\ref{fig:mixae}, wherein tapered boxes denote a direction of compression in the network components. In the figure each encoder and decoder pair makes up an autoencoder. The assignment of the cluster belonging to a sample image, $\mathbf{\hat{x}} \in \mathcal{R}^{128 \times \hspace{0.01in} 128} $, is taken to be the index of the maximal element in the vector $\mathbf{p}$ as shown in the right-most part of the figure. Finally, the model is trained end-to-end with back propagation \cite{Linnainmaa1976}, as implemented in the machine learning package TensorFlow \cite{tensorflow}.
 
 
 \begin{figure}[tbh]
@@ -425,22 +431,6 @@ In addition to the performance measures reported in table \ref{tab:clstr_vgg1}, 
 
 This high-quality cluster also appears in the clustering of raw data. From Fig.~\ref{fig:clster_confmati_raw}, we observe that there is a high purity proton cluster. In contrast to the filtered data we observe that the deterioration in performance can largely be ascribed to the algorithm creating a proton plus another cluster and a carbon plus another cluster.
 
-\begin{figure}
-\centering
-	\includegraphics[width=\textwidth]{custom_work/Simulatedvgg_conf_mat.pdf} 
-	\caption[Pre-trained network - confusion matrices]{Confusion matrix for the $K$-means clustering of simulated AT-TPC events. The true labels indicate samples belonging to the p (proton), or the carbon (C) class}\label{fig:clster_confmat_sim}
-\end{figure}
-
-\begin{figure}
-\centering
-	\includegraphics[width=\textwidth]{custom_work/Filteredvgg_conf_mat.pdf}
-	\caption[Pre-trained network - confusion matrices]{Confusion matrix for the $K$-means clustering of filtered AT-TPC events. The true labels indicate samples belonging to the p (proton), carbon (C), or other classes. }\label{fig:clster_confmati_filt}
-\end{figure}
-
-\begin{figure}
-	\includegraphics[width=\textwidth]{custom_work/Rawvgg_conf_mat.pdf}
-\caption[Pre-trained network - confusion matrices]{Confusion matrix for the $K$-means clustering of raw AT-TPC events. The true labels indicate samples belonging to the p (proton), carbon (C), or other classes. }\label{fig:clster_confmati_raw}
-\end{figure}
 
 
 We repeat this analysis using a Principle Component Analysis (PCA) dimensionality reduction\footnote{
@@ -484,17 +474,6 @@ Applied to raw data the MIXAE captures a proton cluster in a similar vein to the
 
 On filtered data the highest performing MIXAE model achieves strong separation of the other-class, but curiously creates two proton-majority clusters.
  
-\begin{figure}
-\centering
-	\includegraphics[width=\textwidth]{custom_work/Filtered_mixae_conf_mat.pdf}
-\caption[MIXAE - confusion matrices]{Confusion matrix for the MIXAE clustering algorithm on filtered AT-TPC events. The true labels indicate samples belonging to the \texttt{p} (proton), \texttt{C} (Carbon), or \texttt{other} classes. We observe that the algorithm forms two proton-majority clusters, and one clearly defined cluster of the other events. }\label{fig:mixae_confmat_filtered}
-\end{figure}
-
-\begin{figure}
-\centering
-	\includegraphics[width=\textwidth]{custom_work/Raw_mixae_conf_mat.pdf}
-\caption[MIXAE - confusion matrices]{Confusion matrices for the MIXAE clustering algorithm on raw AT-TPC events. The true labels indicate samples belonging to the p (proton), carbon (C), or \texttt{other} classes. We observe that the algorithm correctly captures a majority proton-event cluster in cluster 0. However, in contrast with the $K$-means approach this cluster is contaminated to some extent with both carbon events and other events. }\label{fig:mixae_confmat_raw}
-\end{figure}
 
 
 The most striking result we present in this work is the success of the $K$-means approach. As noted by \cite{Aggarwal}, distance measures become less informative in higher dimensional spaces, but the $K$-means algorithm clusters events well in a very high-dimensional space.
@@ -544,6 +523,7 @@ The two examples of unsupervised machine learning methods studied in this work a
 MHJ’s work is supported by U.S. National Science Foundation Grants No. PHY-1404159 and PHY-2013047. DB's work is supported by the U.S. Department of Energy, Office of Science, Office of Nuclear Physics, under Grant No. DE-SC0020451. This project has also received support from the INTPART project of the Research Council of Norway (Grant No. 288125) and the Davidson Research Initiative. 
 
 \appendix  
+
 \section{VGG16}\label{app:vgg}
 
 The VGGNet models are a family of high-performing image classification, and object localization networks. In the VGGNet architecture a small kernel size is leveraged to increase expressive power in a very deep convolutional network. A tabulated view of the VGG models can be seen in \cite{Simonyan2014}. 
@@ -640,6 +620,44 @@ Labelled & $2400$ & $1774$ &  $1582$ \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\section{Clustering confusion tables}
+
+To elucidate the results presented in tables \ref{tab:clstr_mixae} and \ref{tab:clstr_vgg1} we computed clustering confusion-matrices. These matrices show a more detailed picture of intermingled classes in a clustering or classification task where ground truth labels are available. In the figures below we tabulate the clusters, as predicted by the algorithm, along the x-axis. Each cluster is decomposed in its ground-truth members along the y-axis.
+
+In this view, a perfect clustering algorithm will produce a confusion matrix which only has nonzero elements in the primary diagonal under free permutation of its columns. 
+
+
+\begin{figure}
+\centering
+	\includegraphics[width=\textwidth]{custom_work/Simulatedvgg_conf_mat.pdf} 
+	\caption[Pre-trained network - confusion matrices]{Confusion matrix for the $K$-means clustering of simulated AT-TPC events. The true labels indicate samples belonging to the p (proton), or the carbon (C) class. We observe very high quality separation between the proton and carbon classes.}\label{fig:clster_confmat_sim}
+\end{figure}
+
+\begin{figure}
+\centering
+	\includegraphics[width=\textwidth]{custom_work/Filteredvgg_conf_mat.pdf}
+	\caption[Pre-trained network - confusion matrices]{Confusion matrix for the $K$-means clustering of filtered AT-TPC events. The true labels indicate samples belonging to the p (proton), carbon (C), or other classes. Each column denotes a cluster, with each cell in the column denoting the count of that rows' class in the cluster. We observe that cluster 2 is a high quality proton event cluster }\label{fig:clster_confmati_filt}
+\end{figure}
+
+\begin{figure}
+	\includegraphics[width=\textwidth]{custom_work/Rawvgg_conf_mat.pdf}
+\caption[Pre-trained network - confusion matrices]{Confusion matrix for the $K$-means clustering of raw AT-TPC events. The true labels indicate samples belonging to the p (proton), carbon (C), or other classes. Each column denotes a cluster, with each cell in the column denoting the count of that rows' class in the cluster. We observe that cluster 0 is a high quality proton event cluster }\label{fig:clster_confmati_raw}
+\end{figure}
+
+
+\begin{figure}
+\centering
+	\includegraphics[width=\textwidth]{custom_work/Filtered_mixae_conf_mat.pdf}
+\caption[MIXAE - confusion matrices]{Confusion matrix for the MIXAE clustering algorithm on filtered AT-TPC events. The true labels indicate samples belonging to the \texttt{p} (proton), \texttt{C} (Carbon), or \texttt{other} classes. We observe that the algorithm forms two proton-majority clusters, and one clearly defined cluster of the other events. }\label{fig:mixae_confmat_filtered}
+\end{figure}
+
+\begin{figure}
+\centering
+	\includegraphics[width=\textwidth]{custom_work/Raw_mixae_conf_mat.pdf}
+\caption[MIXAE - confusion matrices]{Confusion matrices for the MIXAE clustering algorithm on raw AT-TPC events. The true labels indicate samples belonging to the p (proton), carbon (C), or \texttt{other} classes. We observe that the algorithm correctly captures a majority proton-event cluster in cluster 0. However, in contrast with the $K$-means approach this cluster is contaminated to some extent with both carbon events and other events. }\label{fig:mixae_confmat_raw}
+\end{figure}
+
 
 \bibliography{article}
 \end{document}
