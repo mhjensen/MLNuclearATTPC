@@ -2,57 +2,52 @@
 \usepackage{xcolor}
 \begin{document}
 
-This article presents unsupervised machine learning methods and results for event separation in
-the Active-Target Time Projection Chamber (AT-TPC). This work extends a previous related
-study [Ref. 6, published in NIMA 2019] from supervised machine learning to unsupervised
-learning. Some of the potentially attractive feature of unsupervised learning could include
-bypassing the labeling step, forming classes of events independently from the experimenter’s input,
-and processing larger amounts (~ TB) of data efficiently. By filtering out un-interesting events, an
-unsupervised classification algorithm would also offer the possibility to discover rare events which
-may not be expected or are overlooked. These rare events would likely be filtered out using the
-traditional methods. The c2 approach used in the traditional analysis performed on the 46Ar data
-could be computationally expensive because it involves the simulation of thousands of tracks for
-each recorded event.
+\section*{Dear Editors,}
+
+we are much indebted for the positive feedback from the reviewer and your willingness to consider our manuscript for publication.
+We have tried as faithfully as possible to answer the referee and we hope the revised version meets your standards for publications in NIMA.\newline
+Our answers to the referee are included below here. The revised version is included as well.\newline
+Yours sincerely,\newline
+Daniel Bazin, Morten Hjorth-Jensen, Michelle Kuchera, Robert Solli, and Ryan Strauss
+
+\section*{Answers to the referee}
+
+We are very much indebted for the positive comments on our manuscript and we would like to  thank the reviewer for a careful read of our work. We have tried as faithfully as possible to answer the various comments. We have included them here for the sake of completeness, together with our responses
+(highlighted in blue). We hope our responses  aid in improving the quality of the manuscript and thank the reviewer again for her/his willingness for considering our manuscript again.
 
 
-I am in favor of the publication of the paper in NIMA, subject to clarifications of the terms used
-and data method descriptions in the manuscript. Furthermore, the discussions about the results
-have mainly been focusing on data method metrics. It would be very helpful to connect or
-extrapolate the results to the physics models and understanding or traditional instrumentation
-metrics such as ground truth derived from physics models, signal to noise, noise reduction, etc.,
-since NIMA is not a data science journal, at least not yet.
-
-
-\textcolor{blue}{We thank the reviewer for a thorough review of our work. We have }
-
-Below are some examples.
 \begin{itemize}
-\item Line 29, Simulated data? Line 193 simulated events… from a Ar(p,p) experiment. Are these
+\item Reviewer comment: Line 29, Simulated data? Line 193 simulated events… from a Ar(p,p) experiment. Are these
 simulation data or experimental data? The use of word simulated is confusing. Based on the context,
 it appears that only experimental data is used for this work.\\
-\textcolor{blue}{We apologize for the confusion. The events referred to in section 3.1 are simulated, not real. They were generated from an event simulator written for the purpose of analysing the Ar(p,p) reaction. The phrasing of this sentence is modified to clarify the information.}
-\item Line 124-125, simulated via an integration, which is numerically costly. Rephrase and clarify how
+\textcolor{blue}{Our answer: We apologize for the confusion. The events referred to in section 3.1 are simulated, not real. They were generated from an event simulator written for the purpose of analysing the Ar(p,p) reaction. The phrasing of this sentence is modified to clarify the information.}
+\item Reviewer comment: Line 124-125, simulated via an integration, which is numerically costly. Rephrase and clarify how
 costly quantitatively. Similar clarifications needed in Line 131, Line 145 and Table 2.\\
-\textcolor{blue}{More quantitative information about the computational cost of traditional analysis methods was added in the paragraphs mentioned by the referee.}
-\item Figure 1. Add some discussions about the experimental information and physics behind the
+\textcolor{blue}{Our answer: More quantitative information about the computational cost of traditional analysis methods was added in the paragraphs mentioned by the referee.}
+\item Reviewer comment: Figure 1. Add some discussions about the experimental information and physics behind the
 observed patterns. For example, which direction is the incoming beam? Beam energy? Vertex at
 (0,0)? The direction of the magnetic field?\\
 
-\textcolor{blue}{Additional text has been added in the figure caption to better explain the experimental conditions of the displayed data.}
-\item Line 306, Sample $\hat{x}$, presumably each of these is a 2D image x-y? what are the sample
+\textcolor{blue}{Our answer: Additional text has been added in the figure caption to better explain the experimental conditions of the displayed data.}
+\item Reviewer comment: Line 306, Sample $\hat{x}$, presumably each of these is a 2D image x-y? what are the sample
 dimensions?
 
-\textcolor{orange}{The text has been modified to clarify that the samples are images encoded as a square matrix with 128 elements along one axis.}
+\textcolor{blue}{Our answer: The text has been modified to clarify that the samples are images encoded as a square matrix with 128 elements along one axis.}
     
-\item Lines 330 \& 331, define Ground truth labels y and predictions $\hat{y}$, how are they derived from
+\item Reviewer comment: Lines 330 \& 331, define Ground truth labels y and predictions $\hat{y}$, how are they derived from
 the raw data (2D projections of the AT-TPC)? Or the latent layer outputs of a pre-trained neural
 network? Or else?
-\textcolor{blue}{Additional text in each subsection of Section 3: Data Preparation was added to indicate where the ground truth labels were derived from. In fact, we used this dataset {\it because} we had rare access to ground truth labels for experimental data.}
-\item Figures 4, Figure 5, Figure 6, Figure 9, Figure 10, are data science metric results. Needs update or
+\textcolor{blue}{Our answer: We have added more text in each subsection of Section 3: Data Preparation was added to indicate where the ground truth labels were derived from. In fact, we used this data set {\it because} we had rare access to ground truth labels for experimental data.}
+\item Reviewer comment: Figures 4, Figure 5, Figure 6, Figure 9, Figure 10, are data science metric results. Needs update or
 move some of them to the appendix.
-\textcolor{blue}{The confusion matrices have been moved to the appendix, and language was added to clarify their meaning.}
-\item Figure 7, Figure 8, elucidate the physics and understanding behind the pattern would be helpful.
+\textcolor{blue}{Our answer: We have followed the reviewer's suggestions and have moved the confusion matrix figures to the appendix, and we added text to clarify their meaning.}
+\item Reviewer comment: Figure 7, Figure 8, elucidate the physics and understanding behind the pattern would be helpful.
 Similar to the comments to Figure 1 above.
-\textcolor{blue}{Now Figures 4 and 5. Since this is unsupervised clustering, we could not conjecture as to the physical meaning behind the separation. However, the plots visualize a sampling of proton events that were attributed to a noisy and pure cluster (each cluster), allowing a reader to infer the behavior of the unsupervised learning on these events. The figure caption texts have been updated to clarify this point. }
+\textcolor{blue}{Our answer: These figures are wow the new Figures 4 and 5. Since this is unsupervised clustering, it is normally difficult to  conjecture a clear   physical meaning behind the separation. However, the plots visualize a sampling of proton events that were attributed to a noisy and pure cluster (each cluster), allowing a reader to infer the behavior of the unsupervised learning on these events. The figure caption texts have been updated to clarify this point. }
 \end{itemize}
+
+We hope our answers have addressed properly the comments of the reviewer. \newline
+Yours sincerely,\newline
+The Authors
+
 \end{document}
