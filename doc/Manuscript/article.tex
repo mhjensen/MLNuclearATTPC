@@ -103,8 +103,8 @@ in Physics Research Section A}
 %With autoencoder neural networks we find improved descriptions of data from experiments.
 This article presents novel applications of unsupervised machine learning methods to the problem of event separation in an active target detector, the Active-Target Time Projection Chamber (AT-TPC) \cite{Bradt2017}. 
 The overarching goal is to group similar events in the early stages of the data analysis, thereby improving efficiency by limiting the computationally expensive processing of unnecessary events.
-The application of unsupervised clustering algorithms to the analysis of two-dimensional projections of particle tracks from a resonant proton scattering experiment on $^{46}$Ar is introduced. We explore the performance of autoencoder neural networks and a pre-trained VGG16 \cite{Simonyan2014} convolutional neural network.
-We find that a $K$-means algorithm applied to the simulated data in the VGG16 latent space forms almost perfect clusters. Additionally, the VGG16+$K$-means approach finds high purity clusters of proton events for real experimental data. We also explore the application of clustering the latent space of autoencoder neural networks for event separation. While these networks show strong performance, they suffer from high variability in their results.  
+The application of unsupervised clustering algorithms to the analysis of two-dimensional projections of particle tracks from a resonant proton scattering experiment on $^{46}$Ar is introduced. We explore the performance of autoencoder neural networks and a pre-trained VGG16 \cite{Simonyan2014} convolutional neural network. We study clustering performance on data from a simulated $^{46}$Ar experiment, and records from the AT-TPC detector. 
+We find that a $K$-means algorithm applied to simulated data in the VGG16 latent space forms almost perfect clusters. Additionally, the VGG16+$K$-means approach finds high purity clusters of proton events for real experimental data. We also explore the application of clustering the latent space of autoencoder neural networks for event separation. While these networks show strong performance, they suffer from high variability in their results.  
 
 \end{abstract}
 
@@ -338,7 +338,7 @@ The MIXAE algorithm relies on a few simple assumptions which are necessary, but 
 
 The learning objective encourages these assumptions to be met. For a more formal consideration of the model objective and the assumptions made on the data by this model see \citet{Zhang}.
 
-The architecture is portrayed in Fig.~\ref{fig:mixae}, wherein tapered boxes denote a direction of compression in the network components. In the figure each encoder and decoder pair makes up an autoencoder. The assignment of the cluster belonging to a sample image, $\mathbf{\hat{x}} \in \mathcal{R}^{128 \times \hspace{0.01in} 128} $, is taken to be the index of the maximal element in the vector $\mathbf{p}$ as shown in the right-most part of the figure. Finally, the model is trained end-to-end with back propagation \cite{Linnainmaa1976}, as implemented in the machine learning package TensorFlow \cite{tensorflow}.
+The architecture is portrayed in Fig.~\ref{fig:mixae}, wherein tapered boxes denote a direction of compression in the network components. In the figure each encoder and decoder pair makes up an autoencoder. The assignment of the cluster for a sample x-y event image, $\mathbf{\hat{x}} \in \mathcal{R}^{128 \times \hspace{0.01in} 128} $, is taken to be the index of the maximal element in the vector $\mathbf{p}$ as shown in the right-most part of the figure. Finally, the model is trained end-to-end with back propagation \cite{Linnainmaa1976}, as implemented in the machine learning package TensorFlow \cite{tensorflow}.
 
 
 \begin{figure}[tbh]
@@ -443,7 +443,7 @@ We display these examples in Figs.~\ref{fig:filtered_vgg_clster_repr} and \ref{f
 
 \begin{figure}
 \includegraphics[width=\textwidth]{custom_work/Filteredexamples.pdf}
-\caption[Filtered proton samples by cluster belonging]{A sample of proton events from different $K$-means clusters from the filtered data set. The top row shows proton samples that are intermingled with noise events in the models' predictions, and the bottom row belongs to a cluster that contains proton events almost exclusively. Each row belongs to a single cluster corresponding to the filtered confusion matrix in Fig.~\ref{fig:clster_confmati_filt}}\label{fig:filtered_vgg_clster_repr}
+\caption[Filtered proton samples by cluster belonging]{A sample of proton events from different $K$-means clusters from the filtered data set. The bottom row shows proton samples that are intermingled with noise events in the models' predictions, and the top row belongs to a cluster that contains proton events almost exclusively. Each row belongs to a single cluster corresponding to the filtered confusion matrix in Fig.~\ref{fig:clster_confmati_filt}}\label{fig:filtered_vgg_clster_repr}
 \end{figure} 
 
 \begin{figure}
@@ -630,7 +630,7 @@ In this view, a perfect clustering algorithm will produce a confusion matrix whi
 
 \begin{figure}
 \centering
-	\includegraphics[width=\textwidth]{custom_work/Simulatedvgg_conf_mat.pdf} 
+	\includegraphics[width=\textwidth]{custom_work/Simulatedcache_conf_mat.pdf} 
 	\caption[Pre-trained network - confusion matrices]{Confusion matrix for the $K$-means clustering of simulated AT-TPC events. The true labels indicate samples belonging to the p (proton), or the carbon (C) class. We observe very high quality separation between the proton and carbon classes.}\label{fig:clster_confmat_sim}
 \end{figure}
 
@@ -642,7 +642,7 @@ In this view, a perfect clustering algorithm will produce a confusion matrix whi
 
 \begin{figure}
 	\includegraphics[width=\textwidth]{custom_work/Rawcache_conf_mat.pdf}
-\caption[Pre-trained network - confusion matrices]{Confusion matrix for the $K$-means clustering of raw AT-TPC events. The true labels indicate samples belonging to the p (proton), carbon (C), or other classes. Each column denotes a cluster, with each cell in the column denoting the count of that rows' class in the cluster. We observe that cluster 0 is a high quality proton event cluster }\label{fig:clster_confmati_raw}
+\caption[Pre-trained network - confusion matrices]{Confusion matrix for the $K$-means clustering of raw AT-TPC events. The true labels indicate samples belonging to the p (proton), carbon (C), or other classes. Each column denotes a cluster, with each cell in the column denoting the count of that rows' class in the cluster. We observe that cluster 2 is a high quality proton event cluster }\label{fig:clster_confmati_raw}
 \end{figure}
 
 
