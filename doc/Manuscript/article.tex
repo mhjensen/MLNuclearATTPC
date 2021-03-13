@@ -1,8 +1,8 @@
-%\documentclass[preprint,12pt]{elsarticle}
+\documentclass[preprint,12pt]{elsarticle}
 % uncomment for submission to NIM A
-\documentclass[review,sort&compress]{elsarticle}
-\usepackage{lineno}
-\linenumbers
+%\documentclass[review,sort&compress]{elsarticle}
+%\usepackage{lineno}
+%\linenumbers
 
 
 \usepackage{amssymb}
@@ -103,8 +103,8 @@ in Physics Research Section A}
 %With autoencoder neural networks we find improved descriptions of data from experiments.
 This article presents novel applications of unsupervised machine learning methods to the problem of event separation in an active target detector, the Active-Target Time Projection Chamber (AT-TPC) \cite{Bradt2017}. 
 The overarching goal is to group similar events in the early stages of the data analysis, thereby improving efficiency by limiting the computationally expensive processing of unnecessary events.
-The application of unsupervised clustering algorithms to the analysis of two-dimensional projections of particle tracks from a resonant proton scattering experiment on $^{46}$Ar is introduced. We explore the performance of autoencoder neural networks and a pre-trained VGG16 \cite{Simonyan2014} convolutional neural network. We study clustering performance on data from a simulated $^{46}$Ar experiment, and records from the AT-TPC detector. 
-We find that a $K$-means algorithm applied to simulated data in the VGG16 latent space forms almost perfect clusters. Additionally, the VGG16+$K$-means approach finds high purity clusters of proton events for real experimental data. We also explore the application of clustering the latent space of autoencoder neural networks for event separation. While these networks show strong performance, they suffer from high variability in their results.  
+The application of unsupervised clustering algorithms to the analysis of two-dimensional projections of particle tracks from a resonant proton scattering experiment on $^{46}$Ar is introduced. We explore the performance of autoencoder neural networks and a pre-trained VGG16 \cite{Simonyan2014} convolutional neural network. We study clustering performance on both data from a simulated $^{46}$Ar experiment, and real events from the AT-TPC detector. 
+We find that a $k$-means algorithm applied to simulated data in the VGG16 latent space forms almost perfect clusters. Additionally, the VGG16+$k$-means approach finds high purity clusters of proton events for real experimental data. We also explore the application of clustering the latent space of autoencoder neural networks for event separation. While these networks show strong performance, they suffer from high variability in their results.  
 
 \end{abstract}
 
@@ -200,22 +200,21 @@ To explore this trade-off between model performance and preprocessing bias, we p
 \subsection{Simulated \texorpdfstring{${}^{46}$Ar}{46Ar} events}\label{sec:data_sim}
 
 A set of $N=8000$ simulated AT-TPC events per class was generated from the \texttt{pytpc} package developed by \citet{Bradt2017a} for the analysis of the  ${}^{46}$Ar$(p, p)$ experiment.
-%A set of $N=8000$ simulated AT-TPC events per class was obtained  from a ${}^{46}$Ar$(p, p)$ experiment with the \texttt{pytpc} package developed by \citet{Bradt2017a}.%, see table \ref{tab:class_distr}. %Using the same parameters {\color{blue} what parameters are you referring to? -MPK} as for the 
+%A set of $N=8000$ simulated AT-TPC events per class was obtained  from a ${}^{46}$Ar$(p, p)$ experiment with the \texttt{pytpc} package developed by \citet{Bradt2017a}.%, see Table \ref{tab:class_distr}. %Using the same parameters {\color{blue} what parameters are you referring to? -MPK} as for the 
 %Two simulated ${}^{46}$Ar$(p, p)$ experiment, a small set of $N=4000$ events per class was generated, as well as a larger set of $N=40000$ events per class. 
 
 For validation, we select a subset of the simulated data to be labeled and treat the rest as unlabeled data. We chose this partition to consist of  $15\%$ of the data. We denote this subset and its associated labels as $\gamma_L=(\boldsymbol{X}_L, \boldsymbol{y}_L)$, while the entire data set is identified as $\boldsymbol{X}_F$. Note that $\boldsymbol{X}_L \subset \boldsymbol{X}_F$.
-
-{\bf As this dataset is generated via simulation, the true labels are known for this dataset.}
+As this dataset is generated via simulation, the true labels are known for this dataset.
 
 \subsection{Raw \texorpdfstring{${}^{46}$Ar}{46Ar}  events}\label{sec:data_real}
 
 The events analyzed in this section were retrieved from the ${}^{46}$Ar resonant proton scattering experiment recorded with the AT-TPC. 
-While we denote these events as raw, it is important to note that what we intend is a raw two-dimensional projection of events {\bf without any post-processing done to clean the data}.
+While we denote these events as raw, it is important to note that what we intend is a raw two-dimensional projection of events without any post-processing done to clean the data.
 
 %The sensor plane in the AT-TPC is very sensitive, as such there is substantial noise in the ${}^{46}$Ar data. The noise can be attributed to structural noise from electronics cross-talk, and possible interactions with cosmic background radiation, as well as other sources of charged particles. Part of the challenge for this data then comes from understanding of the physics of the major contributing factors to this noise. \todo{I guess this paragraph can go. It reads very thesis-y, but I'm not sure what to do here to sensibly frame the raw data}
 
 We display two different events from the ${}^{46}$Ar experiment in Fig.~\ref{fig:samples}. The top row illustrates a proton event with a distinctive spiral-shaped track, while the bottom row shows a carbon event with a large fraction of noise. 
-
+A subset of this data was hand-labeled for validation, as discussed in \cite{Kuchera2019}.
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\textwidth]{custom_work/examples_raw.pdf}
@@ -223,27 +222,26 @@ We display two different events from the ${}^{46}$Ar experiment in Fig.~\ref{fig
 \label{fig:samples}
 \end{figure}
 
-{\bf A subset of this data was hand-labeled for validation.}
 \subsection{Filtered \texorpdfstring{${}^{46}$Ar}{46Ar} events}\label{sec:filtered}
 
 
 As we saw in the previous section, the detector picks up a significant amount of noise. We split the noise broadly in two categories,  one being randomly uncorrelated noise and the second one being structured noise. The former can be quite trivially removed with a nearest-neighbor algorithm, see for example \cite{hastie2009}, that checks if a point in the event is close to any other. To remove the correlated noise, researchers at the National Superconducting Cyclotron Laboratory of Michigan State University, developed an algorithm based on the Hough transform \cite{Newman1972}. This transformation is a common technique in computer vision, used to identify common geometric shapes like lines and circles, and has been used extensively in high-energy particle physics since the bubble-chamber era \cite{Hough:1959}.  %Essentially, the algorithm draws many lines (of whatever desired geometry) through each data-point and checks whether these lines intersect with points in the data set. Locations in parameter space that generate many intersections then become bright spots, allowing us to filter away points that are not close to these points. These algorithms remove a large amount of the unstructured noise and are computationally rather cheap. \todo{Also pretty thesis-y language. Do not like}
 
 We illustrate two filtered events in Fig.~\ref{fig:samples_filtered}. These are the same events as shown in Fig.~\ref{fig:samples}, but with the Hough transform and nearest-neighbor filtering applied. 
+The same subset of hand-labeled data from Section~\ref{sec:data_real} was used for validation.
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=0.9\textwidth, height=9cm]{custom_work/examples_filtered.pdf}
 \caption[Displaying filtered events in 2D and 3D]{Two- and three-dimensional representations of two events from the ${}^{46}$Ar experiment. Each row is one event in two projections, where the lightness of each point indicates higher charge values. These events have been filtered with a nearest neighbors algorithm and an algorithm based on the Hough transform \cite{Newman1972}.}\label{fig:samples_filtered}
 \end{figure}
-{\bf The same subset of hand-labeled data from Section~\ref{sec:data_real} was used for validation.}
 
 \section{Methods}\label{sec:methods}
 
 \subsection{Classifying  events} 
 %The filtering task relied on a set of $\chi^2$ distributions based on different criteria, 
 The traditional Monte Carlo event selection process, described in Section~\ref{Sec:Exp}, does not have a well-defined method to quantify the effectiveness of the event selection.
-In addition, the selection task produced a binary result only, either a {\em good} or {\em bad} fit to the event of interest. A {\em bad} fit is then assumed to be a different event type, and is removed from the analysis. %, if only because of the presence of carbon in the target (from the isobutane gas).
+In addition, the selection task produced a binary, cut-based result: either a {\em good} or {\em bad} fit to the event of interest. A {\em bad} fit is then assumed to be a different event type, and is removed from the analysis. %, if only because of the presence of carbon in the target (from the isobutane gas).
 In a broader perspective, an unsupervised classification algorithm would offer the possibility to {\em discover} rare events which may not be expected or are overlooked. These events would likely be filtered out using the traditional methods. From a practical point of view, compared to supervised learning, it also avoids the necessary labeling task of the learning set events, which is error prone and time consuming.
 
 \subsection{Why machine learning}
@@ -257,7 +255,7 @@ In a broader perspective, an unsupervised classification algorithm would offer t
 %    \end{itemize}
 %\end{itemize}
 
-The $\chi^2$ approach used in the traditional analysis performed on the $^{46}$Ar data is extremely expensive from a computational stand because it involves the simulation of thousands of tracks for each recorded event. These events are in turn simulated for each iteration of the Monte Carlo fitting sequence. Even though the reaction of interest in the $^{46}$Ar experiment had the largest cross section (elastic scattering), the time spent on Monte Carlo fitting of {\em all} of the events produced in the experiment was the largest computational bottleneck in the analysis. In the case of an experiment where the reaction of interest would represent less than a few percent of the total cross section, this procedure would become highly inefficient and prohibitive. Adding to this the large amount of data produced in this experiment (with even larger data sets expected in future experiments), the analysis simply begs for more efficient analysis tools. 
+The $\chi^2$ approach used in the traditional analysis performed on the $^{46}$Ar data is extremely expensive computationally because it requires the simulation of thousands of tracks for each recorded event. These events are in turn simulated for each iteration of the Monte Carlo fitting sequence. Even though the reaction of interest in the $^{46}$Ar experiment had the largest cross section (elastic scattering), the time spent on Monte Carlo fitting of {\em all} of the events produced in the experiment was the largest computational bottleneck in the analysis. In the case of an experiment where the reaction of interest would represent less than a few percent of the total cross section, this procedure would become highly inefficient and prohibitive. Adding to this the large amount of data produced in this experiment (with even larger data sets expected in future experiments), the analysis simply begs for more efficient analysis tools. 
 %Most of the CPU time would be spent on simulating events that are not of interest.
 The computationally expensive fitting procedure would be applied to every event, instead of the few percent of the events that are of interest for the analysis.
 An unsupervised ML algorithm able to separate the data without {\em a priori} knowledge of the different types of events increases the efficiency of the analysis tremendously, and allows the downstream analysis to concentrate on the fitting efforts only on events of interest. In addition, the clustering allows for more exploration of the data, potentially enabling new discovery of unexpected reaction types.
@@ -308,17 +306,17 @@ Training high-performing neural networks from scratch often requires enormous da
 
 % In contrast with the classification work of \citet{Kuchera2019}, we do not append a classifying layer to the VGG16 network given that we do not have access to the ground truth labels at training time in the clustering regime. We instead consider the output from the convolutional blocks of the VGG16 network as a representation of the events on which we will apply a clustering algorithm. 
 
-% The clustering algorithm we found to give the strongest result is the $K$-means algorithm. This algorithm is contingent on having a distance measurement between two datapoints. We found that the standard choice of a euclidian norm on the vector differences provided the best outcomes.
+% The clustering algorithm we found to give the strongest result is the $k$-means algorithm. This algorithm is contingent on having a distance measurement between two datapoints. We found that the standard choice of a euclidian norm on the vector differences provided the best outcomes.
 
-In contrast with the classification work of \citet{Kuchera2019}, we do not assume access to ground truth labels and we are trying to solve a fundamentally different learning problem. Thus, rather than fine-tuning a pre-trained network under the supervised learning regime, we extract the output of the pre-trained network's last convolutional layer as a latent representation of the events, where each event is represented as a vector in $\R^{8192}$. We then cluster events based on this representation using the Scikit-Learn implementation of the $K$-means algorithm with default parameters \cite{Pedregosa2011}.
+In contrast with the classification work of \citet{Kuchera2019}, we do not assume access to ground truth labels and we are trying to solve a fundamentally different learning problem. Thus, rather than fine-tuning a pre-trained network under the supervised learning regime, we extract the output of the pre-trained network's last convolutional layer as a latent representation of the events, where each event is represented as a vector in $\R^{8192}$. We then cluster events based on this representation using the \texttt{scikit-learn} implementation of the $k$-means algorithm with default parameters \cite{Pedregosa2011}.
 
-%{\color{cyan} [Ryan: I think there are a lot of words in the following two paragraphs that don't need to exist. Essentially, these paragraphs are a repeat of the last paragraph and parts of the last subsection, but with one or two extra details added in (e.g. using the top 100 principle components). As such, I would remove them and add the necessary details to the previous paragraph (or replace them with a small paragraph).]} Building on the work by \citet{Kuchera2019}, we also use the VGG16 pre-trained network as a baseline for the clustering performance. We begin by considering a classical $K$-means approach to clustering. However, the output from the VGG16 network is very high dimensional which traditionally conflicts with good $K$-means results. With output vectors in $\R^{8192}$ the ratio between $L_p$ distances goes to one with increasing dimensionality, as shown by \citet{Aggarwal}. However, one of the central assumptions in the authors' finding is that the elements are uniformly distributed in the latent space. They note that it is then possible that if the class information lies in some sub-space of the latent data, $L_p$-norms may provide useful clusterings even in high dimensional spaces. To investigate this, we perform a $L_2$-norm based $K$-means clustering using the full VGG16 representation and the $10^2$ first principal components only. 
+%{\color{cyan} [Ryan: I think there are a lot of words in the following two paragraphs that don't need to exist. Essentially, these paragraphs are a repeat of the last paragraph and parts of the last subsection, but with one or two extra details added in (e.g. using the top 100 principle components). As such, I would remove them and add the necessary details to the previous paragraph (or replace them with a small paragraph).]} Building on the work by \citet{Kuchera2019}, we also use the VGG16 pre-trained network as a baseline for the clustering performance. We begin by considering a classical $k$-means approach to clustering. However, the output from the VGG16 network is very high dimensional which traditionally conflicts with good $k$-means results. With output vectors in $\R^{8192}$ the ratio between $L_p$ distances goes to one with increasing dimensionality, as shown by \citet{Aggarwal}. However, one of the central assumptions in the authors' finding is that the elements are uniformly distributed in the latent space. They note that it is then possible that if the class information lies in some sub-space of the latent data, $L_p$-norms may provide useful clusterings even in high dimensional spaces. To investigate this, we perform a $L_2$-norm based $k$-means clustering using the full VGG16 representation and the $10^2$ first principal components only. 
 
 %{\color{blue} Are there supposed to be results here? -MPK}
-%\subsection{$K$-means}
+%\subsection{$k$-means}
 
-%We begin by investigating the $K$-means clustering algorithm on the VGG16 latent space. 
-% The user a VGG16 model that is pre-trained on the ImageNet data set and subsequently applied to the AT-TPC events without the classification layers. This creates a set of vectors $\boldsymbol{x} \in \R^{8192}$ as our new representation of the events. To cluster, we use the \lstinline{scikit-learn} implementation of the $K$-means++ algorithm with default parameters \cite{Pedregosa2011}.
+%We begin by investigating the $k$-means clustering algorithm on the VGG16 latent space. 
+% The user a VGG16 model that is pre-trained on the ImageNet data set and subsequently applied to the AT-TPC events without the classification layers. This creates a set of vectors $\boldsymbol{x} \in \R^{8192}$ as our new representation of the events. To cluster, we use the \lstinline{scikit-learn} implementation of the $k$-means++ algorithm with default parameters \cite{Pedregosa2011}.
 
 
 \subsection{Deep clustering: Mixture of autoencoders}\label{sec:mixae}
@@ -359,7 +357,7 @@ We measure the performance of the clustering algorithms by two functions: the cl
 
 To compute the metrics we have to solve problems introduced by the arbitrary labels of a clustering algorithm. That is, we do not know which predicted assignment should correspond to a proton or carbon event. In short, we want to find the most reasonable correspondence between the clusters and the ground truth classes. To solve this problem we first define two sets; the ground truth labels $\mathbf{y} = [y_i, \hspace{0.2cm} y_{i +1}, \ldots]$ as determined in section \ref{sec:datadescript}, and the corresponding predictions $\mathbf{\hat{y}} = [\hat{y}_i, \hspace{0.2cm} \hat{y}_{i +1}, \ldots]$. Furthermore, we let both $y_i$ and $\hat{y}_i$ be integer representations of an event's ground truth, and predicted class, respectively. 
 
-To compute both the ARI and the clustering accuracy we also have to construct the contingency table between two sets of clustering assignments. A contingency matrix defines the overlaps between classes in these sets, and its general form is shown in table \ref{tab:contingency}.
+To compute both the ARI and the clustering accuracy we also have to construct the contingency table between two sets of clustering assignments. A contingency matrix defines the overlaps between classes in these sets, and its general form is shown in Table \ref{tab:contingency}.
 
 \begin{table}[H]
 \centering
@@ -388,46 +386,46 @@ To compute the ARI we use the elements from the contingency table to evaluate th
 \begin{equation}\label{eq:ari}
 \text{ARI} = \frac{\sum  \binom{w_{ij}}{2} - \left[\sum  \binom{e_{i}}{2} \sum  \binom{f_{j}}{2}  \right]/\binom{n}{2}}{\frac{1}{2}\left[\sum  \binom{e_{i}}{2} + \sum  \binom{f_{j}}{2}  \right]- \left[\sum  \binom{e_{i}}{2} \sum  \binom{f_{j}}{2}  \right]/\binom{n}{2}}.
 \end{equation}
-The quantities $f_i$ and $e_i$ are defined in table \ref{tab:contingency}.
+The quantities $f_i$ and $e_i$ are defined in Table \ref{tab:contingency}.
 The important distinction to make between the clustering accuracy and the ARI is that the clustering accuracy is a simple comparison that does not account for chance assignments, while the ARI does. In effect, this means that the accuracy is a good heuristic for the performance, tempered by the ARI. 
 
 Lastly, we introduce two terms to describe cluster quality: purity and quality. Purity is inferred by how much spread there is in the column between the ground truth labels in the matrix $\mathbf{W}$. A high-quality cluster will, in addition to being pure, also capture most entries the class represented by the cluster.
 %We refer to \citet{Hubert1985} for a detailed consideration of the ARI.
 
-The performance is measured by comparing model predictions on the labelled subset of data (see table \ref{tab:data sets} in  appendix B for more details).
+The performance is measured by comparing model predictions on the labelled subset of data (see Table \ref{tab:data sets} in  appendix B for more details).
 
 
 \section{Results and Discussions}\label{sec:results}
 
 The principal challenge in the AT-TPC experiments that we are trying to address is the reliance on labelled samples in the analysis, as future experiments may not have as visually dissimilar reaction products as we observe in the ${}^{46}$Ar experiment.  The ability to label data in the the ${}^{46}$Ar experiment does, however, provide a useful example where we can then explore unsupervised techniques. 
 
-We first explore the results of applying a $K$-means approach on the latent space of a pre-trained network. Subsequently, we investigate the performance of the MIXAE algorithm as outlined in section \ref{sec:mixae}.
+We first explore the results of applying a $k$-means approach on the latent space of a pre-trained network. Subsequently, we investigate the performance of the MIXAE algorithm as outlined in section \ref{sec:mixae}.
 
-\subsection{$K$-means clustering on the VGG16 latent space}\label{sec:kmeans_results}
+\subsection{$k$-means clustering on the VGG16 latent space}\label{sec:kmeans_results}
 
-The results of the clustering runs are included in table \ref{tab:clstr_vgg1}. We ran the $K$-means algorithm $N=100$ times with $M=10$ initializations per run, of the cluster centroids to assess the variability in the performance. The K-means algorithm returns the best performing model of the $M$ initializations on the unsupervised objective. We report performance on the labelled subset of data, using the labels to identify the top-performing model (Top 1). Additionally, we report the mean and standard deviation of the algorithm on the $N$ trials, which indicate unsupervised performance.   
+The results of the clustering runs are included in Table \ref{tab:clstr_vgg1}. We ran the $k$-means algorithm $N=100$ times with $M=10$ initializations per run, of the cluster centroids to assess the variability in the performance. The $k$-means algorithm returns the best performing model of the $M$ initializations on the unsupervised objective. We report performance on the labelled subset of data, using the labels to identify the top-performing model (Top 1). Additionally, we report the mean and standard deviation of the algorithm on the $N$ trials, which indicate unsupervised performance.   
 
 %The mean and standard deviation are metrics reported using no label information.
 %To quantify the results we report the best performing model (Top 1), and the mean and standard deviation for the result.
 
-We observe that the clustering on simulated data attains the highest performance, and that there is a decline in performance as we add noise by moving to the filtered and raw data sets. The results are shown in table \ref{tab:clstr_vgg10}. 
+We observe that the clustering on simulated data attains the highest performance, and that there is a decline in performance as we add noise by moving to the filtered and raw data sets. The results are shown in Table \ref{tab:clstr_vgg10}. 
 
 \begin{table}[H]
 \centering 
-\caption[$K$-means on pre-trained model]{$K$-means clustering results on AT-TPC event data in the VGG-16 latent space, for $N=100$ runs of the $K$-means algorithm with $M=10$ initializations. We observe that the performance predictably decreases with the amount of noise in the data.}\label{tab:clstr_vgg10}
+\caption[$k$-means on pre-trained model]{$k$-means clustering results on AT-TPC event data in the VGG-16 latent space, for $N=100$ runs of the $k$-means algorithm with $M=10$ initializations. We observe that the performance predictably decreases with the amount of noise in the data.}\label{tab:clstr_vgg10}
 \input{./plots/kmeans_vgg_init10.tex}
 \end{table}
 
-\noindent The lack of variability is explained by the number of initializations. As can be seen from table \ref{tab:clstr_vgg1} where we run the $K$-means algorithm $N=1000$ times with $M=1$ initializations of the centroids. 
+\noindent The lack of variability is explained by the number of initializations. As can be seen from Table \ref{tab:clstr_vgg1} where we run the $k$-means algorithm $N=1000$ times with $M=1$ initializations of the centroids. 
 
 \begin{table}[H]
 \centering 
-\caption[$K$-means on pre-trained model]{$K$-means clustering results on AT-TPC event data in the VGG-16 latent space, for $N=1000$ runs of the $K$-means algorithm with $M=1$ initializations. We observe that there is significant variability in the results, which is ordinarily masked by $M$ re-initializations that avoid local minima. }\label{tab:clstr_vgg1}
+\caption[$k$-means on pre-trained model]{$k$-means clustering results on AT-TPC event data in the VGG-16 latent space, for $N=1000$ runs of the $k$-means algorithm with $M=1$ initializations. We observe that there is significant variability in the results, which is ordinarily masked by $M$ re-initializations that avoid local minima. }\label{tab:clstr_vgg1}
 \input{./plots/kmeans_vgg_init1.tex}
 \end{table}
 
 
-In addition to the performance measures reported in table \ref{tab:clstr_vgg1}, it is interesting to observe which samples are wrongly assigned. To investigate this problem, we compute the matrices $\mathbf{W}$ as shown in table \ref{tab:contingency}. From these tables, we can infer which classes are more or less entangled with others. The results for each data set is shown in  Figs.~\ref{fig:clster_confmat_sim}, \ref{fig:clster_confmati_filt} and \ref{fig:clster_confmati_raw}. We observe that the proton class is consistently assigned in a pure cluster. For example, consider the row corresponding to the proton class in Fig.~\ref{fig:clster_confmati_filt}. The column corresponding to the largest entry in the proton row has zero other predicted classes in it.
+In addition to the performance measures reported in Table \ref{tab:clstr_vgg1}, it is interesting to observe which samples are wrongly assigned. To investigate this problem, we compute the matrices $\mathbf{W}$ as shown in Table \ref{tab:contingency}. From these tables, we can infer which classes are more or less entangled with others. The results for each data set is shown in  Figs.~\ref{fig:clster_confmat_sim}, \ref{fig:clster_confmati_filt} and \ref{fig:clster_confmati_raw}. We observe that the proton class is consistently assigned in a pure cluster. For example, consider the row corresponding to the proton class in Fig.~\ref{fig:clster_confmati_filt}. The column corresponding to the largest entry in the proton row has zero other predicted classes in it.
 
 This high-quality cluster also appears in the clustering of raw data. From Fig.~\ref{fig:clster_confmati_raw}, we observe that there is a high purity proton cluster. In contrast to the filtered data we observe that the deterioration in performance can largely be ascribed to the algorithm creating a proton plus another cluster and a carbon plus another cluster.
 
@@ -438,17 +436,24 @@ PCA is a common technique to find the significant variations in data by projecti
 } on the latent space of the VGG16 model. This is done to estimate to what degree the class separating information is encoded in the entirety of the latent space, or in some select regions. The results from the PCA analysis, using the top 100 principal components, were virtually identical to our previous results not containing  the PCA analysis. This in an interesting observation which indicates that the class-encoding information is contained in a minority of the axes of variation in the data.
 %and so we omit them for brevity. 
 
-To further investigate the clusters presented in the matrix in Figs.~\ref{fig:clster_confmati_filt} and \ref{fig:clster_confmati_raw}, we study examples from the proton samples belonging to different clusters for the filtered and full data.
-We display these examples in Figs.~\ref{fig:filtered_vgg_clster_repr} and \ref{fig:full_vgg_clster_repr}, respectively. Form these figures we observe that the more noisy proton events are being clustered together with the amorphous other class events. This is in line with the intuitive expectation from viewing the clustering results in Figs.~\ref{fig:clster_confmati_filt} and \ref{fig:clster_confmati_raw}.
+To further investigate the clusters presented in the matrix in Figs.~\ref{fig:clster_confmati_filt} and \ref{fig:clster_confmati_raw}, we visualize a random subset of examples from the proton events belonging to different clusters for the filtered and full data in Figs.~\ref{fig:filtered_vgg_clster_repr} and \ref{fig:full_vgg_clster_repr}, respectively.
+We look at random samples of proton events in two clusters to infer an intuition on the track properties that are considered similar.
+The figures indicate that shorter tracks, therefore low-energy or small scattering angle protons, are more likely to appear similar to other event types.
+%From these figures, we observe that the more noisy proton events are being clustered together with the amorphous other class events. This is in line with the intuitive expectation from viewing the clustering results in Figs.~\ref{fig:clster_confmati_filt} and \ref{fig:clster_confmati_raw}. A visual inspection of the cluster components serves as a sanity-check for our clustering approach. While we have demonstrated some level of success in clustering events, the algorithm is agnostic to the underlying physics.
+    %a major caveat remains in the fundamental aphysical nature of the approach. 
+    %The aforementioned figures are then a way to better understand how the algorithm mislabels events of interest. 
+    %In lieu of a physics-grounded analysis, we wish to infer the differences which places proton events in other clusters than the high-purity clusters we observe in Figs ~\ref{fig:clster_confmati_filt} and \ref{fig:clster_confmati_raw}.
+   % \item While we have achieved some level of success in our clustering methods, we lack the ability to interpret what aspects of the data guided the cluster assignments. To better understand how the algorithm mislabels events of interest, we used visualization of clustered events to infer proton events that the algorithm considers similar. 
+%\end{itemize}
 
 \begin{figure}
 \includegraphics[width=\textwidth]{custom_work/Filteredexamples.pdf}
-\caption[Filtered proton samples by cluster belonging]{A sample of proton events from different $K$-means clusters from the filtered data set. The bottom row shows proton samples that are intermingled with noise events in the models' predictions, and the top row belongs to a cluster that contains proton events almost exclusively. Each row belongs to a single cluster corresponding to the filtered confusion matrix in Fig.~\ref{fig:clster_confmati_filt}}\label{fig:filtered_vgg_clster_repr}
+\caption[Filtered proton samples by cluster belonging]{A sample of proton events from different $k$-means clusters from the filtered data set. The bottom row shows proton samples that are intermingled with noise events in the models' predictions, and the top row belongs to a cluster that contains proton events almost exclusively. Each row belongs to a single cluster corresponding to the filtered confusion matrix in Fig.~\ref{fig:clster_confmati_filt}. While the events in the pure proton cluster are visually distinct from the impure cluster, the difference is less pronounced than what we observe for the full data-set in figure \ref{fig:full_vgg_clster_repr}. }\label{fig:filtered_vgg_clster_repr}.
 \end{figure} 
 
 \begin{figure}
 \includegraphics[width=\textwidth]{custom_work/Rawexamples.pdf}
-\caption[Full proton samples by cluster belonging]{Illustration of  a sample of proton events from different $K$-means clusters originating from the raw data set. Each row belongs to a single cluster corresponding to the full confusion matrix in Fig.~\ref{fig:clster_confmati_raw}}\label{fig:full_vgg_clster_repr}
+\caption[Full proton samples by cluster belonging]{A random sample of proton events from different $k$-means clusters from the raw data set.  Each row belongs to a single cluster corresponding to the full confusion matrix in Fig.~\ref{fig:clster_confmati_raw}. The proton events in the cluster corresponding to the first row appear more visually distinct from other reaction types while the proton events corresponding to the cluster in the bottom row appear visually more similar to other reaction types in our dataset. }\label{fig:full_vgg_clster_repr}
 \end{figure} 
 
 
@@ -457,70 +462,70 @@ We display these examples in Figs.~\ref{fig:filtered_vgg_clster_repr} and \ref{f
 In the previous section we demonstrated a powerful, but rather naive, clustering technique for AT-TPC track identification. To build on this result we will in this section explore the application of the mixture of autoencoders (MIXAE) algorithm introduced in section \ref{sec:mixae}.
 For details on hyper-parameter tuning and the experimental procedure for training the MIXAE algorithm see the \ref{ax: mixae}. 
 
-With the best set of hyperparameters, each highest performing model is thereafter run $10$ times\footnote{The MIXAE model is significantly more computationally expensive to train than a $K$-means model. Resulting in the skew in number of runs in the two cases.}. The results are listed in table \ref{tab:clstr_mixae}.
+With the best set of hyperparameters, each highest performing model is thereafter run $10$ times\footnote{The MIXAE model is significantly more computationally expensive to train than a $k$-means model. Resulting in the skew in number of runs in the two cases.}. The results are listed in Table \ref{tab:clstr_mixae}.
 We observe that, while the algorithm can achieve a very strong performance, the performance varies. In some cases the MIXAE model converges to a seemingly good configuration, based on its unsupervised training goals. However, when inspecting its clustering performance against labelled data, the seemingly good model does no better than a model based on random selection. 
 This happens more frequently with the raw data, indicating an interaction with the noise levels present in the events. 
  
 % This table is not properly explained, what is init=10? and what is top 1? 
 \begin{table}[H]
 \centering 
-\caption[MIXAE clustering performance]{MIXAE clustering performance on the ${}^{46} Ar$ experimental data with $N=10$ runs of the algorithm. To quantify the results we report the best performing model (Top 1), and the mean and standard deviation for the result ($\mu\pm \sigma$). In contrast with the VGG-16 + $K$-means approach we observe  significant variations in performance.}\label{tab:clstr_mixae}
+\caption[MIXAE clustering performance]{MIXAE clustering performance on the ${}^{46} Ar$ experimental data with $N=10$ runs of the algorithm. To quantify the results we report the best performing model (Top 1), and the mean and standard deviation for the result ($\mu\pm \sigma$). In contrast with the VGG-16 + $k$-means approach we observe  significant variations in performance.}\label{tab:clstr_mixae}
 \input{./plots/mixae_clustering.tex}
 \end{table}
 
 As with the VGG16 + $K$-Means approach we wish to further investigate the clustering results. Taking the best performing MIXAE model on filtered and raw data we tabulate the clusters against their labels. These tables are present in Figs.~\ref{fig:mixae_confmat_filtered} and \ref{fig:mixae_confmat_raw} for filtered and raw data, respectively.
 
-Applied to raw data the MIXAE captures a proton cluster in a similar vein to the $K$-means approach. The MIXAE forms a proton-majority cluster, but with a significant portion of the more noisy proton events being clustered with the other-class. Additionally, we do not observe the carbon events being separated from either the amorphous noise events or from the proton cluster. 
+Applied to raw data the MIXAE captures a proton cluster in a similar vein to the $k$-means approach. The MIXAE forms a proton-majority cluster, but with a significant portion of the more noisy proton events being clustered with the other-class. Additionally, we do not observe the carbon events being separated from either the amorphous noise events or from the proton cluster. 
 
 On filtered data the highest performing MIXAE model achieves strong separation of the other-class, but curiously creates two proton-majority clusters.
  
 
 
-The most striking result we present in this work is the success of the $K$-means approach. As noted by \cite{Aggarwal}, distance measures become less informative in higher dimensional spaces, but the $K$-means algorithm clusters events well in a very high-dimensional space.
-Another surprise is the stability of the $K$-means algorithm. We attribute this stability to the quality of the VGG16 latent space in creating class-separating sub-spaces. While the separations are not perfect, the stability and quality of the proton track identification create solid empirical grounding for applying this approach to other active target experiments. 
+The most striking result we present in this work is the success of the $k$-means approach. As noted by \cite{Aggarwal}, distance measures become less informative in higher dimensional spaces, but the $k$-means algorithm clusters events well in our fairly high-dimensional VGG latent spaces.
+Another surprise is the stability of the $k$-means algorithm. We attribute this stability to the quality of the VGG16 latent space in creating class-separating sub-spaces. While the separations are not perfect, the stability and quality of the proton track identification create solid empirical grounding for applying this approach to other active target experiments. 
 
 
-It is also interesting to compare and contrast the clustering results from the MIXAE model with those of the VGG16 with the  $K$-means approach. In particular, the discrepancy in stability is worth noting. While the top performing MIXAE runs outperform the $K$-means approach, its reliability suffers. However, the high performance achieved indicates that this may represent a valuable potential research path into more tailored models for unsupervised track identification.
+It is also interesting to compare and contrast the clustering results from the MIXAE model with those of the VGG16 with the  $k$-means approach. In particular, the discrepancy in stability is worth noting. While the top performing MIXAE runs outperform the $k$-means approach, its reliability suffers. However, the high performance achieved indicates that this may represent a valuable potential research path into more tailored models for unsupervised track identification.
 
 
 \subsection{Alternative approaches}
 
-In addition to the results presented in this section, we performed clustering with a number of different algorithms included in the Scikit-learn package of \citet{Pedregosa2011}. None of them provided any notable differences from the $K$-means results or were significantly worse. Notably, the DBSCAN algorithm \cite{Ester96adensity-based,Bergstra2012} failed to provide any useful clustering results. We find this important as one of the significant drawbacks of $K$-means, and the deep clustering algorithm presented in section \ref{sec:mixae}, is that they depend  on pre-determining the number of clusters. This is not the case for DBSCAN. 
+In addition to the results presented in this section, we performed clustering with a number of different algorithms included in the \texttt{scikit-learn} package of \citet{Pedregosa2011}. None of them provided any notable differences from the $k$-means results or were significantly worse. Notably, the DBSCAN algorithm \cite{Ester96adensity-based,Bergstra2012} failed to provide any useful clustering results. We find this important as one of the significant drawbacks of $k$-means, and the deep clustering algorithm presented in section \ref{sec:mixae}, is that they depend  on pre-determining the number of clusters. This is not the case for DBSCAN. 
 
 Additionally, we considered the deep convolutional embedded clustering (DCEC) approach by \citet{Guo2017} as well as the MIXAE method introduced by \citet{Zhang}. While we were able to reproduce the authors' results on their data, the DCEC algorithm proved unable to cluster AT-TPC data in our implementation. Further details on these experiments are presented in the thesis by \citet{SolliThesis}.
 
-However, this provides valuable insight as the seeds of the clusters are constructed by a $K$-means algorithm. This insight contrasts with our positive results from applying a pre-trained classification model with $K$-means and highlights potentially significant differences in models trained on a supervised or unsupervised objective for clustering tasks in nuclear physics. 
+However, this provides valuable insight as the seeds of the clusters are constructed by a $k$-means algorithm. This insight contrasts with our positive results from applying a pre-trained classification model with $k$-means and highlights potentially significant differences in models trained on a supervised or unsupervised objective for clustering tasks in nuclear physics. 
 
 \section{Conclusions and Perspectives}\label{sec:conclusion}
 % Begin edit by DB (6/17/2020)
 The purpose of this study has been to explore the application of unsupervised learning algorithms to event identification from an active target detector. The necessity to identify events from raw data prior to full processing is becoming a major issue in the data analysis of detectors with complex responses such as the AT-TPC.
 As shown by both avenues explored in this work, it is clear that there is significant potential to eventually achieve event classification using fully automated unsupervised methods.
 
-In particular, the ability of the $K$-means algorithm in picking out clear proton clusters from the VGG16 latent space lends itself well to an exploratory phase of analysis, where clusters of events corresponding to different reaction channels could be later identified by the experimenter.
-Another interesting facet of the $K$-means clustering is its consistent performance. As shown in table \ref{tab:clstr_vgg10}, the variance is zero for the performance metrics. This result indicates that the clusters are very clearly defined in the VGG16 latent space. However, as can be seen from the non-proton clusters in Figs.~\ref{fig:clster_confmati_filt} and \ref{fig:clster_confmati_raw},  this does not necessarily imply that the physical signals are correspondingly clear.  Furthermore, the unsupervised metric that decides which of the $M$ $K$-means initializations perform the best does not necessarily coincide perfectly with separating the event classes. This is evidenced by the highest performing model measured on labelled data (Top 1) for the raw data showing up in table \ref{tab:clstr_vgg1}, and being filtered out from table \ref{tab:clstr_vgg10}.
+In particular, the ability of the $k$-means algorithm in picking out clear proton clusters from the VGG16 latent space lends itself well to an exploratory phase of analysis, where clusters of events corresponding to different reaction channels could be later identified by the experimenter.
+Another interesting facet of the $k$-means clustering is its consistent performance. As shown in Table \ref{tab:clstr_vgg10}, the variance is zero for the performance metrics. This result indicates that the clusters are very clearly defined in the VGG16 latent space. However, as can be seen from the non-proton clusters in Figs.~\ref{fig:clster_confmati_filt} and \ref{fig:clster_confmati_raw},  this does not necessarily imply that the physical signals are correspondingly clear.  Furthermore, the unsupervised metric that decides which of the $M$ $k$-means initializations perform the best does not necessarily coincide perfectly with separating the event classes. This is evidenced by the highest performing model measured on labelled data (Top 1) for the raw data showing up in Table \ref{tab:clstr_vgg1}, and being filtered out from Table \ref{tab:clstr_vgg10}.
 
-A caveat to the $K$-means method is that the number of clusters has to be specified in advance. Each experiment then has to be considered in light of possible reaction channels to determine a sensible number of clusters for this approach. 
+A caveat to the $k$-means method is that the number of clusters has to be specified in advance. Each experiment then has to be considered in light of possible reaction channels to determine a sensible number of clusters for this approach. 
 
-The same caveat is present in the MIXAE implementation. While it shows better optimal performance than the $K$-means method, some inconsistencies were observed that were notably not evident from the unsupervised training-objectives of the model. These two factors currently conspire to limit its immediate applicability, and more developments are needed for this approach. 
+The same caveat is present in the MIXAE implementation. While it shows better optimal performance than the $k$-means method, some inconsistencies were observed that were notably not evident from the unsupervised training-objectives of the model. These two factors currently conspire to limit its immediate applicability, and more developments are needed for this approach. 
 
-In summary, our study shows that unsupervised track classification with an implementation of the VGG16 and the  $K$-means approach is a viable solution. For future work, it is worth investigating whether the adaptation of  models like the MIXAE algorithm will allow better performance at no significant cost to consistency.  
+In summary, our study shows that unsupervised track classification with an implementation of the VGG16 and the  $k$-means approach is a viable solution. For future work, it is worth investigating whether the adaptation of  models like the MIXAE algorithm will allow better performance at no significant cost to consistency.  
 %Especially considering the flexibility to use 3D input representations or auxiliary physical goals in the optimization procedure. 
-The two examples of unsupervised machine learning methods studied in this work are a first encouraging step towards automated classification of events that could not only greatly reduce the resource cost of analysis, but also eventually boost the efficiency of the experiment by allowing post-trigger decisions based on such algorithm implemented in hardware. %Much progress remains to be done before achieving these goals.
+The two examples of unsupervised machine learning methods studied in this work are a first encouraging step towards automated selection of similar events that could  greatly reduce the resource cost of analysis. Selection and classification algorithms have the potential to eventually boost the efficiency of the experiment by allowing post-trigger decisions based on such algorithm implemented in hardware. %Much progress remains to be done before achieving these goals.
 % End edit by DB (6/17/2020)
 %From our analysis it is clear that we are a ways off from a fully automated unsupervised method for track classification. {\color{orange}[flip this to positive ]} It is also clear that there is significant potential in both avenues explored in this work. 
-%n particular, the surprising ability of the $K$-means algorithm in picking out clear proton clusters from the VGG16 latent space lends itself well to an exploratory phase of analysis.
-%Another surprising facet of the $K$-means clustering is its consistent performance. As shown in table \ref{tab:clstr_vgg}, the variance is zero for the performance metrics. This result indicates that the clusters are very clearly defined in the VGG16 latent space. As we see from the non-proton clusters if figures \ref{fig:clster_confmati_filt} and \ref{fig:clster_confmati_raw}  that does not necessarily imply that the physical signals are correspondingly clear. 
+%n particular, the surprising ability of the $k$-means algorithm in picking out clear proton clusters from the VGG16 latent space lends itself well to an exploratory phase of analysis.
+%Another surprising facet of the $k$-means clustering is its consistent performance. As shown in Table \ref{tab:clstr_vgg}, the variance is zero for the performance metrics. This result indicates that the clusters are very clearly defined in the VGG16 latent space. As we see from the non-proton clusters if figures \ref{fig:clster_confmati_filt} and \ref{fig:clster_confmati_raw}  that does not necessarily imply that the physical signals are correspondingly clear. 
 
-%Additionally, a clear disadvantage to the $K$-means method is that the researcher has to specify the number of clusters in the data themselves. Each experiment then has to be considered in light of possible reaction channels to determine a sensible number of clusters for this approach. 
+%Additionally, a clear disadvantage to the $k$-means method is that the researcher has to specify the number of clusters in the data themselves. Each experiment then has to be considered in light of possible reaction channels to determine a sensible number of clusters for this approach. 
 
-%The same weakness is present in the MIXAE implementation. Additionally, while it showed better optimal performance than the $K$-means method, it struggles with inconsistent results. This inconsistency was also notably not evident from the unsupervised training-objectives of the model. These two factors conspire to limit its immediate applicability. 
+%The same weakness is present in the MIXAE implementation. Additionally, while it showed better optimal performance than the $k$-means method, it struggles with inconsistent results. This inconsistency was also notably not evident from the unsupervised training-objectives of the model. These two factors conspire to limit its immediate applicability. 
 
-%In summary, we recommend that researchers performing unsupervised track classification begin with an implementation of the VGG16 + $K$-means approach. For future work, it is worth investigating whether the adaptations of bespoke models like the MIXAE algorithm will allow better performance at no significant cost to consistency.  Especially considering the flexibility to use 3D input representations or auxiliary physical goals in the optimization procedure. 
+%In summary, we recommend that researchers performing unsupervised track classification begin with an implementation of the VGG16 + $k$-means approach. For future work, it is worth investigating whether the adaptations of bespoke models like the MIXAE algorithm will allow better performance at no significant cost to consistency.  Especially considering the flexibility to use 3D input representations or auxiliary physical goals in the optimization procedure. 
 
 
 %{\color{orange}[RS Another abrupt end to a paragraph. Could probably use some rounding out.]} 
 \subsection*{Acknowledgements}
-MHJ’s work is supported by the U.S. Department of Energy, Office of Science, office of Nuclear Physics under grant No. DE-SC0021152 and U.S. National Science Foundation Grants No. PHY-1404159 and PHY-2013047. DB's work is supported by the U.S. Department of Energy, Office of Science, Office of Nuclear Physics, under Grant No. DE-SC0020451. This project has also received support from the INTPART project of the Research Council of Norway (Grant No. 288125) and the Davidson Research Initiative. 
+MHJ’s work is supported by the U.S. Department of Energy, Office of Science, office of Nuclear Physics under grant No. DE-SC0021152 and U.S. National Science Foundation Grants No. PHY-1404159 and PHY-2013047. DB's work is supported by the U.S. Department of Energy, Office of Science, Office of Nuclear Physics, under Grant No. DE-SC0020451. This material is based upon work supported by the National Science Foundation under Grant No. PHY-2012865  (MPK). This project has also received support from the INTPART project of the Research Council of Norway (Grant No. 288125) and the Davidson Research Initiative. 
 
 \appendix  
 
@@ -535,12 +540,12 @@ VGGnet models are distributed freely with weights trained on the ImageNet \cite{
 \section{MIXAE hyper-parameter tuning}\label{ax: mixae}
 
 In the MIXAE algorithm the hyper-parameters to adjust are all the ordinary parameters associated with a neural network. We chose to base our neural network parameter choices on the VGG16 architecture. 
-The parameters chosen for the autoencoders are listed in full in table \ref{tab:mixe_ae_hyperparams}.
+The parameters chosen for the autoencoders are listed in full in Table \ref{tab:mixe_ae_hyperparams}.
 
 In addition to those parameters we have the weighting of the loss terms: $\theta$, $\alpha$ and $\gamma$. These weighting parameters are attached to the reconstruction loss, sample entropy and batch-wise entropy respectively \cite{Zhang}. 
 We focused on the tuning of the clustering hyper-parameters, and defined the autoencoder hyper-parameters to be a shallow $3\times3$ convolutional network as detailed in the previous paragraph.  
 
-To train the MIXAE clustering algorithm, we use a large simulated data set with $M=80000$ points, evenly distributed between proton- and carbon-events. The algorithm is trained on a subset of $60000$ of these samples, and we track performance on the remaining $20000$ events. On real data the algorithm is trained on an unlabelled set of data, and evaluated on a labelled subset\footnote{see table \ref{tab:data sets} for details}. Since there are then only three remaining hyperparameters we choose to perform a coarse grid-search for the optimal configuration. Finally, for the best parameters we re-ran the algorithm $N=10$ times to investigate the stability of the algorithm.
+To train the MIXAE clustering algorithm, we use a large simulated data set with $M=80000$ points, evenly distributed between proton- and carbon-events. The algorithm is trained on a subset of $60000$ of these samples, and we track performance on the remaining $20000$ events. On real data the algorithm is trained on an unlabelled set of data, and evaluated on a labelled subset\footnote{see Table \ref{tab:data sets} for details}. Since there are then only three remaining hyperparameters we choose to perform a coarse grid-search for the optimal configuration. Finally, for the best parameters we re-ran the algorithm $N=10$ times to investigate the stability of the algorithm.
 
 \begin{table}
 \centering
@@ -555,7 +560,7 @@ $\gamma$ & $[3,\, 5]$ & Logarithmic
 \end{tabular}
 \end{table}
 
-The grids selected for the search are listed in table \ref{tab:mixae_loss_weights}. The search yielded an optimal configuration with 
+The grids selected for the search are listed in Table \ref{tab:mixae_loss_weights}. The search yielded an optimal configuration with 
 
 \begin{align}
 \theta = 10^{-1}, \\
@@ -571,7 +576,7 @@ For the full data set the MIXAE hyperparameters converge to the same values as f
 \gamma &= 3.162\times 10^3.
 \end{align}
 
-Lastly we supply the configuration used for the individual convolutional autoencoder networks in table \ref{tab:mixe_ae_hyperparams}
+Lastly we supply the configuration used for the individual convolutional autoencoder networks in Table \ref{tab:mixe_ae_hyperparams}
 
 \begin{table}[H]
 \renewcommand*{\arraystretch}{0.5}
@@ -607,7 +612,7 @@ $\beta_2$ & $0.99$ \\
 
 \section{Data}
 
-The data used  for the analysis in this work were partitioned as shown in table \ref{tab:data sets}. 
+The data used  for the analysis in this work were partitioned as shown in Table \ref{tab:data sets}. 
 \begin{table}[hbtp]
 \centering
 \caption{Descriptions of number of events in the data.}\label{tab:data sets}
@@ -623,7 +628,7 @@ Labelled & $2400$ & $1774$ &  $1582$ \\
 
 \section{Clustering confusion tables}
 
-To elucidate the results presented in tables \ref{tab:clstr_mixae} and \ref{tab:clstr_vgg1} we computed clustering confusion-matrices. These matrices show a more detailed picture of intermingled classes in a clustering or classification task where ground truth labels are available. In the figures below we tabulate the clusters, as predicted by the algorithm, along the x-axis. Each cluster is decomposed in its ground-truth members along the y-axis.
+To elucidate the results presented in Tables \ref{tab:clstr_mixae} and \ref{tab:clstr_vgg1} we computed clustering confusion-matrices. These matrices show a more detailed picture of intermingled classes in a clustering or classification task where ground truth labels are available. In the figures below we tabulate the clusters, as predicted by the algorithm, along the x-axis. Each cluster is decomposed in its ground-truth members along the y-axis.
 
 In this view, a perfect clustering algorithm will produce a confusion matrix which only has nonzero elements in the primary diagonal under free permutation of its columns. 
 
@@ -631,18 +636,18 @@ In this view, a perfect clustering algorithm will produce a confusion matrix whi
 \begin{figure}
 \centering
 	\includegraphics[width=\textwidth]{custom_work/Simulatedcache_conf_mat.pdf} 
-	\caption[Pre-trained network - confusion matrices]{Confusion matrix for the $K$-means clustering of simulated AT-TPC events. The true labels indicate samples belonging to the p (proton), or the carbon (C) class. We observe very high quality separation between the proton and carbon classes.}\label{fig:clster_confmat_sim}
+	\caption[Pre-trained network - confusion matrices]{Confusion matrix for the $k$-means clustering of simulated AT-TPC events. The true labels indicate samples belonging to the p (proton), or the carbon (C) class. We observe very high quality separation between the proton and carbon classes.}\label{fig:clster_confmat_sim}
 \end{figure}
 
 \begin{figure}
 \centering
 	\includegraphics[width=\textwidth]{custom_work/Filteredcache_conf_mat.pdf}
-	\caption[Pre-trained network - confusion matrices]{Confusion matrix for the $K$-means clustering of filtered AT-TPC events. The true labels indicate samples belonging to the p (proton), carbon (C), or other classes. Each column denotes a cluster, with each cell in the column denoting the count of that rows' class in the cluster. We observe that cluster 2 is a high quality proton event cluster }\label{fig:clster_confmati_filt}
+	\caption[Pre-trained network - confusion matrices]{Confusion matrix for the $k$-means clustering of filtered AT-TPC events. The true labels indicate samples belonging to the p (proton), carbon (C), or other classes. Each column denotes a cluster, with each cell in the column denoting the count of that rows' class in the cluster. We observe that cluster 2 is a high quality proton event cluster }\label{fig:clster_confmati_filt}
 \end{figure}
 
 \begin{figure}
 	\includegraphics[width=\textwidth]{custom_work/Rawcache_conf_mat.pdf}
-\caption[Pre-trained network - confusion matrices]{Confusion matrix for the $K$-means clustering of raw AT-TPC events. The true labels indicate samples belonging to the p (proton), carbon (C), or other classes. Each column denotes a cluster, with each cell in the column denoting the count of that rows' class in the cluster. We observe that cluster 2 is a high quality proton event cluster }\label{fig:clster_confmati_raw}
+\caption[Pre-trained network - confusion matrices]{Confusion matrix for the $k$-means clustering of raw AT-TPC events. The true labels indicate samples belonging to the p (proton), carbon (C), or other classes. Each column denotes a cluster, with each cell in the column denoting the count of that rows' class in the cluster. We observe that cluster 2 is a high quality proton event cluster }\label{fig:clster_confmati_raw}
 \end{figure}
 
 
@@ -655,7 +660,7 @@ In this view, a perfect clustering algorithm will produce a confusion matrix whi
 \begin{figure}
 \centering
 	\includegraphics[width=\textwidth]{custom_work/Raw_mixae_conf_mat.pdf}
-\caption[MIXAE - confusion matrices]{Confusion matrices for the MIXAE clustering algorithm on raw AT-TPC events. The true labels indicate samples belonging to the p (proton), carbon (C), or \texttt{other} classes. We observe that the algorithm correctly captures a majority proton-event cluster in cluster 0. However, in contrast with the $K$-means approach this cluster is contaminated to some extent with both carbon events and other events. }\label{fig:mixae_confmat_raw}
+\caption[MIXAE - confusion matrices]{Confusion matrices for the MIXAE clustering algorithm on raw AT-TPC events. The true labels indicate samples belonging to the p (proton), carbon (C), or \texttt{other} classes. We observe that the algorithm correctly captures a majority proton-event cluster in cluster 0. However, in contrast with the $k$-means approach this cluster is contaminated to some extent with both carbon events and other events. }\label{fig:mixae_confmat_raw}
 \end{figure}
 
 
